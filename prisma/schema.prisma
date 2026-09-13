@@ -1,0 +1,424 @@
+// Prisma schema for Limove OS
+// Stack: PostgreSQL, Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ AUTH ============
+
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String // "Лёша", "Гена"
+  email          String   @unique
+  passwordHash   String
+  role           String   @default("partner") // partner | admin
+  telegramChatId Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  transactions Transaction[] @relation("TransactionPaidBy")
+}
+
+// ============ PROJECTS ============
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  name        String
+  description String?
+  status      String   @default("ACTIVE") // ACTIVE | ARCHIVED | PAUSED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  transactions Transaction[]  @relation("TransactionProject")
+  credentials  Credential[]
+  domains      DomainRecord[]
+  tasks        Task[]
+  notes        Note[]
+  files        ProjectFile[]
+  invoices     Invoice[]
+  siteMonitors SiteMonitor[]
+  metricCounters  YandexMetricCounter[]
+  webmasterHosts  YandexWebmasterHost[]
+  trackedKeywords TrackedKeyword[]
+  positionSnapshots PositionSnapshot[]
+  acts        ActOfWorks[]
+}
+
+// ============ FINANCE ============
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  type        String // INCOME | EXPENSE
+  amount      Decimal  @db.Decimal(12, 2)
+  description String
+  paidById    Int
+  paidBy      User     @relation("TransactionPaidBy", fields: [paidById], references: [id])
+  projectId   Int?
+  project     Project? @relation("TransactionProject", fields: [projectId], references: [id])
+  category    String // Обслужка | Налог | Хостинг | Подписка | VPN | Другое
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([type, date])
+  @@index([projectId])
+  @@map("transactions")
+}
+
+model ExpenseTemplate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  amount    Decimal  @db.Decimal(12, 2)
+  category  String
+  createdAt DateTime @default(now())
+
+  @@map("expense_templates")
+}
+
+// ============ CREDENTIALS (пароли) ============
+
+model Credential {
+  id          Int       @id @default(autoincrement())
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+  serviceName String // "WordPress", "Tilda", "Почта", "Хостинг"
+  login       String?
+  passwordEnc String // зашифрованный пароль AES-256-GCM
+  url         String?
+  expiresAt   DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("credentials")
+}
+
+// ============ DOMAINS & SUBSCRIPTIONS ============
+
+model DomainRecord {
+  id           Int      @id @default(autoincrement())
+  projectId    Int?
+  project      Project? @relation(fields: [projectId], references: [id])
+  name         String // "Домен", "Хостинг", "Тильда"
+  value        String // rskrsk.ru
+  expiresAt    DateTime
+  reminderDays Int      @default(7)
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  @@map("domain_records")
+}
+
+// ============ TASKS (Kanban) ============
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+  title       String
+  description String?
+  status      String    @default("BACKLOG") // BACKLOG | TODO | IN_PROGRESS | REVIEW | DONE
+  priority    String    @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
+  assigneeId  Int? // partner id
+  dueDate     DateTime?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  files    TaskFile[]
+  comments TaskComment[]
+
+  @@map("tasks")
+}
+
+model TaskFile {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  fileName  String
+  filePath  String
+  createdAt DateTime @default(now())
+
+  @@map("task_files")
+}
+
+model TaskComment {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+
+  @@map("task_comments")
+}
+
+// ============ NOTES & FILES ============
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  title     String
+  content   String // Markdown / rich-text
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
+}
+
+model ProjectFile {
+  id         Int      @id @default(autoincrement())
+  projectId  Int
+  project    Project  @relation(fields: [projectId], references: [id])
+  fileName   String
+  filePath   String
+  fileSize   Int
+  mimeType   String
+  uploadedBy Int
+  createdAt  DateTime @default(now())
+
+  @@map("project_files")
+}
+
+// ============ INVOICES (счета и чеки) ============
+
+model Invoice {
+  id            Int       @id @default(autoincrement())
+  invoiceNumber String?   @unique // INV-XXXX
+  description   String
+  amount        Decimal   @db.Decimal(12, 2)
+  projectId     Int?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  status        String    @default("PENDING") // PENDING | PAID | CANCELLED
+  paymentMethod String? // CASH | BANK_TRANSFER
+  paidById      Int? // partner who received money
+  dueDate       DateTime?
+  // files (счёт, чек)
+  invoiceFile   String? // path
+  receiptFile   String? // path
+  paidDate      DateTime?
+  cancelledAt   DateTime?
+  cancelReason  String?
+  createdById   Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status, dueDate])
+  @@map("invoices")
+}
+
+// ============ FINANCIAL GOAL (цель на год) ============
+
+model FinancialGoal {
+  id           Int      @id @default(autoincrement())
+  year         Int      @unique
+  targetAmount Decimal  @db.Decimal(12, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("financial_goals")
+}
+
+// ============ VPN ============
+
+model VpnSubscription {
+  id          Int       @id @default(autoincrement())
+  provider    String // "Happ", "Amnezia", "Oversub", "2kabana"
+  serverName  String?
+  clientName  String // "Мария Емельяново"
+  url         String? // ссылка/ключ
+  connectedAt DateTime?
+  expiresAt   DateTime?
+  status      String    @default("ACTIVE") // ACTIVE | REVOKED | EXPIRED
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("vpn_subscriptions")
+}
+
+// ============ ELEMENTX ============
+
+model ElementxUser {
+  id           Int       @id @default(autoincrement())
+  fullName     String // "Вадим Исмагилович"
+  login        String    @unique
+  registerDate DateTime  @default(now())
+  paidDate     DateTime?
+  company      String?
+  status       String    @default("TRIAL") // TRIAL | PAID | READY_UNPAID | NOT_INSTALLED | EXPIRED
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("elementx_users")
+}
+
+// ============ MONITORING ============
+
+model SiteMonitor {
+  id            Int       @id @default(autoincrement())
+  url           String    @unique // https://rskrsk.ru
+  name          String // "Камни"
+  projectId     Int?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  isActive      Boolean   @default(true)
+  checkInterval Int       @default(300) // seconds
+  lastStatus    Int? // HTTP код
+  lastLatency   Int? // ms
+  isError       Boolean   @default(false)
+  downSince     DateTime?
+  checkedAt     DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+
+  @@map("site_monitors")
+}
+
+model SiteCheck {
+  id         Int      @id @default(autoincrement())
+  siteId     Int
+  statusCode Int?
+  latencyMs  Int
+  isError    Boolean  @default(false)
+  checkedAt  DateTime @default(now())
+
+  @@index([siteId, checkedAt])
+  @@map("site_checks")
+}
+
+// ============ NOTIFICATIONS ============
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  type      String // INVOICE | RECEIPT | DOMAIN | MONITOR | VPN | TASK
+  isRead    Boolean  @default(false)
+  sentToTg  Boolean  @default(false)
+  tgFileId  String? // для отправки файла в TG
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+// ============ YANDEX ANALYTICS (Метрика + Вебмастер) ============
+
+// OAuth token (шифруется). Один на сервис/проект.
+model YandexToken {
+  id           Int      @id @default(autoincrement())
+  service      String   // METRIKA | WEBMASTER
+  accessToken  String   // шифр AES-GCM
+  refreshToken String?
+  expiresAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  metricCounters YandexMetricCounter[]
+  webmasterHosts YandexWebmasterHost[]
+
+  @@index([service])
+  @@map("yandex_tokens")
+}
+
+// Подключённый счётчик Метрики
+model YandexMetricCounter {
+  id         Int       @id @default(autoincrement())
+  projectId  Int       @unique
+  project    Project   @relation(fields: [projectId], references: [id])
+  counterId  Int
+  name       String
+  tokenId    Int?
+  token      YandexToken? @relation(fields: [tokenId], references: [id])
+  lastSyncAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@map("yandex_metric_counters")
+}
+
+// Посуточный кеш статистики счётчика (пункт G)
+model MetricSnapshot {
+  id           Int      @id @default(autoincrement())
+  counterId    Int
+  date         DateTime
+  visits       Int      @default(0)
+  users        Int      @default(0)
+  pageviews    Int      @default(0)
+  bounces      Int      @default(0)
+  avgSec       Int      @default(0)
+  goalReaches  Int      @default(0)
+  goals        String?  // список учтённых целей через запятую
+  createdAt    DateTime @default(now())
+
+  @@index([counterId, date])
+  @@map("metric_snapshots")
+}
+
+// Хост в Вебмастере
+model YandexWebmasterHost {
+  id         Int       @id @default(autoincrement())
+  projectId  Int       @unique
+  project    Project   @relation(fields: [projectId], references: [id])
+  userId     String
+  hostId     String
+  hostUrl    String
+  tokenId    Int?
+  token      YandexToken? @relation(fields: [tokenId], references: [id])
+  lastSyncAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@map("yandex_webmaster_hosts")
+}
+
+// Отслеживаемый ключевой запрос (для A)
+model TrackedKeyword {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  keyword   String
+  createdAt DateTime @default(now())
+
+  snapshots PositionSnapshot[]
+
+  @@unique([projectId, keyword])
+  @@map("tracked_keywords")
+}
+
+// Снимок позиции по ключу (кеш A)
+model PositionSnapshot {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  keywordId Int?
+  keyword   TrackedKeyword? @relation(fields: [keywordId], references: [id])
+  date      DateTime @default(now())
+  position  Int? // ср. позиция показа
+  shows     Int?
+  clicks    Int?
+
+  @@index([projectId, date])
+  @@map("position_snapshots")
+}
+
+// Акт выполненных работ (пункт 5)
+model ActOfWorks {
+  id         Int      @id @default(autoincrement())
+  projectId  Int
+  project    Project  @relation(fields: [projectId], references: [id])
+  month      String   // "YYYY-MM"
+  number     String
+  contractNo String?
+  fileUrl    String?
+  total      Decimal  @db.Decimal(12, 2)
+  createdAt  DateTime @default(now())
+
+  @@unique([projectId, month])
+  @@map("acts_of_works")
+}

@@ -1,0 +1,11 @@
+date,type,amount,description,paidBy,project,category
+2026-09-01,INCOME,25000,Аванс за сайт 7 Гусей,aleksei@limove.ru,7-gusei,Доход
+2026-09-02,EXPENSE,1200,Продление хостинга,aleksei@limove.ru,7-gusei,Хостинг
+2026-09-03,EXPENSE,490,VPN ключ 2kabana,aleksei@limove.ru,,VPN
+2026-09-04,INCOME,18000,Этап 2 Наследник,genadiy@limove.ru,naslednik,Доход
+2026-09-05,EXPENSE,3500,Директ кампания,aleksei@limove.ru,sibtop,Директ
+2026-09-06,EXPENSE,890,Тильда подписка,aleksei@limove.ru,,Подписка
+2026-09-07,INCOME,9000,Настройка VPN клиент,genadiy@limove.ru,,VPN
+2026-09-08,EXPENSE,2200,Контент 7 Гусей,aleksei@limove.ru,7-gusei,Контент
+2026-09-09,INCOME,15000,Аванс SibTop,aleksei@limove.ru,sibtop,Доход
+2026-09-10,EXPENSE,1400,Домен naslednik24.ru,aleksei@limove.ru,naslednik,Хостинг

@@ -1,0 +1,5 @@
+provider,serverName,clientName,url,connectedAt,expiresAt,status,notes
+Happ,Germany,Мария Емельяново,https://happ.gg/sub/abc123,2025-02-19,2025-03-19,ACTIVE,Тестовая
+Amnezia,Amsterdam,Люба,,2025-08-17,,ACTIVE,2 подписки 400р
+2kabana,,Наследник,https://2kabana.ru/link/xyz,2025-04-07,,ACTIVE,Основной
+Oversub,France,Иван К.,vless://...,2026-01-10,2026-07-10,ACTIVE,VLESS ключ

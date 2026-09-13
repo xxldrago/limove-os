@@ -1,0 +1,6 @@
+fullName,login,registerDate,paidDate,company,status,notes
+Пётр Кузнецов,petr,2026-09-01,2026-09-01,7 Гусей,PAID,Первый клиент
+Ольга Смирнова,olga,2026-09-03,,WomanDreams,TRIAL,Тест 7 дней
+Игорь Ветров,igor,2026-09-05,,SibTop,READY_UNPAID,Ждём оплату
+Анна Липова,anna,2026-09-07,,Наследник,NOT_INSTALLED,Нужна установка
+Денис Крылов,denis,2026-09-09,2026-09-10,7 Гусей,PAID,Продлён

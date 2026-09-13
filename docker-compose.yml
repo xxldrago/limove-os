@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: limove-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: limove
+      POSTGRES_USER: limove
+      POSTGRES_PASSWORD: limove_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backups:/app/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U limove -d limove"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: limove-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://limove:limove_pass@db:5432/limove?schema=public
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      # node_modules as named volume (Linux binaries, not Windows)
+      - node_modules:/app/node_modules
+      # Source for hot reload
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./public:/app/public
+      - ./scripts:/app/scripts
+      - ./.eslintrc.json:/app/.eslintrc.json
+      - ./tailwind.config.ts:/app/tailwind.config.ts
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./next.config.mjs:/app/next.config.mjs
+      - uploads_data:/app/uploads
+      - ./backups:/app/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "if [ ! -d node_modules/next ] || [ ! -d node_modules/.prisma ]; then
+               npm install --legacy-peer-deps;
+             fi &&
+             npx prisma generate &&
+             npx prisma db push &&
+             npm run dev"
+
+volumes:
+  db_data:
+  node_modules:
+  uploads_data:
