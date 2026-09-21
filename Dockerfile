@@ -9,9 +9,11 @@ RUN npm install --legacy-peer-deps
 # Copy source
 COPY . .
 
-# Generate Prisma client at runtime (in docker-compose command)
-# This is done at container startup
+# Production build is baked into the image so container startup is instant
+# (no `next build` at runtime => no deploy downtime window).
+# Local dev still works: docker-compose overrides CMD with `npm run dev`.
+RUN npx prisma generate && npm run build
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma generate && npm run dev"]
+CMD ["sh", "-c", "npx prisma db push && npm start"]

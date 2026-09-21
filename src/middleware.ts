@@ -1,4 +1,12 @@
-export { default } from "next-auth/middleware";
+import { withAuth } from "next-auth/middleware";
+
+// Redirect unauthenticated users straight to /login (default would be
+// /api/auth/signin + an extra hop).
+export default withAuth({
+  pages: {
+    signIn: "/login",
+  },
+});
 
 export const config = {
   matcher: [
