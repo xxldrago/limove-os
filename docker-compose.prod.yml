@@ -1,0 +1,12 @@
+# Production overlay: baked code + `next start` instead of dev server.
+# Usage on server:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+services:
+  app:
+    command: >
+      sh -c "npx prisma generate &&
+             npx prisma db push &&
+             npm run build &&
+             npm start"
+    volumes: !reset
+      - uploads_data:/app/uploads
