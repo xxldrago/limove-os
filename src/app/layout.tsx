@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins, Roboto_Mono, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import "@/lib/monitor-init";
 import "@/lib/telegram-init";
@@ -9,9 +9,28 @@ import { QuickActionsFAB } from "@/components/quick-actions-fab";
 import { InstallBanner } from "@/components/install-banner";
 
 // Основной шрифт — Inter (как на limove.ru)
+// Maple Ridge: Poppins для заголовков, Roboto Mono для цифр, Nunito Sans для текста
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
+});
+
+const poppins = Poppins({
+  weight: ["500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-display",
+});
+
+const robotoMono = Roboto_Mono({
+  weight: ["400", "500", "600"],
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-roboto-mono",
+});
+
+const nunitoSans = Nunito_Sans({
+  weight: ["400", "600", "700"],
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
@@ -33,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#66FCF1",
+  themeColor: "#F2F5F8",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -45,7 +64,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`${inter.variable} dark`}>
+    <html
+      lang="ru"
+      className={`${inter.variable} ${poppins.variable} ${robotoMono.variable} ${nunitoSans.variable}`}
+    >
       <body className="antialiased">
         <Providers>
           {children}

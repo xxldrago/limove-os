@@ -9,6 +9,6 @@ export const config = {
      * - /login
      * - static files (_next, images, favicon, fonts)
      */
-    "/((?!api/auth|api/health|login|_next/static|_next/image|favicon.ico|manifest.json|sw.js|offline.html|icons|fonts).*)",
+    "/((?!api/auth|api/health|login|maple-preview|fern-preview|_next/static|_next/image|favicon.ico|manifest.json|sw.js|offline.html|icons|fonts).*)",
   ],
 };

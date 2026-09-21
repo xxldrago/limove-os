@@ -4,9 +4,6 @@ import { prisma } from "@/lib/prisma";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import {
   Table,
@@ -19,13 +16,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 import { FinancialGoalCard } from "@/components/finance/financial-goal-card";
+import { FernDashboard } from "@/components/fern/fern-dashboard";
 import { getTrafficDropFlags } from "@/lib/analytics-report";
 
 async function loadData() {
   const session = await getSession();
   if (!session?.user) redirect("/login");
 
-  const [projectCount, projects, transactions, incomeAgg, expenseAgg, invoices, domainRecords, siteMonitors] =
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [projectCount, projects, transactions, incomeAgg, expenseAgg, monthIncomeAgg, monthExpenseAgg, catGroups, invoices, domainRecords, siteMonitors] =
     await Promise.all([
       prisma.project.count(),
       prisma.project.findMany({
@@ -45,6 +46,22 @@ async function loadData() {
       prisma.transaction.aggregate({
         _sum: { amount: true },
         where: { type: "EXPENSE" },
+      }),
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: "INCOME", date: { gte: monthStart } },
+      }),
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: "EXPENSE", date: { gte: monthStart } },
+      }),
+      prisma.transaction.groupBy({
+        by: ["category"],
+        where: { type: "EXPENSE" },
+        _sum: { amount: true },
+        _count: { _all: true },
+        orderBy: { _sum: { amount: "desc" } },
+        take: 6,
       }),
       prisma.invoice.findMany({
         where: { status: { in: ["PENDING", "PAID"] } },
@@ -79,6 +96,8 @@ async function loadData() {
   const totalIncome = Number(incomeAgg._sum.amount ?? 0);
   const totalExpenses = Number(expenseAgg._sum.amount ?? 0);
   const profit = totalIncome - totalExpenses;
+  const monthIncome = Number(monthIncomeAgg._sum.amount ?? 0);
+  const monthExpenses = Number(monthExpenseAgg._sum.amount ?? 0);
 
   return {
     session,
@@ -88,6 +107,13 @@ async function loadData() {
     totalIncome,
     totalExpenses,
     profit,
+    monthIncome,
+    monthExpenses,
+    catGroups: catGroups.map((g) => ({
+      category: g.category,
+      spent: Number(g._sum.amount ?? 0),
+      txCount: g._count._all,
+    })),
     invoices,
     domainRecords,
     siteMonitors,
@@ -189,174 +215,84 @@ export default async function DashboardPage() {
     });
   }
 
+  const pendingBills = data.invoices.filter((i) => i.status === "PENDING");
+  const pendingBillsTotal = pendingBills.reduce((s, i) => s + Number(i.amount), 0);
+  const leftThisMonth = data.monthIncome - data.monthExpenses - pendingBillsTotal;
+  const spentBase = data.monthIncome > 0 ? data.monthIncome : data.monthExpenses + pendingBillsTotal;
+  const spentPct = spentBase > 0 ? Math.round(((data.monthExpenses + pendingBillsTotal) / spentBase) * 100) : 0;
+
+  const monthLabel = new Date().toLocaleDateString("ru-RU", { month: "long", year: "numeric" }).replace(/^./, (c) => c.toUpperCase());
+
+  const topCats = data.catGroups.slice(0, 3).map((g) => ({
+    name: g.category,
+    txCount: g.txCount,
+    spent: g.spent,
+    sharePct: data.totalExpenses > 0 ? Math.round((g.spent / data.totalExpenses) * 1000) / 10 : 0,
+  }));
+
+  const quietProjects = data.projects
+    .map((p) => ({ p, m: projectMoney(p) }))
+    .filter(({ m }) => m.income + m.expenses === 0)
+    .slice(0, 2)
+    .map(({ p }) => ({
+      id: p.id,
+      name: p.name,
+      detail: "Нет операций — запланировать первую",
+    }));
+
   return (
     <AppShell
       userName={data.session.user.name ?? undefined}
       userEmail={data.session.user.email ?? undefined}
     >
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold tracking-tight">Дашборд</h1>
+      <FernDashboard
+        monthLabel={monthLabel}
+        buckets={[
+          { id: "income", label: "Доход", amount: data.monthIncome, sub: `за месяц · всего ${formatMoney(data.totalIncome)}`, tone: "pos" },
+          { id: "bills", label: "Счета", amount: -pendingBillsTotal, sub: `${pendingBills.length} ждут оплаты`, tone: "neg" },
+          { id: "planned", label: "Плановые траты", amount: -data.monthExpenses, sub: `за месяц · всего ${formatMoney(data.totalExpenses)}`, tone: "active" },
+          { id: "goals", label: "Цели", amount: data.profit, sub: "накопления · доход минус расходы", tone: data.profit >= 0 ? "pos" : "neg" },
+        ]}
+        activeBucketId="planned"
+        leftThisMonth={leftThisMonth}
+        spentPct={spentPct}
+        categories={topCats}
+        unbudgeted={quietProjects}
+        plannedTotal={data.monthExpenses}
+      />
 
-        {/* To-do tail: actionable items */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <span>Что нужно сделать</span>
-              {todoItems.length > 0 && (
-                <Badge
-                  variant="outline"
-                  className={
-                    todoItems.some((t) => t.severity === "critical")
-                      ? "bg-red-500/15 text-red-600 border-red-500/40"
-                      : "bg-amber-400/20 text-amber-700 border-amber-500/40"
-                  }
-                >
-                  {todoItems.length}
-                </Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {todoItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Все в порядке 🎉</p>
-            ) : (
-              <ul className="divide-y">
-                {todoItems.map((item) => (
-                  <li key={item.key} className="py-2 first:pt-0 last:pb-0">
-                    <a
-                      href={item.href}
-                      className="flex items-center justify-between gap-3 text-sm hover:underline"
-                    >
-                      <span>{item.text}</span>
-                      <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
-                        {item.severity === "critical" ? "срочно" : "внимание"}
-                      </Badge>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Stat cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Проектов</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.projectCount}</div>
-              <p className="text-xs text-muted-foreground">активных проектов</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Доход</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-emerald-600">
-                {formatMoney(data.totalIncome)}
-              </div>
-              <p className="text-xs text-muted-foreground">всего поступлений</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Расходы</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {formatMoney(data.totalExpenses)}
-              </div>
-              <p className="text-xs text-muted-foreground">всего затрат</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Прибыль</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatMoney(data.profit)}
-              </div>
-              <p className="text-xs text-muted-foreground">доход минус расходы</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Financial goal for the year */}
-        <FinancialGoalCard />
-
-        {/* Projects list */}
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <div>
-          <h2 className="mb-3 text-lg font-semibold">Проекты</h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            {data.projects.map((project) => {
-              const m = projectMoney(project);
-              return (
-                <Card key={project.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">{project.name}</CardTitle>
-                      <Badge variant="secondary">{project.status}</Badge>
-                    </div>
-                    <CardDescription>{project.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Доход</span>
-                      <span className="font-medium">{formatMoney(m.income)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Расход</span>
-                      <span className="font-medium">{formatMoney(m.expenses)}</span>
-                    </div>
-                    <div className="flex justify-between border-t pt-1">
-                      <span className="text-muted-foreground">Прибыль</span>
-                      <span className="font-semibold">{formatMoney(m.profit)}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Recent transactions */}
-        <div>
-          <h2 className="mb-3 text-lg font-semibold">Последние операции</h2>
+          <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">
+            Последние операции
+          </h2>
           <Card>
             <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Дата</TableHead>
-                    <TableHead>Описание</TableHead>
-                    <TableHead>Проект</TableHead>
-                    <TableHead>Категория</TableHead>
-                    <TableHead className="text-right">Сумма</TableHead>
+                    <TableHead className="text-[#5d6b7c]">Дата</TableHead>
+                    <TableHead className="text-[#5d6b7c]">Описание</TableHead>
+                    <TableHead className="text-[#5d6b7c]">Проект</TableHead>
+                    <TableHead className="text-[#5d6b7c]">Категория</TableHead>
+                    <TableHead className="text-right text-[#5d6b7c]">Сумма</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.transactions.map((t) => (
                     <TableRow key={t.id}>
-                      <TableCell className="whitespace-nowrap">
+                      <TableCell className="num whitespace-nowrap text-[#354354]">
                         {new Date(t.date).toLocaleDateString("ru-RU")}
                       </TableCell>
-                      <TableCell>{t.description}</TableCell>
-                      <TableCell>{t.project?.name ?? "—"}</TableCell>
+                      <TableCell className="text-[#0f1720]">{t.description}</TableCell>
+                      <TableCell className="text-[#5d6b7c]">{t.project?.name ?? "—"}</TableCell>
                       <TableCell>
-                        <Badge
-                          variant={t.type === "INCOME" ? "default" : "secondary"}
-                        >
-                          {t.category}
-                        </Badge>
+                        <span className="fern-chip">{t.category}</span>
                       </TableCell>
                       <TableCell
                         className={
-                          "text-right font-medium " +
-                          (t.type === "INCOME" ? "text-emerald-600" : "text-red-600")
+                          "num text-right font-semibold " +
+                          (t.type === "INCOME" ? "text-[#1f8a5c]" : "text-[#0f1720]")
                         }
                       >
                         {t.type === "INCOME" ? "+" : "−"}
@@ -368,6 +304,37 @@ export default async function DashboardPage() {
               </Table>
             </CardContent>
           </Card>
+        </div>
+        <div className="flex flex-col gap-6">
+          <div>
+            <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">
+              Цель года
+            </h2>
+            <FinancialGoalCard />
+          </div>
+          {todoItems.length > 0 && (
+            <div>
+              <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">
+                Что нужно сделать · {todoItems.length}
+              </h2>
+              <Card>
+                <CardContent>
+                  <ul className="divide-y divide-[#eef2f6]">
+                    {todoItems.slice(0, 6).map((item) => (
+                      <li key={item.key} className="py-2 first:pt-0 last:pb-0">
+                        <a href={item.href} className="flex items-center justify-between gap-3 text-sm text-[#0f1720] hover:underline">
+                          <span>{item.text}</span>
+                          <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
+                            {item.severity === "critical" ? "срочно" : "внимание"}
+                          </Badge>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </AppShell>

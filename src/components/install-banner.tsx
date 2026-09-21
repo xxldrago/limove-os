@@ -17,6 +17,7 @@ export function InstallBanner() {
 
   // Only meaningful on Android/Chrome-on-mobile; skip on desktop.
   const isMobile =
+    typeof window !== "undefined" &&
     typeof navigator !== "undefined" &&
     (/Mobile|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
       ("standalone" in navigator && !navigator.standalone) ||

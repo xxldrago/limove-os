@@ -26,86 +26,201 @@
 
 @layer base {
   .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
+    --font-heading: var(--font-inter);
+    --font-sans: var(--font-inter);
   }
   :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.985 0 0);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* Fernbrook — flat light budgeting: cool #f2f5f8 page, white cards, navy brand, aqua fills */
+    --background: #f2f5f8;
+    --foreground: #0f1720;
+    --card: #ffffff;
+    --card-foreground: #0f1720;
+    --popover: #ffffff;
+    --popover-foreground: #0f1720;
+    --primary: #16548f;
+    --primary-foreground: #ffffff;
+    --secondary: #eaf1f8;
+    --secondary-foreground: #0f3f6d;
+    --muted: #eef2f6;
+    --muted-foreground: #5d6b7c;
+    --accent: #eaf1f8;
+    --accent-foreground: #16548f;
+    --destructive: #d4674e;
+    --destructive-foreground: #ffffff;
+    --border: #e4e9ef;
+    --input: #e4e9ef;
+    --ring: #1c68ad;
+    --chart-1: #2d8ba3;
+    --chart-2: #34a06d;
+    --chart-3: #4a8fc4;
+    --chart-4: #d99a4e;
+    --chart-5: #8a97a6;
+    --radius: 0.75rem;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #354354;
+    --sidebar-primary: #16548f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #eaf1f8;
+    --sidebar-accent-foreground: #16548f;
+    --sidebar-border: #e4e9ef;
+    --sidebar-ring: #1c68ad;
+    /* Fernbrook tokens */
+    --fern-page: #f2f5f8;
+    --fern-ink: #0f1720;
+    --fern-ink-2: #354354;
+    --fern-ink-3: #5d6b7c;
+    --fern-ink-4: #8a97a6;
+    --fern-brand: #16548f;
+    --fern-brand-2: #1c68ad;
+    --fern-brand-deep: #0f3f6d;
+    --fern-brand-tint: #eaf1f8;
+    --fern-brand-line: #c3d8ea;
+    --fern-aqua-track: #dceef3;
+    --fern-aqua-fill: #2d8ba3;
+    --fern-mint: #34a06d;
+    --fern-clay: #d4674e;
+    /* Maple accents (kept for maple-preview compat) */
+    --maple-amber: #e8a552;
+    --maple-leaf: #7fb069;
+    --maple-blue: #5b7db1;
+    --maple-ink: #4a4239;
+    --maple-faint: #756a60;
+    --maple-shadow-dark: #d6cfc6;
+    --maple-shadow-light: #fbf8f4;
   }
   .dark {
-    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-    --background: oklch(0.14 0.03 285); /* #070617 — тёмно-фиолетовый фон limove.ru */
-    --foreground: oklch(0.83 0.01 285); /* #c7c7c7 */
-    --card: oklch(0.17 0.035 285);
-    --card-foreground: oklch(0.92 0.02 200);
-    --popover: oklch(0.19 0.04 285);
-    --popover-foreground: oklch(0.92 0.02 200);
-    --primary: oklch(0.93 0.10 195); /* #66FCF1 — циан */
-    --primary-foreground: oklch(0.14 0.03 285); /* тёмный текст на циане */
-    --secondary: oklch(0.21 0.04 285);
-    --secondary-foreground: oklch(0.85 0.03 200);
-    --muted: oklch(0.21 0.04 285);
-    --muted-foreground: oklch(0.70 0.02 200);
-    --accent: oklch(0.93 0.10 195); /* циан для акцентов */
-    --accent-foreground: oklch(0.14 0.03 285);
-    --destructive: oklch(0.704 0.191 22.216);
-    --destructive-foreground: oklch(0.985 0 0);
-    --border: oklch(1 0 0 / 12%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.93 0.10 195); /* циан ring */
-    --chart-1: oklch(0.93 0.10 195);
-    --chart-2: oklch(0.70 0.10 195);
-    --chart-3: oklch(0.50 0.10 195);
-    --chart-4: oklch(0.85 0.05 200);
-    --chart-5: oklch(0.60 0.08 200);
-    --sidebar: oklch(0.13 0.03 285);
-    --sidebar-foreground: oklch(0.83 0.01 285);
-    --sidebar-primary: oklch(0.93 0.10 195);
-    --sidebar-primary-foreground: oklch(0.14 0.03 285);
-    --sidebar-accent: oklch(0.20 0.04 285);
-    --sidebar-accent-foreground: oklch(0.90 0.03 200);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.93 0.10 195);
+    /* Fernbrook is light-only — keep dark alias identical to avoid flashes */
+    --background: #f2f5f8;
+    --foreground: #0f1720;
+    --card: #ffffff;
+    --card-foreground: #0f1720;
+    --popover: #ffffff;
+    --popover-foreground: #0f1720;
+    --primary: #16548f;
+    --primary-foreground: #ffffff;
+    --secondary: #eaf1f8;
+    --secondary-foreground: #0f3f6d;
+    --muted: #eef2f6;
+    --muted-foreground: #5d6b7c;
+    --accent: #eaf1f8;
+    --accent-foreground: #16548f;
+    --destructive: #d4674e;
+    --destructive-foreground: #ffffff;
+    --border: #e4e9ef;
+    --input: #e4e9ef;
+    --ring: #1c68ad;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #354354;
+    --sidebar-primary: #16548f;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #eaf1f8;
+    --sidebar-accent-foreground: #16548f;
+    --sidebar-border: #e4e9ef;
+    --sidebar-ring: #1c68ad;
   }
   * {
     border-color: var(--border);
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    background: #f2f5f8;
+    -webkit-font-smoothing: antialiased;
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), "Poppins", sans-serif;
+  }
+  .font-body-maple {
+    font-family: var(--font-body), "Nunito Sans", sans-serif;
+  }
+  .font-mono-num {
+    font-family: var(--font-roboto-mono), "Roboto Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Maple Ridge neumorphic soft-UI */
+  .raised {
+    box-shadow: 8px 8px 16px #d6cfc6, -8px -8px 16px #fbf8f4;
+    background: #ece7e1;
+  }
+  .raised-sm {
+    box-shadow: 5px 5px 11px #d6cfc6, -5px -5px 11px #fbf8f4;
+    background: #ece7e1;
+  }
+  .recessed {
+    box-shadow: inset 6px 6px 12px #d6cfc6, inset -6px -6px 12px #fbf8f4;
+    background: #ece7e1;
+  }
+  .recessed-sm {
+    box-shadow: inset 4px 4px 8px #d6cfc6, inset -4px -4px 8px #fbf8f4;
+    background: #ece7e1;
+  }
+  .dim {
+    box-shadow: 4px 4px 9px #dcd5cc, -4px -4px 9px #f4efe9;
+    background: #e7e1d8;
+  }
+  .glow-amber {
+    box-shadow: inset 4px 4px 9px #cf9145, inset -3px -3px 8px #ffc97e;
+    background: #ece7e1;
+  }
+  .glow-sage {
+    box-shadow: inset 4px 4px 9px #5f8a4d, inset -3px -3px 8px #9fd187;
+    background: #ece7e1;
+  }
+  .maple-card {
+    background: #ece7e1;
+    border-radius: 20px;
+    box-shadow: 8px 8px 16px #d6cfc6, -8px -8px 16px #fbf8f4;
+    border: 0;
+  }
+  /* Fernbrook — flat light panels */
+  .fern-panel {
+    background: #ffffff;
+    border: 1px solid #e4e9ef;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(15, 23, 32, 0.04), 0 24px 48px -28px rgba(15, 23, 32, 0.24);
+  }
+  .fern-row {
+    background: #ffffff;
+    border: 1px solid #e4e9ef;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(15, 23, 32, 0.05);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s;
+  }
+  .fern-row:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 1px 2px rgba(15, 23, 32, 0.05), 0 14px 28px -18px rgba(15, 23, 32, 0.35);
+    border-color: #d8e0e9;
+  }
+  .fern-track {
+    height: 26px;
+    border-radius: 999px;
+    background: #dceef3;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 32, 0.05);
+  }
+  .fern-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #349cb6, #2d8ba3);
+  }
+  .fern-chip {
+    display: inline-flex;
+    align-items: center;
+    background: #eaf1f8;
+    color: #0f3f6d;
+    border: 1px solid #c3d8ea;
+    border-radius: 7px;
+    padding: 1px 8px;
+    font-size: 12.5px;
+    font-weight: 560;
   }
 }
