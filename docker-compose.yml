@@ -63,3 +63,8 @@ volumes:
   db_data:
   node_modules:
   uploads_data:
+
+networks:
+  default:
+    # IPv6 нужен монитору: часть хостингов (Beget) отвечает только по v6
+    enable_ipv6: true
