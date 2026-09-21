@@ -127,10 +127,10 @@ export function FinancialGoalCard() {
   const pct = goal?.progress ?? 0;
 
   return (
-    <Card className="border-amber-300 bg-gradient-to-br from-amber-50 to-yellow-100/50 dark:from-amber-950/30 dark:to-yellow-900/20">
+    <Card>
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <Target className="h-4 w-4 text-amber-600" />
+          <Target className="h-4 w-4 text-[#16548f]" />
           Финансовая цель {goal?.year}
         </CardTitle>
         <Button
@@ -151,11 +151,11 @@ export function FinancialGoalCard() {
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Заработано</div>
-                <div className="font-semibold text-emerald-600">{formatMoney(goal.earned)}</div>
+                <div className="font-semibold text-[#1f8a5c]">{formatMoney(goal.earned)}</div>
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Осталось</div>
-                <div className="font-semibold text-amber-700">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
+                <div className="font-semibold text-[#0f3f6d]">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
               </div>
             </div>
             <div className="space-y-1">
@@ -163,9 +163,9 @@ export function FinancialGoalCard() {
                 <span className="text-muted-foreground">Прогресс</span>
                 <span className="font-medium">{pct.toFixed(0)}%</span>
               </div>
-              <div className="h-2.5 w-full overflow-hidden rounded-full bg-amber-200/60">
+              <div className="fern-track !h-2.5">
                 <div
-                  className="h-full rounded-full bg-amber-500 transition-all"
+                  className="fern-fill transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { FernPage } from "@/components/fern/fern-page";
 import { VpnDialog } from "@/components/vpn/vpn-dialog";
 import { DeleteConfirmDialog } from "@/components/vpn/delete-confirm-dialog";
 
@@ -121,16 +121,16 @@ export function VpnPageClient() {
   const activeCount = subs.filter((s) => s.status === "ACTIVE").length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">VPN Подписки</h1>
-          <p className="text-sm text-muted-foreground">Активных подписок: {activeCount}</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
+    <>
+    <FernPage
+      title="VPN Подписки"
+      total={subs.length > 0 ? `${activeCount} активны` : undefined}
+      tools={
+        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="h-10 rounded-[12px] px-[18px]">
           <Plus className="mr-1 h-4 w-4" /> Добавить
         </Button>
-      </div>
+      }
+    >
 
       <div className="flex flex-wrap items-center gap-3">
         <Select value={provider} onValueChange={(v) => v != null && setProvider(v)}>
@@ -156,8 +156,6 @@ export function VpnPageClient() {
           </SelectContent>
         </Select>
       </div>
-
-      <Separator />
 
       <Card>
         <CardHeader>
@@ -241,6 +239,7 @@ export function VpnPageClient() {
           </Table>
         </CardContent>
       </Card>
+    </FernPage>
 
       <VpnDialog
         open={dialogOpen}
@@ -255,6 +254,6 @@ export function VpnPageClient() {
         description={`Удалить подписку ${deleting?.provider} (${deleting?.clientName})?`}
         onConfirm={handleDelete}
       />
-    </div>
+    </>
   );
 }

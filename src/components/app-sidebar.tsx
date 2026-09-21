@@ -122,7 +122,7 @@ export function AppSidebar({
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
-        <div className="flex items-center justify-between gap-2 rounded-[12px] border border-[#e4e9ef] bg-[#f5f8fa] p-2">
+        <div className="flex items-center justify-between gap-2 rounded-[12px] border border-[#e4e9ef] bg-[#f5f8fa] p-3">
           <div className="flex min-w-0 items-center gap-2">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#c3d8ea] bg-[#eaf1f8]">
               <span className="text-sm font-bold text-[#0f3f6d]">

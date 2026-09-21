@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { FernPage } from "@/components/fern/fern-page";
 import { ElementxDialog } from "@/components/elementx/elementx-dialog";
 import { DeleteConfirmDialog } from "@/components/elementx/delete-confirm-dialog";
 
@@ -100,16 +100,16 @@ export function ElementxPageClient() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">ElementX Пользователи</h1>
-          <p className="text-sm text-muted-foreground">Всего: {users.length}</p>
-        </div>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
+    <>
+    <FernPage
+      title="ElementX Пользователи"
+      total={users.length > 0 ? `${users.length} чел` : undefined}
+      tools={
+        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="h-10 rounded-[12px] px-[18px]">
           <Plus className="mr-1 h-4 w-4" /> Добавить
         </Button>
-      </div>
+      }
+    >
 
       <div className="flex flex-wrap items-center gap-3">
         <Input
@@ -140,8 +140,6 @@ export function ElementxPageClient() {
           </SelectContent>
         </Select>
       </div>
-
-      <Separator />
 
       <Card>
         <CardHeader>
@@ -205,6 +203,7 @@ export function ElementxPageClient() {
           </Table>
         </CardContent>
       </Card>
+    </FernPage>
 
       <ElementxDialog
         open={dialogOpen}
@@ -219,6 +218,6 @@ export function ElementxPageClient() {
         description={`Удалить пользователя ${deleting?.fullName} (${deleting?.login})?`}
         onConfirm={handleDelete}
       />
-    </div>
+    </>
   );
 }

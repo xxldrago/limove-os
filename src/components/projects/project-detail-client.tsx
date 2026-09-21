@@ -32,15 +32,16 @@ export function ProjectDetailClient({ project }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
+    <div className="fern-panel overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[#eef2f6] px-7 pb-5 pt-[26px]">
         <Link
           href="/projects"
-          className="inline-flex shrink-0 items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium hover:bg-muted"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-[#e4e9ef] text-[#5d6b7c] transition hover:bg-[#f5f8fa] hover:text-[#0f1720]"
+          aria-label="Назад к проектам"
         >
-          <ArrowLeft />
+          <ArrowLeft size={18} />
         </Link>
-        <h1 className="text-2xl font-bold">{projectData.name}</h1>
+        <h1 className="m-0 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">{projectData.name}</h1>
         <Badge variant="outline">
           {STATUS_LABELS[projectData.status] ?? projectData.status}
         </Badge>
@@ -59,6 +60,7 @@ export function ProjectDetailClient({ project }: Props) {
         </Badge>
       </div>
 
+      <div className="px-7 py-6">
       <Tabs defaultValue="overview">
         <TabsList className="max-w-full overflow-x-auto">
           <TabsTrigger value="overview">Обзор</TabsTrigger>
@@ -99,6 +101,7 @@ export function ProjectDetailClient({ project }: Props) {
           <AnalyticsTab projectId={projectData.id} slug={projectData.slug} />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

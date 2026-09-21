@@ -52,7 +52,7 @@ export function QuickActionsFAB() {
           type="button"
           aria-label={open ? "Закрыть" : "Быстрые действия"}
           onClick={() => setOpen((v) => !v)}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-transform hover:bg-blue-700 active:scale-95"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#16548f] text-white shadow-[0_4px_8px_rgba(15,63,109,0.22),0_18px_30px_-14px_rgba(15,63,109,0.75)] transition-transform hover:bg-[#1c68ad] active:scale-95"
         >
           {open ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
         </button>

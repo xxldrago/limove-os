@@ -42,10 +42,10 @@ function LoginFormContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#F2F5F8] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[11px] bg-gradient-to-br from-[#1c68ad] to-[#0f3f6d] text-white shadow-[0_6px_14px_-7px_rgba(15,63,109,0.85)]">
             <span className="text-xl font-bold">L</span>
           </div>
           <CardTitle className="text-2xl">Limove OS</CardTitle>

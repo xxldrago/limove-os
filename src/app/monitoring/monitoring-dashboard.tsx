@@ -14,6 +14,7 @@ import {
   DialogClose,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { FernPage } from "@/components/fern/fern-page";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -258,7 +259,19 @@ export function MonitoringDashboard() {
   if (loading) return <div className="text-sm text-muted-foreground">Загрузка…</div>;
 
   return (
-    <div className="space-y-6">
+    <FernPage
+      title="Мониторинг"
+      sub={`Сайтов: ${stats.total} · online ${stats.online} · offline ${stats.offline}`}
+      total={stats.avgLatency !== null ? `${stats.avgLatency} ms` : undefined}
+      tools={
+        <>
+          <Button variant="outline" onClick={load} className="h-10 rounded-[12px] px-[18px]">
+            <RefreshCw className="mr-1 h-4 w-4" /> Обновить
+          </Button>
+          <Button onClick={openAdd} className="h-10 rounded-[12px] px-[18px]">＋ Добавить сайт</Button>
+        </>
+      }
+    >
       {/* Stats row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -304,14 +317,8 @@ export function MonitoringDashboard() {
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Статус сайтов</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={load}>
-            <RefreshCw className="mr-1 h-4 w-4" /> Обновить
-          </Button>
-          <Button onClick={openAdd}>＋ Добавить сайт</Button>
-        </div>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="m-0 text-[16.5px] font-bold tracking-[-0.02em] text-[#0f1720]">Статус сайтов</h2>
       </div>
 
       {/* Site grid */}
@@ -431,7 +438,7 @@ export function MonitoringDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </FernPage>
   );
 }
 
@@ -520,12 +527,12 @@ function SiteCard({
           <UptimeBar pct={site.uptime30} />
         </div>
 
-        <div className="flex items-center justify-between border-t pt-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
           <span className="text-xs text-muted-foreground">
             {intervalLabel(site.checkInterval)}
             {site.projectName ? ` · ${site.projectName}` : ""}
           </span>
-          <div className="flex gap-1">
+          <div className="flex flex-wrap justify-end gap-1">
             <Button variant="outline" size="sm" onClick={() => onEdit()}>
               Изменить
             </Button>

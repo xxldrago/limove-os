@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { FernPage } from "@/components/fern/fern-page";
 import { AddTransactionDialog } from "@/components/finance/add-transaction-dialog";
 import { EditTransactionDialog } from "@/components/finance/edit-transaction-dialog";
 import { DeleteConfirmDialog } from "@/components/finance/delete-confirm-dialog";
@@ -286,74 +287,78 @@ export function FinancePageClient() {
   const usedCategories = [...new Set([...categories, ...transactions.map((t) => t.category)])];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-              <h1 className="text-2xl font-bold">Финансы</h1>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                              <Button onClick={() => handleAddClick("INCOME")} className="bg-emerald-600 hover:bg-emerald-700 sm:w-auto">
-                                <Plus className="mr-2 h-4 w-4" /> Добавить приход
-                              </Button>
-                              <Button onClick={() => handleAddClick("EXPENSE")} variant="destructive" className="sm:w-auto">
-                                <Plus className="mr-2 h-4 w-4" /> Добавить расход
-                              </Button>
-                              <Button onClick={() => setCreateInvoiceOpen(true)} variant="outline" className="sm:w-auto border-indigo-400 text-indigo-700 hover:bg-indigo-50">
-                                <FileText className="mr-2 h-4 w-4" /> Выставить счёт
-                              </Button>
-                            </div>
-      </div>
+    <>
+    <FernPage
+      title="Финансы"
+      sub={balance ? `Прибыль за месяц: ${formatMoney(balance.profit)}` : "Доходы, расходы и счета"}
+      total={balance ? formatMoney(balance.totalIncome) : undefined}
+      tools={
+        <>
+          <Button onClick={() => handleAddClick("INCOME")} className="h-10 rounded-[12px] bg-[#1f8a5c] px-[18px] text-white hover:bg-[#177245]">
+            <Plus className="mr-2 h-4 w-4" /> Приход
+          </Button>
+          <Button onClick={() => handleAddClick("EXPENSE")} className="h-10 rounded-[12px] bg-[#16548f] px-[18px] text-white hover:bg-[#1c68ad]">
+            <Plus className="mr-2 h-4 w-4" /> Расход
+          </Button>
+          <Button onClick={() => setCreateInvoiceOpen(true)} variant="outline" className="h-10 rounded-[12px] px-[18px]">
+            <FileText className="mr-2 h-4 w-4" /> Счёт
+          </Button>
+        </>
+      }
+    >
 
       {/* Monthly Summary */}
       {balance && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-5">
               <div className="text-xs text-muted-foreground">Приход за месяц</div>
-              <div className="text-lg font-bold text-emerald-600">{formatMoney(balance.totalIncome)}</div>
+              <div className="text-lg font-bold whitespace-nowrap text-emerald-600">{formatMoney(balance.totalIncome)}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-5">
               <div className="text-xs text-muted-foreground">Расход за месяц</div>
-              <div className="text-lg font-bold text-red-600">{formatMoney(balance.totalExpenses)}</div>
+              <div className="text-lg font-bold whitespace-nowrap text-red-600">{formatMoney(balance.totalExpenses)}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-5">
               <div className="text-xs text-muted-foreground">Прибыль</div>
-              <div className={`text-lg font-bold ${balance.profit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+              <div className={`text-lg font-bold whitespace-nowrap ${balance.profit >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                 {formatMoney(balance.profit)}
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-3">
+            <CardContent className="p-5">
               <div className="text-xs text-muted-foreground">Лёша потратил</div>
-              <div className="text-lg font-bold">{formatMoney(balance.partners.lesha.spent)}</div>
+              <div className="text-lg font-bold whitespace-nowrap">{formatMoney(balance.partners.lesha.spent)}</div>
             </CardContent>
           </Card>
           <Card>
-                      <CardContent className="p-3">
+                      <CardContent className="p-5">
                         <div className="text-xs text-muted-foreground">Гена потратил</div>
-                        <div className="text-lg font-bold">{formatMoney(balance.partners.gena.spent)}</div>
+                        <div className="text-lg font-bold whitespace-nowrap">{formatMoney(balance.partners.gena.spent)}</div>
                       </CardContent>
                     </Card>
                   </div>
                 )}
 
-                {/* Pending invoices summary (amber highlight) */}
-                <Card className="border-amber-300 bg-amber-50/60 dark:bg-amber-950/20">
-                  <CardContent className="p-4 flex items-center justify-between">
+                {/* Pending invoices summary */}
+                <Card>
+                  <CardContent className="p-6 flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                      <div className="text-xs font-medium text-[#0f3f6d] flex items-center gap-1">
                         <FileText className="h-3.5 w-3.5" /> Ожидают оплаты
                       </div>
-                      <div className="text-2xl font-bold text-amber-700 dark:text-amber-400">
+                      <div className="text-2xl font-bold whitespace-nowrap text-[#0f3f6d]">
                         {pendingInvoices.count} сч.
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">На сумму</div>
-                      <div className="text-lg font-bold text-amber-700 dark:text-amber-400">
+                      <div className="text-lg font-bold whitespace-nowrap text-[#0f3f6d]">
                         {formatMoney(pendingInvoices.sum)}
                       </div>
                     </div>
@@ -362,9 +367,9 @@ export function FinancePageClient() {
 
                                 {/* Pending invoices to mark paid (operations live here in Finance) */}
                                 {pendingInvoiceList.length > 0 && (
-                                  <Card className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
-                                    <CardContent className="p-4">
-                                      <div className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-2">
+                                  <Card>
+                                    <CardContent className="p-6">
+                                      <div className="text-xs font-medium text-[#0f3f6d] mb-2">
                                         Счета к оплате
                                       </div>
                                       <ul className="space-y-2">
@@ -396,7 +401,7 @@ export function FinancePageClient() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3">
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-6">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground mr-1">Тип:</span>
@@ -561,6 +566,7 @@ export function FinancePageClient() {
       />
 
       {/* Dialogs */}
+    </FernPage>
       <AddTransactionDialog
         open={addDialogOpen}
         onOpenChange={(open) => {
@@ -627,6 +633,6 @@ export function FinancePageClient() {
                             }}
                           />
                         )}
-                      </div>
-                    );
-                  }
+    </>
+  );
+}

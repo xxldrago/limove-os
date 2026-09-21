@@ -86,12 +86,12 @@ export default async function ReportPage({
   const finance = data?.finance;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 print:bg-white print:p-0">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg print:shadow-none print:rounded-none">
+    <div className="min-h-screen bg-[#F2F5F8] p-6 print:bg-white print:p-0">
+      <div className="fern-panel mx-auto max-w-4xl bg-white print:rounded-none print:border-0 print:shadow-none">
         {/* Header */}
         <div className="p-8 pb-6 border-b print:border-gray-200 flex items-start justify-between">
           <div>
-            <div className="text-xs uppercase tracking-wider text-indigo-600 font-semibold">Limove OS · Отчёт</div>
+            <div className="text-xs uppercase tracking-wider text-[#16548f] font-semibold">Limove OS · Отчёт</div>
             <h1 className="text-2xl font-bold mt-1">{data?.project.name}</h1>
             <p className="text-gray-500 mt-1 capitalize">{data?.period.monthName}</p>
           </div>

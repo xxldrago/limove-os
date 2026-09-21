@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FernPage } from "@/components/fern/fern-page";
 import { CreateInvoiceDialog } from "@/components/finance/create-invoice-dialog";
 
 interface ProjectSummary {
@@ -90,13 +91,11 @@ export function ProjectsClient() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Проекты</h1>
-        <span className="text-sm text-muted-foreground">
-          Всего: {projects.length}
-        </span>
-      </div>
+    <>
+    <FernPage
+      title="Проекты"
+      total={projects.length > 0 ? `${projects.filter((p) => p.status === "ACTIVE").length} активны` : undefined}
+    >
 
       {projects.length === 0 ? (
         <Card>
@@ -108,7 +107,7 @@ export function ProjectsClient() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.slug}`}>
-              <Card className="h-full transition-colors hover:border-primary/40 hover:bg-accent/40">
+              <Card className="h-full transition-all hover:-translate-y-[1px] hover:border-[#d8e0e9] hover:shadow-[0_1px_2px_rgba(15,23,32,0.05),0_14px_28px_-18px_rgba(15,23,32,0.35)]">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg">{p.name}</CardTitle>
@@ -132,15 +131,15 @@ export function ProjectsClient() {
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <div className="text-xs text-muted-foreground">Доход</div>
-                      <div className="font-semibold text-green-600">{formatMoney(p.income)}</div>
+                      <div className="font-semibold whitespace-nowrap text-green-600">{formatMoney(p.income)}</div>
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground">Расход</div>
-                      <div className="font-semibold text-red-600">{formatMoney(p.expenses)}</div>
+                      <div className="font-semibold whitespace-nowrap text-red-600">{formatMoney(p.expenses)}</div>
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground">Профит</div>
-                      <div className={`font-semibold ${p.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      <div className={`font-semibold whitespace-nowrap ${p.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
                         {formatMoney(p.profit)}
                       </div>
                     </div>
@@ -185,6 +184,7 @@ export function ProjectsClient() {
           load();
         }}
       />
-    </div>
+    </FernPage>
+    </>
   );
 }

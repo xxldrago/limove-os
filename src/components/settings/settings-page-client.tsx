@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { FernPage } from "@/components/fern/fern-page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -97,29 +91,22 @@ export function SettingsPageClient() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Настройки</h1>
-        <p className="text-muted-foreground">Настройки Telegram-бота и интеграций</p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Telegram-бот
-            {status && (
-              <Badge variant={status.connected ? "default" : "secondary"}>
-                {status.connected ? "Подключён" : "Не настроен"}
-              </Badge>
-            )}
-          </CardTitle>
-          <CardDescription>
-            {status?.botUsername
-              ? `Бот: @${status.botUsername}`
-              : "Укажите токен бота (через @BotFather), чтобы включить уведомления и команды"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="mx-auto max-w-3xl">
+    <FernPage
+      title="Настройки"
+      sub={status?.botUsername ? `Бот: @${status.botUsername}` : "Укажите токен бота (через @BotFather), чтобы включить уведомления и команды"}
+      tools={
+        status && (
+          <Badge variant={status.connected ? "default" : "secondary"}>
+            {status.connected ? "Подключён" : "Не настроен"}
+          </Badge>
+        )
+      }
+    >
+      <h2 className="m-0 flex items-center gap-2 text-[16.5px] font-bold tracking-[-0.02em] text-[#0f1720]">
+        Telegram-бот
+      </h2>
+      <div className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="token">Токен бота (TELEGRAM_BOT_TOKEN)</Label>
             <div className="flex gap-2">
@@ -174,8 +161,8 @@ export function SettingsPageClient() {
           <p className="text-xs text-muted-foreground">
             Чтобы привязать чат: напишите боту команду /start из вашего Telegram.
           </p>
-        </CardContent>
-      </Card>
+      </div>
+    </FernPage>
     </div>
   );
 }

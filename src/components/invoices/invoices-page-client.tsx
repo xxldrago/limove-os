@@ -23,7 +23,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
+import { FernPage } from "@/components/fern/fern-page";
 import {
   Select,
   SelectContent,
@@ -181,14 +181,12 @@ export function InvoicesPageClient() {
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Счета</h1>
-          <p className="text-sm text-muted-foreground">История счетов и чеков. Управление — в разделе «Финансы».</p>
-        </div>
-      </div>
+    <>
+    <FernPage
+      title="Счета"
+      sub="История счетов и чеков. Управление — в разделе «Финансы»."
+      total={pendingSum > 0 ? formatMoney(pendingSum) : undefined}
+    >
 
       {/* Stats row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -219,8 +217,6 @@ export function InvoicesPageClient() {
           </CardContent>
         </Card>
       </div>
-
-      <Separator />
 
       {/* Filters */}
       <div className="space-y-3">
@@ -281,7 +277,8 @@ export function InvoicesPageClient() {
       ) : visibleInvoices.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">Нет счетов</div>
       ) : (
-        <div className="border rounded-lg">
+        <Card>
+          <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -320,7 +317,8 @@ export function InvoicesPageClient() {
               ))}
             </TableBody>
           </Table>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Dialogs */}
@@ -338,6 +336,7 @@ export function InvoicesPageClient() {
           }}
         />
       )}
-    </div>
+    </FernPage>
+    </>
   );
 }
