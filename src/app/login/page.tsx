@@ -36,7 +36,18 @@ function LoginFormContent() {
       return;
     }
 
-    const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+    // callbackUrl может быть абсолютным (его ставит middleware) —
+    // router.push принимает только same-origin путь, иначе навигации нет.
+    // Чужой origin отбрасываем (защита от open-redirect).
+    let callbackUrl = "/";
+    try {
+      const u = new URL(searchParams.get("callbackUrl") ?? "/", window.location.origin);
+      if (u.origin === window.location.origin) {
+        callbackUrl = u.pathname + u.search + u.hash;
+      }
+    } catch {
+      callbackUrl = "/";
+    }
     router.push(callbackUrl);
     router.refresh();
   }
