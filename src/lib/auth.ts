@@ -11,35 +11,10 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
-  cookies: {
-    sessionToken: {
-      name: "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-    callbackUrl: {
-      name: "next-auth.callback-url",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-    csrfToken: {
-      name: "next-auth.csrf-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
+  // NB: cookie names intentionally left at NextAuth defaults
+  // (__Secure- prefix in production). Custom names break the default
+  // next-auth/middleware, which looks up the default cookie name and
+  // would redirect every authenticated request back to /login.
   providers: [
     CredentialsProvider({
       name: "Credentials",
