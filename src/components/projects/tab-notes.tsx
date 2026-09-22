@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Pin, PinOff, Plus, Trash2 } from "lucide-react";
@@ -92,115 +91,96 @@ export function NotesTab({ project, onProjectUpdate }: Props) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {/* Notes list */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Заметки</h3>
-            <Button
-              onClick={() => openNote(null, true)}
+    <div className="grid-2">
+      {/* Список заметок */}
+      <div className="card">
+        <div className="card-head-row mb-4">
+          <span className="card-title">Заметки</span>
+          <Button onClick={() => openNote(null, true)}>
+            <Plus className="icon-xs" /> Новая
+          </Button>
+        </div>
+        <div className="stack-sm">
+          {project.notes.length === 0 && <p className="empty-state">Заметок пока нет</p>}
+          {project.notes.map((n) => (
+            <div
+              key={n.id}
+              className={`note-item${selected?.id === n.id ? " is-active" : ""}`}
+              onClick={() => openNote(n)}
             >
-              <Plus /> Новая
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {project.notes.length === 0 && (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                Заметок пока нет
-              </p>
-            )}
-            {project.notes.map((n) => (
-              <div
-                key={n.id}
-                className={`cursor-pointer rounded-lg border p-3 transition-colors hover:bg-accent/50 ${
-                  selected?.id === n.id ? "border-primary bg-accent" : ""
-                }`}
-                onClick={() => openNote(n)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium truncate">
-                    {n.pinned ? "📌 " : ""}
-                    {n.title}
-                  </div>
-                  <div className="flex shrink-0 gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePin(n);
-                      }}
-                      aria-label={n.pinned ? "Открепить" : "Закрепить"}
-                    >
-                      {n.pinned ? <PinOff /> : <Pin />}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-[#F87171]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleting(n);
-                      }}
-                      aria-label="Удалить"
-                    >
-                      <Trash2 />
-                    </Button>
-                  </div>
+              <div className="card-head-row">
+                <div className="mini-item-title" style={{ flex: 1 }}>
+                  {n.pinned ? "📌 " : ""}
+                  {n.title}
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground truncate">
-                  {preview(n.content)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Editor */}
-      <Card>
-        <CardContent className="pt-6">
-          {creating || selected ? (
-            <div className="space-y-3">
-              <Input
-                value={editingTitle}
-                onChange={(e) => setEditingTitle(e.target.value)}
-                placeholder="Название заметки"
-              />
-              <Textarea
-                value={editingContent}
-                onChange={(e) => setEditingContent(e.target.value)}
-                placeholder="Содержимое (Markdown)..."
-                className="min-h-64"
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelected(null);
-                    setCreating(false);
-                  }}
-                >
-                  Отмена
-                </Button>
-                {creating ? (
-                  <Button onClick={create} disabled={!editingTitle.trim()}>
-                    Создать
+                <span className="cell-actions" style={{ flexShrink: 0 }}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePin(n);
+                    }}
+                    aria-label={n.pinned ? "Открепить" : "Закрепить"}
+                  >
+                    {n.pinned ? <PinOff className="icon-xs" /> : <Pin className="icon-xs" />}
                   </Button>
-                ) : (
-                  <Button onClick={save}>Сохранить</Button>
-                )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleting(n);
+                    }}
+                    aria-label="Удалить"
+                  >
+                    <Trash2 className="icon-xs" />
+                  </Button>
+                </span>
               </div>
+              <div className="hint" style={{ marginTop: 4 }}>{preview(n.content)}</div>
             </div>
-          ) : (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              Выберите заметку или создайте новую
-            </p>
-          )}
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Редактор */}
+      <div className="card">
+        {creating || selected ? (
+          <div className="stack-sm">
+            <Input
+              value={editingTitle}
+              onChange={(e) => setEditingTitle(e.target.value)}
+              placeholder="Название заметки"
+            />
+            <Textarea
+              value={editingContent}
+              onChange={(e) => setEditingContent(e.target.value)}
+              placeholder="Содержимое (Markdown)..."
+            />
+            <div className="form-actions" style={{ justifyContent: "flex-end" }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelected(null);
+                  setCreating(false);
+                }}
+              >
+                Отмена
+              </Button>
+              {creating ? (
+                <Button onClick={create} disabled={!editingTitle.trim()}>
+                  Создать
+                </Button>
+              ) : (
+                <Button onClick={save}>Сохранить</Button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p className="empty-state">Выберите заметку или создайте новую</p>
+        )}
+      </div>
 
       {deleting && (
         <DeleteConfirmDialog

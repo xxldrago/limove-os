@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -36,25 +35,23 @@ export function DomainsTab({ project, onProjectUpdate }: Props) {
   }
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Домены и подписки</h3>
-          <Button
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus /> Добавить
-          </Button>
-        </div>
+    <div className="card">
+      <div className="card-head-row mb-4">
+        <span className="card-title">Домены и подписки</span>
+        <Button
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="icon-xs" /> Добавить
+        </Button>
+      </div>
 
-        {project.domains.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            Доменов и подписок пока нет
-          </p>
-        ) : (
+      {project.domains.length === 0 ? (
+        <p className="empty-state">Доменов и подписок пока нет</p>
+      ) : (
+        <div className="card card-flush" style={{ background: "transparent", border: 0, boxShadow: "none", padding: 0 }}>
           <Table>
             <TableHeader>
               <TableRow>
@@ -63,7 +60,7 @@ export function DomainsTab({ project, onProjectUpdate }: Props) {
                 <TableHead>Истекает</TableHead>
                 <TableHead>Напомнить за</TableHead>
                 <TableHead>Заметки</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
+                <TableHead className="number-cell">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -71,7 +68,7 @@ export function DomainsTab({ project, onProjectUpdate }: Props) {
                 const exp = expiryInfo(d.expiresAt, d.reminderDays);
                 return (
                   <TableRow key={d.id}>
-                    <TableCell className="font-medium">{d.name}</TableCell>
+                    <TableCell className="cell-strong">{d.name}</TableCell>
                     <TableCell>{d.value}</TableCell>
                     <TableCell>
                       <span className={EXPIRY_CLASSES[exp.level]}>
@@ -83,39 +80,37 @@ export function DomainsTab({ project, onProjectUpdate }: Props) {
                     <TableCell>
                       {d.reminderDays > 0 ? `за ${d.reminderDays} дн.` : "—"}
                     </TableCell>
-                    <TableCell className="max-w-40 truncate">{d.notes || "—"}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
+                    <TableCell className="table-cell-desc">{d.notes || "—"}</TableCell>
+                    <TableCell className="number-cell">
+                      <span className="cell-actions">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
                           onClick={() => {
                             setEditing(d);
                             setDialogOpen(true);
                           }}
                           aria-label="Редактировать"
                         >
-                          <Pencil />
+                          <Pencil className="icon-xs" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-[#F87171]"
                           onClick={() => setDeleting(d)}
                           aria-label="Удалить"
                         >
-                          <Trash2 />
+                          <Trash2 className="icon-xs" />
                         </Button>
-                      </div>
+                      </span>
                     </TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
           </Table>
-        )}
-      </CardContent>
+        </div>
+      )}
 
       {dialogOpen && (
         <DomainDialog
@@ -144,6 +139,6 @@ export function DomainsTab({ project, onProjectUpdate }: Props) {
           onConfirm={handleDelete}
         />
       )}
-    </Card>
+    </div>
   );
 }

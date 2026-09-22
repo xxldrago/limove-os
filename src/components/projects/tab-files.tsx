@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Download, Trash2, FileText, Upload } from "lucide-react";
 import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 import type { ProjectFile, ProjectData } from "./types";
@@ -57,89 +56,58 @@ export function FilesTab({ project, onProjectUpdate }: Props) {
   }
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Файлы</h3>
-        </div>
+    <div className="card">
+      <div className="card-head-row mb-4">
+        <span className="card-title">Файлы</span>
+      </div>
 
-        {/* Upload area */}
-        <div
-          className={`mb-4 cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
-            dragOver ? "border-primary bg-accent/40" : "border-border"
-          }`}
-          onClick={() => inputRef.current?.click()}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-            const file = e.dataTransfer.files?.[0];
-            if (file) uploadFile(file);
-          }}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            className="hidden"
-            onChange={onInputChange}
-          />
-          <Upload className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            {uploading
-              ? "Загрузка..."
-              : "Перетащите файл сюда или нажмите, чтобы выбрать"}
-          </p>
-        </div>
+      <div
+        className={`dropzone${dragOver ? " is-over" : ""}`}
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          const file = e.dataTransfer.files?.[0];
+          if (file) uploadFile(file);
+        }}
+      >
+        <input ref={inputRef} type="file" style={{ display: "none" }} onChange={onInputChange} />
+        <Upload className="dropzone-icon" />
+        <p className="page-sub">
+          {uploading ? "Загрузка..." : "Перетащите файл сюда или нажмите, чтобы выбрать"}
+        </p>
+      </div>
 
-        {/* Files grid */}
-        {project.files.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            Файлов пока нет
-          </p>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {project.files.map((f) => (
-              <div
-                key={f.id}
-                className="flex items-start gap-2 rounded-lg border p-3"
-              >
-                <FileText className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{f.fileName}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatSize(f.fileSize)} ·{" "}
-                    {new Date(f.createdAt).toLocaleDateString("ru-RU")}
-                  </div>
-                </div>
-                <div className="flex shrink-0 gap-1">
-                  <a
-                    href={f.filePath}
-                    target="_blank"
-                    rel="noreferrer"
-                    download
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-lg hover:bg-muted"
-                  >
-                    <Download className="h-4 w-4" />
-                  </a>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-[#F87171]"
-                    onClick={() => setDeleting(f)}
-                    aria-label="Удалить"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+      {project.files.length === 0 ? (
+        <p className="empty-state">Файлов пока нет</p>
+      ) : (
+        <div className="files-grid">
+          {project.files.map((f) => (
+            <div key={f.id} className="file-item">
+              <FileText className="file-icon" />
+              <div className="min-w-0" style={{ flex: 1, minWidth: 0 }}>
+                <div className="mini-item-title">{f.fileName}</div>
+                <div className="hint">
+                  {formatSize(f.fileSize)} · {new Date(f.createdAt).toLocaleDateString("ru-RU")}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
+              <span className="unbudget-actions">
+                <a href={f.filePath} target="_blank" rel="noreferrer" download className="round-btn round-btn--success" aria-label="Скачать">
+                  <Download className="icon-xs" />
+                </a>
+                <Button variant="ghost" size="icon" onClick={() => setDeleting(f)} aria-label="Удалить">
+                  <Trash2 className="icon-xs" />
+                </Button>
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {deleting && (
         <DeleteConfirmDialog
@@ -150,6 +118,6 @@ export function FilesTab({ project, onProjectUpdate }: Props) {
           onConfirm={doDelete}
         />
       )}
-    </Card>
+    </div>
   );
 }

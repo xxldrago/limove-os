@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -93,25 +92,23 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
   }
 
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Доступы</h3>
-          <Button
-            onClick={() => {
-              setEditing(null);
-              setDialogOpen(true);
-            }}
-          >
-            <Plus /> Добавить
-          </Button>
-        </div>
+    <div className="card">
+      <div className="card-head-row mb-4">
+        <span className="card-title">Доступы</span>
+        <Button
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="icon-xs" /> Добавить
+        </Button>
+      </div>
 
-        {project.credentials.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            Доступов пока нет
-          </p>
-        ) : (
+      {project.credentials.length === 0 ? (
+        <p className="empty-state">Доступов пока нет</p>
+      ) : (
+        <div className="card card-flush" style={{ background: "transparent", border: 0, boxShadow: "none", padding: 0 }}>
           <Table>
             <TableHeader>
               <TableRow>
@@ -121,7 +118,7 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
                 <TableHead>Ссылка</TableHead>
                 <TableHead>Истекает</TableHead>
                 <TableHead>Заметки</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
+                <TableHead className="number-cell">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -129,40 +126,28 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
                 const exp = expiryInfo(c.expiresAt);
                 return (
                   <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.serviceName}</TableCell>
+                    <TableCell className="cell-strong">{c.serviceName}</TableCell>
                     <TableCell>{c.login || "—"}</TableCell>
-                    <TableCell className="font-mono">
+                    <TableCell className="num">
                       {revealed[c.id] ? revealed[c.id].password : "••••••••"}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="ml-1 h-6 w-6"
-                        onClick={() => handleShow(c)}
-                        aria-label="Показать пароль"
-                      >
-                        {revealed[c.id] ? <EyeOff /> : <Eye />}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => handleCopy(c)}
-                        aria-label="Скопировать"
-                      >
-                        <Copy />
-                      </Button>
-                      {copied[c.id] && (
-                        <span className="text-xs text-[#34D399]">✓</span>
-                      )}
+                      <span className="cell-actions" style={{ display: "inline-flex", marginLeft: 4 }}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleShow(c)}
+                          aria-label="Показать пароль"
+                        >
+                          {revealed[c.id] ? <EyeOff className="icon-xs" /> : <Eye className="icon-xs" />}
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleCopy(c)} aria-label="Скопировать">
+                          <Copy className="icon-xs" />
+                        </Button>
+                        {copied[c.id] && <span className="text-pos">✓</span>}
+                      </span>
                     </TableCell>
                     <TableCell>
                       {c.url ? (
-                        <a
-                          href={makeUrl(c.url)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-blue-600 hover:underline"
-                        >
+                        <a href={makeUrl(c.url)} target="_blank" rel="noreferrer" className="link">
                           {c.url}
                         </a>
                       ) : (
@@ -174,39 +159,32 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
                         {EXPIRY_EMOJI[exp.level]} {exp.label}
                       </span>
                     </TableCell>
-                    <TableCell className="max-w-40 truncate">{c.notes || "—"}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
+                    <TableCell className="table-cell-desc">{c.notes || "—"}</TableCell>
+                    <TableCell className="number-cell">
+                      <span className="cell-actions">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6"
                           onClick={() => {
                             setEditing(c);
                             setDialogOpen(true);
                           }}
                           aria-label="Редактировать"
                         >
-                          <Pencil />
+                          <Pencil className="icon-xs" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-[#F87171]"
-                          onClick={() => setDeleting(c)}
-                          aria-label="Удалить"
-                        >
-                          <Trash2 />
+                        <Button variant="ghost" size="icon" onClick={() => setDeleting(c)} aria-label="Удалить">
+                          <Trash2 className="icon-xs" />
                         </Button>
-                      </div>
+                      </span>
                     </TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
           </Table>
-        )}
-      </CardContent>
+        </div>
+      )}
 
       {dialogOpen && (
         <CredentialDialog
@@ -230,6 +208,6 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
           onConfirm={handleDelete}
         />
       )}
-    </Card>
+    </div>
   );
 }

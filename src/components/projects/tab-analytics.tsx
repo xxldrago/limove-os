@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -12,6 +9,7 @@ import { LineChart, BarChart, StatTile } from "@/components/ui/charts";
 import { KeywordsPanel } from "./keywords-panel";
 import { Link2, Link2Off, Search, TrendingUp, Loader2, FileText } from "lucide-react";
 import Link from "next/link";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface AnalyticsTabProps {
   projectId: number;
@@ -134,16 +132,16 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
   const topQueries = Array.isArray(data?.topQueries) ? data.topQueries : null;
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm">Аналитика (Яндекс)</CardTitle>
+    <div className="tab-inner">
+      <div className="card">
+        <div className="card-head-row mb-3">
+          <span className="card-title">Аналитика (Яндекс)</span>
           <Select
             value={range}
             onValueChange={(v) => v != null && setRange(v as RangeKey)}
             items={rangeOptions.map((r) => ({ value: r.value, label: r.label }))}
           >
-            <SelectTrigger className="w-36 h-8">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -152,90 +150,87 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
               ))}
             </SelectContent>
           </Select>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Connect status row */}
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center gap-2">
-              {metricConnected ? (
-                <Badge className="bg-[rgba(52,211,153,0.1)] text-[#34D399]">
-                  <Link2 className="h-3 w-3 mr-1" /> Метрика подключена
-                </Badge>
-              ) : (
-                <Button size="sm" variant="outline" onClick={() => openConnect("METRIKA")}>
-                  <Link2Off className="h-3 w-3 mr-1" /> Подключить Метрику
-                </Button>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              {wmConnected ? (
-                <Badge className="bg-[rgba(52,211,153,0.1)] text-[#34D399]">
-                  <TrendingUp className="h-3 w-3 mr-1" /> Вебмастер подключён
-                </Badge>
-              ) : (
-                <Button size="sm" variant="outline" onClick={() => openConnect("WEBMASTER")}>
-                  <Search className="h-3 w-3 mr-1" /> Подключить Вебмастер
-                </Button>
-              )}
-            </div>
+        </div>
+
+        <div className="filter-bar">
+          <div className="filter-group">
+            {metricConnected ? (
+              <span className="badge badge-success">
+                <Link2 className="icon-xs" /> Метрика подключена
+              </span>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => openConnect("METRIKA")}>
+                <Link2Off className="icon-xs" /> Подключить Метрику
+              </Button>
+            )}
           </div>
+          <div className="filter-group">
+            {wmConnected ? (
+              <span className="badge badge-success">
+                <TrendingUp className="icon-xs" /> Вебмастер подключён
+              </span>
+            ) : (
+              <Button size="sm" variant="outline" onClick={() => openConnect("WEBMASTER")}>
+                <Search className="icon-xs" /> Подключить Вебмастер
+              </Button>
+            )}
+          </div>
+        </div>
 
-          <Separator />
+        <div className="rule" />
 
-          {loading ? (
-            <div className="flex items-center justify-center py-10 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin mr-2" /> Загрузка…
+        {loading ? (
+          <div className="empty-state">
+            <Loader2 className="icon-xs" style={{ display: "inline", marginRight: 8 }} /> Загрузка…
+          </div>
+        ) : metricConnected && metricRows ? (
+          <div className="tab-inner">
+            <div className="grid-stats">
+              <StatTile label="Визиты" value={totalVisits.toLocaleString("ru-RU")} />
+              <StatTile label="Посетители" value={totalUsers.toLocaleString("ru-RU")} />
+              <StatTile label="Просмотры" value={totalPageviews.toLocaleString("ru-RU")} />
+              <StatTile label="Конверсии" value={totalGoals.toLocaleString("ru-RU")} />
+              <StatTile label="Конверсия" value={`${convRate}%`} tone="green" />
             </div>
-          ) : metricConnected && metricRows ? (
-            <>
-              {/* Metric tiles */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                <StatTile label="Визиты" value={totalVisits.toLocaleString("ru-RU")} />
-                <StatTile label="Посетители" value={totalUsers.toLocaleString("ru-RU")} />
-                <StatTile label="Просмотры" value={totalPageviews.toLocaleString("ru-RU")} />
-                <StatTile label="Конверсии" value={totalGoals.toLocaleString("ru-RU")} />
-                <StatTile label="Конверсия" value={`${convRate}%`} tone="green" />
+
+            {visitsSeries && visitsSeries.length > 0 && (
+              <div>
+                <div className="chart-label">Посещаемость по дням</div>
+                <LineChart data={visitsSeries} color="#34D399" />
               </div>
+            )}
+            {convSeries && convSeries.length > 0 && (
+              <div>
+                <div className="chart-label">Конверсии (цели)</div>
+                <BarChart data={convSeries} color="#10B981" />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="empty-state">
+            {metricConnected
+              ? "Нет данных за период. Возможно, нужно проверить подключение."
+              : "Подключите Яндекс Метрику, чтобы видеть посещаемость и конверсии."}
+          </div>
+        )}
+      </div>
 
-              {/* Charts */}
-              {visitsSeries && visitsSeries.length > 0 && (
-                <div>
-                  <div className="text-sm font-medium mb-1">Посещаемость по дням</div>
-                  <LineChart data={visitsSeries} color="#6366f1" />
-                </div>
-              )}
-              {convSeries && convSeries.length > 0 && (
-                <div>
-                  <div className="text-sm font-medium mb-1">Конверсии (цели)</div>
-                  <BarChart data={convSeries} color="#10b981" />
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              {metricConnected ? "Нет данных за период. Возможно, нужно проверить подключение." : "Подключите Яндекс Метрику, чтобы видеть посещаемость и конверсии."}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Keyword positions (пункт A) */}
+      {/* Позиции по ключевым запросам */}
       <KeywordsPanel slug={slug} />
 
-      {/* Report for client (пункт 4) */}
-      <Card>
-        <CardHeader className="pb-2 flex flex-row items-center justify-between">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <FileText className="h-4 w-4" /> Отчёт для клиента
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap items-center gap-3">
+      {/* Отчёт для клиента */}
+      <div className="card">
+        <div className="card-title-row mb-3">
+          <FileText className="icon-xs" />
+          <span className="card-title">Отчёт для клиента</span>
+        </div>
+        <div className="filter-bar">
           <Select
             value={String(reportMonth)}
             onValueChange={(v) => v != null && setReportMonth(Number(v))}
             items={monthsLabel.map((m) => ({ value: String(m.value), label: m.label }))}
           >
-            <SelectTrigger className="w-40 h-8">
+            <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -244,57 +239,52 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
               ))}
             </SelectContent>
           </Select>
-          <Link
-            href={`/reports/${slug}?year=${reportYear}&month=${reportMonth}`}
-            target="_blank"
-          >
-            <Button size="sm" variant="default" className="bg-[#10B981] hover:bg-[#059669]">
-              <FileText className="h-4 w-4 mr-1.5" /> Сформировать отчёт
+          <Link href={`/reports/${slug}?year=${reportYear}&month=${reportMonth}`} target="_blank">
+            <Button size="sm">
+              <FileText className="icon-xs" /> Сформировать отчёт
             </Button>
           </Link>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Webmaster: top queries */}
+      {/* Вебмастер: запросы */}
       {wmConnected && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Популярные запросы (Webmaster)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="py-6 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mx-auto" /></div>
-            ) : topQueries && topQueries.length > 0 ? (
-              <div className="border rounded-lg">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-muted/40 text-muted-foreground">
-                      <th className="text-left p-2 text-xs font-medium">Запрос</th>
-                      <th className="p-2 text-right text-xs font-medium">Показы</th>
-                      <th className="p-2 text-right text-xs font-medium">Клики</th>
-                      <th className="p-2 text-right text-xs font-medium">Позиция</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topQueries.slice(0, 15).map((q: any, i: number) => (
-                      <tr key={i} className="border-b last:border-0">
-                        <td className="p-2 font-medium">{q.query}</td>
-                        <td className="p-2 text-right">{q.shows.toLocaleString("ru-RU")}</td>
-                        <td className="p-2 text-right">{q.clicks.toLocaleString("ru-RU")}</td>
-                        <td className="p-2 text-right">{q.position || "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="py-6 text-center text-muted-foreground">Нет данных по запросам</div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="card">
+          <div className="card-title mb-3">Популярные запросы (Webmaster)</div>
+          {loading ? (
+            <div className="empty-state">
+              <Loader2 className="icon-xs" style={{ display: "inline" }} />
+            </div>
+          ) : topQueries && topQueries.length > 0 ? (
+            <div className="card card-flush" style={{ background: "transparent", border: 0, boxShadow: "none", padding: 0 }}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Запрос</TableHead>
+                    <TableHead className="number-cell">Показы</TableHead>
+                    <TableHead className="number-cell">Клики</TableHead>
+                    <TableHead className="number-cell">Позиция</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {topQueries.slice(0, 15).map((q: any, i: number) => (
+                    <TableRow key={i}>
+                      <TableCell className="cell-strong">{q.query}</TableCell>
+                      <TableCell className="number-cell">{q.shows.toLocaleString("ru-RU")}</TableCell>
+                      <TableCell className="number-cell">{q.clicks.toLocaleString("ru-RU")}</TableCell>
+                      <TableCell className="number-cell">{q.position || "—"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="empty-state">Нет данных по запросам</div>
+          )}
+        </div>
       )}
 
-      {/* Connect dialog */}
+      {/* Диалог подключения */}
       <Dialog open={!!connectDlg} onOpenChange={(o) => !o && setConnectDlg(null)}>
         <DialogContent>
           <DialogHeader>
@@ -304,20 +294,20 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
             </DialogDescription>
           </DialogHeader>
           {needOAuth ? (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
+            <div className="stack-sm">
+              <p className="page-sub">
                 Нужно сначала авторизоваться в Яндексе. Откроется окно — разрешите доступ, затем вернитесь сюда.
               </p>
-              <Button onClick={() => openYandexAuth(connectDlg!)} className="w-full">
+              <Button onClick={() => openYandexAuth(connectDlg!)} className="btn-block">
                 Авторизоваться в Яндексе
               </Button>
             </div>
           ) : (
-            <div className="space-y-3">
-              <div className="space-y-1">
+            <div className="stack-sm">
+              <div className="form-row">
                 <Label>{connectDlg === "METRIKA" ? "Счётчик" : "Хост"}</Label>
                 <Select value={picked} onValueChange={(v) => v != null && setPicked(v)}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger>
                     <SelectValue placeholder="Выберите из списка" />
                   </SelectTrigger>
                   <SelectContent>
@@ -327,8 +317,8 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={doBind} disabled={!picked || binding} className="w-full">
-                {binding && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              <Button onClick={doBind} disabled={!picked || binding} className="btn-block">
+                {binding && <Loader2 className="icon-xs" style={{ marginRight: 8 }} />}
                 Подключить
               </Button>
             </div>

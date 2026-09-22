@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, Trash2, RefreshCw, Loader2, TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -90,70 +89,78 @@ export function KeywordsPanel({ slug }: { slug: string }) {
   };
 
   const initColor = (pos: number) =>
-    pos <= 3 ? "text-[#34D399]" : pos <= 10 ? "text-[#34D399]" : pos <= 30 ? "text-[#FBBF24]" : "text-[#F87171]";
+    pos <= 10 ? "text-pos" : pos <= 30 ? "expiry-warn" : "text-neg";
 
   return (
-    <Card>
-      <CardHeader className="pb-2 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm flex items-center gap-2"><Search className="h-4 w-4" /> Позиции по запросам</CardTitle>
+    <div className="card">
+      <div className="card-head-row mb-3">
+        <div className="card-title-row">
+          <Search className="icon-xs" />
+          <span className="card-title">Позиции по запросам</span>
+        </div>
         {hasWebmaster && (
           <Button size="sm" variant="outline" onClick={refresh} disabled={refreshing}>
-            {refreshing ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <RefreshCw className="h-4 w-4 mr-1.5" />}
+            {refreshing ? <Loader2 className="icon-xs" /> : <RefreshCw className="icon-xs" />}
             Обновить
           </Button>
         )}
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex gap-2">
+      </div>
+      <div className="stack-sm">
+        <div className="form-actions" style={{ flexWrap: "nowrap" }}>
           <Input
             value={newKeyword}
             onChange={(e) => setNewKeyword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addKeyword()}
             placeholder="Добавить ключевой запрос"
-            className="flex-1"
           />
-          <Button size="sm" variant="default" onClick={addKeyword} disabled={adding || !newKeyword.trim()}>
-            <Plus className="h-4 w-4" />
+          <Button size="sm" onClick={addKeyword} disabled={adding || !newKeyword.trim()}>
+            <Plus className="icon-xs" />
           </Button>
         </div>
-        {error && <div className="text-xs text-[#F87171]">{error}</div>}
+        {error && <div className="hint text-neg">{error}</div>}
         {hasWebmaster && (
-          <div className="text-xs text-muted-foreground">Позиции — средняя позиция показа из Яндекса Вебмастера (бесплатно, без парсинга выдачи).</div>
+          <div className="hint">
+            Позиции — средняя позиция показа из Яндекса Вебмастера (бесплатно, без парсинга выдачи).
+          </div>
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center py-8 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin mr-2" /> Загрузка…</div>
+          <div className="empty-state">
+            <Loader2 className="icon-xs" style={{ display: "inline", marginRight: 8 }} /> Загрузка…
+          </div>
         ) : keywords.length === 0 ? (
-          <div className="py-6 text-center text-muted-foreground">
-            {hasWebmaster ? "Добавьте ключевые запросы для отслеживания позиций." : "Для отслеживания позиций подключите Яндекс Вебмастер."}
+          <div className="empty-state">
+            {hasWebmaster
+              ? "Добавьте ключевые запросы для отслеживания позиций."
+              : "Для отслеживания позиций подключите Яндекс Вебмастер."}
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className="stack-sm">
             {keywords.map((k) => {
               const { current, prev } = trend(k);
-              let TrendIcon = Minus, trendTone = "text-muted-foreground";
+              let TrendIcon = Minus, trendTone = "hint";
               let trendText = "—";
               if (current != null && prev != null) {
-                if (current < prev) { TrendIcon = TrendingUp; trendTone = "text-[#34D399]"; trendText = `▲ ${prev - current}`; }
-                else if (current > prev) { TrendIcon = TrendingDown; trendTone = "text-[#F87171]"; trendText = `▼ ${current - prev}`; }
+                if (current < prev) { TrendIcon = TrendingUp; trendTone = "text-pos"; trendText = `▲ ${prev - current}`; }
+                else if (current > prev) { TrendIcon = TrendingDown; trendTone = "text-neg"; trendText = `▼ ${current - prev}`; }
                 else { trendText = "="; }
               }
               return (
-                <div key={k.id} className="flex items-center justify-between rounded-lg border px-3 py-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-medium text-sm truncate">{k.keyword}</span>
+                <div key={k.id} className="list-row">
+                  <div className="rank-left">
+                    <span className="cell-strong">{k.keyword}</span>
                     {current != null && (
-                      <span className={`text-sm font-bold ${initColor(current)}`}>{current}</span>
+                      <span className={`rank-value ${initColor(current)}`}>{current}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="cell-actions">
                     {current != null && (
-                      <span className={`flex items-center gap-1 text-xs ${trendTone}`}>
-                        <TrendIcon className="h-3 w-3" /> {trendText}
+                      <span className={`rank-pct ${trendTone}`}>
+                        <TrendIcon className="icon-xs" /> {trendText}
                       </span>
                     )}
-                    <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => removeKeyword(k.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    <Button size="icon" variant="ghost" onClick={() => removeKeyword(k.id)} aria-label="Удалить запрос">
+                      <Trash2 className="icon-xs" />
                     </Button>
                   </div>
                 </div>
@@ -161,7 +168,7 @@ export function KeywordsPanel({ slug }: { slug: string }) {
             })}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

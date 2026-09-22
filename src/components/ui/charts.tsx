@@ -125,15 +125,15 @@ export function StatTile({ label, value, sub, tone = "default" }: {
   tone?: "default" | "green" | "amber" | "red";
 }) {
   const toneClass =
-    tone === "green" ? "text-[#34D399]"
-    : tone === "amber" ? "text-[#FBBF24]"
-    : tone === "red" ? "text-[#F87171]"
-    : "text-foreground";
+    tone === "green" ? "text-pos"
+    : tone === "amber" ? "expiry-warn"
+    : tone === "red" ? "text-neg"
+    : "";
   return (
-    <div className="rounded-lg border p-3">
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={`text-xl font-bold ${toneClass}`}>{value}</div>
-      {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
+    <div className="mini-item">
+      <div className="stat-label">{label}</div>
+      <div className={`stat-value ${toneClass}`}>{value}</div>
+      {sub && <div className="hint">{sub}</div>}
     </div>
   );
 }

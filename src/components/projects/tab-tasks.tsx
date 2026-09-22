@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 import { TaskDialog } from "./task-dialog";
 import type { Task, ProjectData } from "./types";
@@ -35,10 +34,10 @@ const PRIORITY_LABELS: Record<string, string> = {
 };
 
 const PRIORITY_CLASSES: Record<string, string> = {
-  URGENT: "bg-[rgba(248,113,113,0.1)] text-[#F87171] dark:text-[#F87171]",
-  HIGH: "bg-[rgba(251,191,36,0.1)] text-[#FBBF24] dark:text-[#FBBF24]",
-  MEDIUM: "bg-[rgba(52,211,153,0.1)] text-[#34D399] dark:text-[#34D399]",
-  LOW: "bg-muted text-muted-foreground",
+  URGENT: "badge-danger",
+  HIGH: "badge-warn",
+  MEDIUM: "badge-success",
+  LOW: "badge-neutral",
 };
 
 function formatDate(d: string | null) {
@@ -89,16 +88,16 @@ export function TasksTab({ project, onProjectUpdate }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Задачи</h3>
+    <div className="tab-inner">
+      <h3 className="section-title">Задачи</h3>
 
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <div className="kanban">
         {COLUMNS.map((col) => {
           const tasks = tasksByColumn(col.key);
           return (
             <div
               key={col.key}
-              className="w-64 shrink-0 rounded-xl border bg-muted/30 p-2"
+              className="kanban-col"
               onDragOver={(e) => {
                 e.preventDefault();
                 dragOverColumn.current = col.key;
@@ -112,17 +111,14 @@ export function TasksTab({ project, onProjectUpdate }: Props) {
                 dragOverColumn.current = null;
               }}
             >
-              <div className="mb-2 flex items-center justify-between px-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold">{col.label}</span>
-                  <Badge variant="outline" className="text-xs">
-                    {tasks.length}
-                  </Badge>
+              <div className="kanban-head">
+                <div className="card-title-row">
+                  <span className="kanban-col-title">{col.label}</span>
+                  <span className="badge badge-neutral">{tasks.length}</span>
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
                   onClick={() => {
                     setEditing(null);
                     setColumnForAdd(col.key);
@@ -130,11 +126,11 @@ export function TasksTab({ project, onProjectUpdate }: Props) {
                   }}
                   aria-label={`Добавить задачу в ${col.label}`}
                 >
-                  <Plus />
+                  <Plus className="icon-xs" />
                 </Button>
               </div>
 
-              <div className="space-y-2">
+              <div className="stack-sm">
                 {tasks.map((t) => (
                   <div
                     key={t.id}
@@ -150,27 +146,23 @@ export function TasksTab({ project, onProjectUpdate }: Props) {
                       setEditing(t);
                       setDialogOpen(true);
                     }}
-                    className="cursor-pointer rounded-lg border bg-background p-2.5 shadow-sm transition-shadow hover:shadow-md"
+                    className="kanban-card"
                   >
-                    <div className="mb-1 flex items-start justify-between gap-1">
-                      <span className="text-sm font-medium leading-tight">
-                        {t.title}
+                    <span className="kanban-card-title">{t.title}</span>
+                    <div style={{ marginTop: 6 }}>
+                      <span className={`badge ${PRIORITY_CLASSES[t.priority] ?? "badge-neutral"}`}>
+                        {PRIORITY_EMOJI[t.priority]} {PRIORITY_LABELS[t.priority] ?? t.priority}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <Badge variant="outline" className={PRIORITY_CLASSES[t.priority]}>
-                        {PRIORITY_EMOJI[t.priority]} {PRIORITY_LABELS[t.priority] ?? t.priority}
-                      </Badge>
-                    </div>
                     {(t.assigneeId || t.dueDate) && (
-                      <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="kanban-meta">
                         {t.assigneeId ? (
                           <span>👤 {t.assigneeId === 1 ? "Лёша" : "Гена"}</span>
                         ) : (
                           <span />
                         )}
                         {t.dueDate && (
-                          <span className={t.dueDate < new Date().toISOString() ? "text-[#F87171]" : ""}>
+                          <span className={t.dueDate < new Date().toISOString() ? "text-neg" : ""}>
                             📅 {formatDate(t.dueDate)}
                           </span>
                         )}
@@ -178,11 +170,7 @@ export function TasksTab({ project, onProjectUpdate }: Props) {
                     )}
                   </div>
                 ))}
-                {tasks.length === 0 && (
-                  <div className="rounded-lg border border-dashed p-3 text-center text-xs text-muted-foreground">
-                    Пусто
-                  </div>
-                )}
+                {tasks.length === 0 && <div className="kanban-empty">Пусто</div>}
               </div>
             </div>
           );

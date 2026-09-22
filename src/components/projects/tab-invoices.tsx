@@ -1,7 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -38,25 +36,13 @@ function formatDate(dateStr: string | null): string {
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDING":
-      return (
-        <Badge variant="outline" className="border-[rgba(251,191,36,0.4)] text-[#FBBF24] bg-[rgba(251,191,36,0.1)]">
-          🟡 Ожидает
-        </Badge>
-      );
+      return <span className="badge badge-warn">🟡 Ожидает</span>;
     case "PAID":
-      return (
-        <Badge variant="outline" className="border-[#34D399] text-[#34D399] bg-[rgba(52,211,153,0.1)]">
-          🟢 Оплачен
-        </Badge>
-      );
+      return <span className="badge badge-success">🟢 Оплачен</span>;
     case "CANCELLED":
-      return (
-        <Badge variant="outline" className="border-[#263147] text-[#94A3B8] bg-[#131926]">
-          ⚫ Обнулён
-        </Badge>
-      );
+      return <span className="badge badge-neutral">⚫ Обнулён</span>;
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      return <span className="badge badge-neutral">{status}</span>;
   }
 }
 
@@ -71,66 +57,55 @@ export function InvoicesTab({ project }: Props) {
     .reduce((sum, i) => sum + Number(i.amount), 0);
 
   return (
-    <div className="space-y-4">
-      {/* Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Всего счетов</div>
-            <div className="text-lg font-bold">{invoices.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Ожидают оплаты</div>
-            <div className="text-lg font-bold text-[#FBBF24]">{formatMoney(pendingSum)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground">Оплачено</div>
-            <div className="text-lg font-bold text-[#34D399]">{formatMoney(paidSum)}</div>
-          </CardContent>
-        </Card>
+    <div className="tab-inner">
+      <div className="grid-3">
+        <div className="card">
+          <div className="stat-label">Всего счетов</div>
+          <div className="stat-value">{invoices.length}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Ожидают оплаты</div>
+          <div className="stat-value" style={{ color: "#FBBF24" }}>{formatMoney(pendingSum)}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Оплачено</div>
+          <div className="stat-value stat-value--pos">{formatMoney(paidSum)}</div>
+        </div>
       </div>
 
       {invoices.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center text-muted-foreground">
-            По этому проекту счетов нет
-          </CardContent>
-        </Card>
+        <div className="card">
+          <div className="empty-state">По этому проекту счетов нет</div>
+        </div>
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-16">№</TableHead>
-                  <TableHead>Номер</TableHead>
-                  <TableHead>Описание</TableHead>
-                  <TableHead className="text-right">Сумма</TableHead>
-                  <TableHead>Статус</TableHead>
-                  <TableHead>Дата создания</TableHead>
-                  <TableHead>Дата оплаты</TableHead>
+        <div className="card card-flush">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>№</TableHead>
+                <TableHead>Номер</TableHead>
+                <TableHead>Описание</TableHead>
+                <TableHead className="number-cell">Сумма</TableHead>
+                <TableHead>Статус</TableHead>
+                <TableHead>Дата создания</TableHead>
+                <TableHead>Дата оплаты</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {invoices.map((inv) => (
+                <TableRow key={inv.id}>
+                  <TableCell className="num">{inv.id}</TableCell>
+                  <TableCell className="num">{inv.invoiceNumber ?? "—"}</TableCell>
+                  <TableCell className="cell-strong">{inv.description}</TableCell>
+                  <TableCell className="number-cell">{formatMoney(Number(inv.amount))}</TableCell>
+                  <TableCell><StatusBadge status={inv.status} /></TableCell>
+                  <TableCell className="num">{formatDate(inv.createdAt)}</TableCell>
+                  <TableCell className="num">{formatDate(inv.paidDate)}</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((inv) => (
-                  <TableRow key={inv.id}>
-                    <TableCell className="font-mono text-muted-foreground">{inv.id}</TableCell>
-                    <TableCell className="font-mono">{inv.invoiceNumber ?? "—"}</TableCell>
-                    <TableCell className="font-medium">{inv.description}</TableCell>
-                    <TableCell className="text-right font-mono">{formatMoney(Number(inv.amount))}</TableCell>
-                    <TableCell><StatusBadge status={inv.status} /></TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{formatDate(inv.createdAt)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{formatDate(inv.paidDate)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );
