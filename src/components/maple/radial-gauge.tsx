@@ -64,10 +64,10 @@ export function RadialGauge({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
-            <span className="font-mono text-[15px] font-semibold leading-tight text-[#4a4239]">
+            <span className="font-mono text-[15px] font-semibold leading-tight text-[#F8FAFC]">
               {reading}
             </span>
-            <span className="text-[10px] text-[#756a60]">{unit}</span>
+            <span className="text-[10px] text-[#64748B]">{unit}</span>
           </div>
         </div>
       </div>

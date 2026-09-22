@@ -128,7 +128,7 @@ export function FilesTab({ project, onProjectUpdate }: Props) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-red-600"
+                    className="h-7 w-7 text-[#F87171]"
                     onClick={() => setDeleting(f)}
                     aria-label="Удалить"
                   >

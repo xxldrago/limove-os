@@ -300,10 +300,10 @@ export function FinancePageClient() {
       total={balance ? formatMoney(balance.totalIncome) : undefined}
       tools={
         <>
-          <Button onClick={() => handleAddClick("INCOME")} className="h-10 rounded-[12px] bg-[#1f8a5c] px-[18px] text-white hover:bg-[#177245]">
+          <Button onClick={() => handleAddClick("INCOME")} className="h-10 rounded-[12px] bg-[#34D399] px-[18px] text-[#090D14] hover:bg-[#177245]">
             <Plus className="mr-2 h-4 w-4" /> Приход
           </Button>
-          <Button onClick={() => handleAddClick("EXPENSE")} className="h-10 rounded-[12px] bg-[#16548f] px-[18px] text-white hover:bg-[#1c68ad]">
+          <Button onClick={() => handleAddClick("EXPENSE")} className="h-10 rounded-[12px] bg-[#10B981] px-[18px] text-[#090D14] hover:bg-[#059669]">
             <Plus className="mr-2 h-4 w-4" /> Расход
           </Button>
           <Button onClick={() => setCreateInvoiceOpen(true)} variant="outline" className="h-10 rounded-[12px] px-[18px]">
@@ -318,24 +318,24 @@ export function FinancePageClient() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
           <Card>
             <CardContent className="p-5">
-              <div className="text-xs text-[#5d6b7c]">Приход за месяц</div>
-              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#1f8a5c]">
+              <div className="text-xs text-[#94A3B8]">Приход за месяц</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#34D399]">
                 +{formatMoney(balance.totalIncome).replace("−", "")}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <div className="text-xs text-[#5d6b7c]">Расход за месяц</div>
-              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#c25e4e]">
+              <div className="text-xs text-[#94A3B8]">Расход за месяц</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#F87171]">
                 −{formatMoney(balance.totalExpenses).replace("−", "")}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-5">
-              <div className="text-xs text-[#5d6b7c]">Прибыль</div>
-              <div className={`num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap ${balance.profit >= 0 ? "text-[#0f3f6d]" : "text-[#c25e4e]"}`}>
+              <div className="text-xs text-[#94A3B8]">Прибыль</div>
+              <div className={`num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap ${balance.profit >= 0 ? "text-[#34D399]" : "text-[#F87171]"}`}>
                 {balance.profit >= 0 ? "+" : "−"}
                 {formatMoney(Math.abs(balance.profit))}
               </div>
@@ -343,13 +343,13 @@ export function FinancePageClient() {
           </Card>
           <Card>
             <CardContent className="p-5">
-              <div className="text-xs text-[#5d6b7c]">Лёша потратил</div>
-              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#c25e4e]">
+              <div className="text-xs text-[#94A3B8]">Лёша потратил</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#F87171]">
                 {formatMoney(balance.partners.lesha.spent)}
               </div>
-              <div className="mt-3 border-t border-[#eef2f6] pt-3">
-                <div className="text-xs text-[#5d6b7c]">Лёша получил</div>
-                <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#1f8a5c]">
+              <div className="mt-3 border-t border-[#1E2638] pt-3">
+                <div className="text-xs text-[#94A3B8]">Лёша получил</div>
+                <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#34D399]">
                   {formatMoney(balance.partners.lesha.received)}
                 </div>
               </div>
@@ -357,13 +357,13 @@ export function FinancePageClient() {
           </Card>
           <Card>
             <CardContent className="p-5">
-              <div className="text-xs text-[#5d6b7c]">Гена потратил</div>
-              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#c25e4e]">
+              <div className="text-xs text-[#94A3B8]">Гена потратил</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#F87171]">
                 {formatMoney(balance.partners.gena.spent)}
               </div>
-              <div className="mt-3 border-t border-[#eef2f6] pt-3">
-                <div className="text-xs text-[#5d6b7c]">Гена получил</div>
-                <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#1f8a5c]">
+              <div className="mt-3 border-t border-[#1E2638] pt-3">
+                <div className="text-xs text-[#94A3B8]">Гена получил</div>
+                <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#34D399]">
                   {formatMoney(balance.partners.gena.received)}
                 </div>
               </div>
@@ -381,25 +381,25 @@ export function FinancePageClient() {
             <CardTitle className="text-sm flex items-center gap-2">
               <FileText className="h-4 w-4" /> Ожидают оплаты
             </CardTitle>
-            <span className="num text-sm text-[#5d6b7c]">{pendingInvoices.count} сч.</span>
+            <span className="num text-sm text-[#94A3B8]">{pendingInvoices.count} сч.</span>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="num text-[28px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#0f3f6d]">
+            <div className="num text-[28px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#34D399]">
               {formatMoney(pendingInvoices.sum)}
             </div>
             {pendingInvoiceList.length === 0 ? (
-              <p className="text-sm text-[#5d6b7c]">Нет неоплаченных счетов</p>
+              <p className="text-sm text-[#94A3B8]">Нет неоплаченных счетов</p>
             ) : (
               <ul className="space-y-2">
                 {pendingInvoiceList.map((inv) => (
-                  <li key={inv.id} className="flex items-center justify-between gap-2 rounded-[10px] border border-[#eef2f6] px-3 py-2">
+                  <li key={inv.id} className="flex items-center justify-between gap-2 rounded-[10px] border border-[#1E2638] px-3 py-2">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-[#0f1720]">
+                      <div className="truncate text-sm font-medium text-[#F8FAFC]">
                         {inv.invoiceNumber ?? `INV-${String(inv.id).padStart(4, "0")}`} · {inv.project?.name ?? "—"}
                       </div>
-                      <div className="num text-sm font-semibold text-[#354354]">{formatMoney(Number(inv.amount))}</div>
+                      <div className="num text-sm font-semibold text-[#94A3B8]">{formatMoney(Number(inv.amount))}</div>
                     </div>
-                    <Button size="sm" className="h-8 rounded-[10px] bg-[#16548f] text-white hover:bg-[#1c68ad]" onClick={() => setManageInvoice(inv)}>
+                    <Button size="sm" className="h-8 rounded-[10px] bg-[#10B981] text-[#090D14] hover:bg-[#059669]" onClick={() => setManageInvoice(inv)}>
                       <CreditCard className="mr-1.5 h-4 w-4" /> Оплатить
                     </Button>
                   </li>
@@ -571,10 +571,10 @@ export function FinancePageClient() {
                       <TableCell
                         className={`text-xs text-right font-medium ${
                           t.type === "INCOME"
-                            ? "text-emerald-600"
+                            ? "text-[#34D399]"
                             : t.type === "DEBT_SETTLEMENT"
                               ? "text-muted-foreground"
-                              : "text-red-600"
+                              : "text-[#F87171]"
                         }`}
                       >
                         {t.type === "INCOME" ? "+" : t.type === "DEBT_SETTLEMENT" ? "" : "-"}

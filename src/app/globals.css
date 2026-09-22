@@ -4,6 +4,466 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Limove OS Finance — тёмная тема (нативные CSS-переменные)
+   ============================================================ */
+
+:root {
+  /* Фоны */
+  --bg-primary: #090d14;
+  --bg-secondary: #0b0f17;
+  --bg-card: #0d121b;
+  --bg-card-hover: #131926;
+  --bg-input: #111723;
+
+  /* Текст */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Акценты */
+  --accent-success: #34d399;
+  --accent-success-bg: rgba(52, 211, 153, 0.1);
+  --accent-success-border: rgba(52, 211, 153, 0.2);
+  --accent-danger: #f87171;
+  --accent-danger-bg: rgba(248, 113, 113, 0.1);
+  --accent-danger-border: rgba(248, 113, 113, 0.2);
+  --accent-primary: #10b981;
+  --accent-primary-hover: #059669;
+
+  /* Границы */
+  --border-default: #1e2638;
+  --border-light: #263147;
+
+  /* Тени */
+  --shadow-card: 0 4px 12px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.25);
+
+  /* Радиусы */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+
+  /* -------- токены для shadcn-совместимых имён -------- */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --popover: #131926;
+  --popover-foreground: var(--text-primary);
+  --primary: #10b981;
+  --primary-foreground: #090d14;
+  --secondary: #131926;
+  --secondary-foreground: var(--text-primary);
+  --muted: #131926;
+  --muted-foreground: var(--text-secondary);
+  --accent: #131926;
+  --accent-foreground: var(--text-primary);
+  --destructive: #f87171;
+  --destructive-foreground: #090d14;
+  --border: var(--border-default);
+  --input: var(--border-default);
+  --ring: #34d399;
+  --radius: 0.75rem;
+  --sidebar: var(--bg-secondary);
+  --sidebar-foreground: var(--text-secondary);
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #090d14;
+  --sidebar-accent: var(--bg-card-hover);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border-default);
+  --sidebar-ring: #34d399;
+  --chart-1: #34d399;
+  --chart-2: #60a5fa;
+  --chart-3: #f87171;
+  --chart-4: #a78bfa;
+  --chart-5: #fbbf24;
+}
+
+@layer base {
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+  }
+
+  * {
+    border-color: var(--border-default);
+  }
+
+  html {
+    font-family: var(--font-sans), var(--font-inter), system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-primary);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    font-family: var(--font-sans), var(--font-inter), system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+}
+
+/* ============================================================
+   Семантические классы (нативный CSS)
+   ============================================================ */
+@layer components {
+  /* Карточки */
+  .card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.card:hover {
+  border-color: rgba(52, 211, 153, 0.3);
+}
+.card-header {
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+.card-description {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.card-content {
+  min-width: 0;
+}
+.card-action {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-default);
+}
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: #090d14;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+.btn-primary:hover {
+  background-color: var(--accent-primary-hover);
+  transform: scale(1.02);
+}
+.btn-secondary {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+.btn-secondary:hover {
+  background-color: #1a2232;
+  color: #ffffff;
+}
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+.btn-ghost:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+.btn-danger {
+  background-color: var(--accent-danger-bg);
+  color: var(--accent-danger);
+  border-color: var(--accent-danger-border);
+}
+.btn-danger:hover {
+  background-color: rgba(248, 113, 113, 0.18);
+}
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.btn-lg {
+  padding: 12px 20px;
+  font-size: 15px;
+}
+.btn-icon {
+  padding: 8px;
+  width: 34px;
+  height: 34px;
+}
+
+/* Бейджи */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.badge-success {
+  background-color: var(--accent-success-bg);
+  color: var(--accent-success);
+  border-color: var(--accent-success-border);
+}
+.badge-danger {
+  background-color: var(--accent-danger-bg);
+  color: var(--accent-danger);
+  border-color: var(--accent-danger-border);
+}
+.badge-neutral {
+  background-color: var(--bg-card-hover);
+  color: var(--text-secondary);
+  border-color: var(--border-light);
+}
+
+/* Поля ввода */
+.input,
+.textarea {
+  width: 100%;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+.input:focus-visible,
+.textarea:focus-visible {
+  border-color: var(--accent-success-border);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
+}
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Метки */
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Таблицы */
+.table-container {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+}
+.table-caption {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.data-table th {
+  text-align: left;
+  padding: 12px 24px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-default);
+  background-color: var(--bg-secondary);
+}
+.data-table td {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+.data-table tbody tr:hover {
+  background-color: rgba(19, 25, 38, 0.5);
+}
+.data-table th:first-child,
+.data-table td:first-child {
+  padding-left: 0;
+}
+.data-table th:last-child,
+.data-table td:last-child {
+  padding-right: 0;
+}
+.data-table .number-cell {
+  text-align: right;
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Скелетон загрузки */
+.skeleton {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: var(--bg-card-hover);
+  border-radius: var(--r-md);
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Разделители */
+.separator-h {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+  background-color: var(--border-default);
+}
+.separator-v {
+  flex-shrink: 0;
+  width: 1px;
+  align-self: stretch;
+  background-color: var(--border-default);
+}
+
+/* Метрики и цифры */
+.metric-value {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+.metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+/* Стеклянные панели */
+.glass-panel {
+  background-color: rgba(9, 13, 20, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* Каркас приложения */
+.app-inset {
+  background-color: var(--bg-primary);
+}
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 66px;
+  flex-shrink: 0;
+  padding: 0 16px;
+}
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 32px;
+}
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.app-header-label {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.sep-header {
+  height: 16px;
+  margin-left: 4px;
+  margin-right: 8px;
+}
+@media (max-width: 767px) {
+  .app-main {
+    padding: 16px;
+  }
+}
+@media (max-width: 639px) {
+  .app-header-label {
+    display: none;
+  }
+}
+}
+
+/* ============================================================
+   Утилиты, на которые ссылаются компоненты
+   ============================================================ */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -11,6 +471,82 @@
   .animate-fade-in {
     animation: fade-in 0.3s ease-out;
   }
+  .num {
+    font-family: var(--font-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  .font-display {
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+  .font-body-maple {
+    font-family: var(--font-sans), system-ui, sans-serif;
+  }
+  .font-mono-num {
+    font-family: var(--font-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Панель/строки/метры — тёмный вариант */
+  .fern-panel {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+  }
+  .fern-row {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-card);
+    transition: transform 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+  }
+  .fern-row:hover {
+    border-color: rgba(52, 211, 153, 0.3);
+    background-color: var(--bg-card-hover);
+  }
+  .fern-track {
+    height: 26px;
+    border-radius: 9999px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-default);
+    overflow: hidden;
+  }
+  .fern-fill {
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #34d399, #10b981);
+  }
+  .fern-chip {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--accent-success-bg);
+    color: var(--accent-success);
+    border: 1px solid var(--accent-success-border);
+    border-radius: 6px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Кастомный скроллбар (тёмный вариант) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
 }
 
 @keyframes fade-in {
@@ -21,210 +557,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@layer base {
-  .theme {
-    --font-heading: var(--font-inter);
-    --font-sans: var(--font-inter);
-  }
-  :root {
-    /* Fernbrook — flat light budgeting: cool #f2f5f8 page, white cards, navy brand, aqua fills */
-    --background: #f2f5f8;
-    --foreground: #0f1720;
-    --card: #ffffff;
-    --card-foreground: #0f1720;
-    --popover: #ffffff;
-    --popover-foreground: #0f1720;
-    --primary: #16548f;
-    --primary-foreground: #ffffff;
-    --secondary: #eaf1f8;
-    --secondary-foreground: #0f3f6d;
-    --muted: #eef2f6;
-    --muted-foreground: #5d6b7c;
-    --accent: #eaf1f8;
-    --accent-foreground: #16548f;
-    --destructive: #d4674e;
-    --destructive-foreground: #ffffff;
-    --border: #e4e9ef;
-    --input: #e4e9ef;
-    --ring: #1c68ad;
-    --chart-1: #2d8ba3;
-    --chart-2: #34a06d;
-    --chart-3: #4a8fc4;
-    --chart-4: #d99a4e;
-    --chart-5: #8a97a6;
-    --radius: 0.75rem;
-    --sidebar: #ffffff;
-    --sidebar-foreground: #354354;
-    --sidebar-primary: #16548f;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #eaf1f8;
-    --sidebar-accent-foreground: #16548f;
-    --sidebar-border: #e4e9ef;
-    --sidebar-ring: #1c68ad;
-    /* Fernbrook tokens */
-    --fern-page: #f2f5f8;
-    --fern-ink: #0f1720;
-    --fern-ink-2: #354354;
-    --fern-ink-3: #5d6b7c;
-    --fern-ink-4: #8a97a6;
-    --fern-brand: #16548f;
-    --fern-brand-2: #1c68ad;
-    --fern-brand-deep: #0f3f6d;
-    --fern-brand-tint: #eaf1f8;
-    --fern-brand-line: #c3d8ea;
-    --fern-aqua-track: #dceef3;
-    --fern-aqua-fill: #2d8ba3;
-    --fern-mint: #34a06d;
-    --fern-clay: #d4674e;
-    /* Maple accents (kept for maple-preview compat) */
-    --maple-amber: #e8a552;
-    --maple-leaf: #7fb069;
-    --maple-blue: #5b7db1;
-    --maple-ink: #4a4239;
-    --maple-faint: #756a60;
-    --maple-shadow-dark: #d6cfc6;
-    --maple-shadow-light: #fbf8f4;
-  }
-  .dark {
-    /* Fernbrook is light-only — keep dark alias identical to avoid flashes */
-    --background: #f2f5f8;
-    --foreground: #0f1720;
-    --card: #ffffff;
-    --card-foreground: #0f1720;
-    --popover: #ffffff;
-    --popover-foreground: #0f1720;
-    --primary: #16548f;
-    --primary-foreground: #ffffff;
-    --secondary: #eaf1f8;
-    --secondary-foreground: #0f3f6d;
-    --muted: #eef2f6;
-    --muted-foreground: #5d6b7c;
-    --accent: #eaf1f8;
-    --accent-foreground: #16548f;
-    --destructive: #d4674e;
-    --destructive-foreground: #ffffff;
-    --border: #e4e9ef;
-    --input: #e4e9ef;
-    --ring: #1c68ad;
-    --sidebar: #ffffff;
-    --sidebar-foreground: #354354;
-    --sidebar-primary: #16548f;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #eaf1f8;
-    --sidebar-accent-foreground: #16548f;
-    --sidebar-border: #e4e9ef;
-    --sidebar-ring: #1c68ad;
-  }
-  * {
-    border-color: var(--border);
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    background: #f2f5f8;
-    -webkit-font-smoothing: antialiased;
-  }
-  html {
-    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  }
-  .num {
-    font-variant-numeric: tabular-nums;
-  }
-}
-
-@layer utilities {
-  .font-display {
-    font-family: var(--font-display), "Poppins", sans-serif;
-  }
-  .font-body-maple {
-    font-family: var(--font-body), "Nunito Sans", sans-serif;
-  }
-  .font-mono-num {
-    font-family: var(--font-roboto-mono), "Roboto Mono", monospace;
-    font-variant-numeric: tabular-nums;
-  }
-  /* Maple Ridge neumorphic soft-UI */
-  .raised {
-    box-shadow: 8px 8px 16px #d6cfc6, -8px -8px 16px #fbf8f4;
-    background: #ece7e1;
-  }
-  .raised-sm {
-    box-shadow: 5px 5px 11px #d6cfc6, -5px -5px 11px #fbf8f4;
-    background: #ece7e1;
-  }
-  .recessed {
-    box-shadow: inset 6px 6px 12px #d6cfc6, inset -6px -6px 12px #fbf8f4;
-    background: #ece7e1;
-  }
-  .recessed-sm {
-    box-shadow: inset 4px 4px 8px #d6cfc6, inset -4px -4px 8px #fbf8f4;
-    background: #ece7e1;
-  }
-  .dim {
-    box-shadow: 4px 4px 9px #dcd5cc, -4px -4px 9px #f4efe9;
-    background: #e7e1d8;
-  }
-  .glow-amber {
-    box-shadow: inset 4px 4px 9px #cf9145, inset -3px -3px 8px #ffc97e;
-    background: #ece7e1;
-  }
-  .glow-sage {
-    box-shadow: inset 4px 4px 9px #5f8a4d, inset -3px -3px 8px #9fd187;
-    background: #ece7e1;
-  }
-  .maple-card {
-    background: #ece7e1;
-    border-radius: 20px;
-    box-shadow: 8px 8px 16px #d6cfc6, -8px -8px 16px #fbf8f4;
-    border: 0;
-  }
-  /* Fernbrook — flat light panels */
-  .fern-panel {
-    background: #ffffff;
-    border: 1px solid #e4e9ef;
-    border-radius: 20px;
-    box-shadow: 0 1px 2px rgba(15, 23, 32, 0.04), 0 24px 48px -28px rgba(15, 23, 32, 0.24);
-  }
-  .fern-row {
-    background: #ffffff;
-    border: 1px solid #e4e9ef;
-    border-radius: 16px;
-    box-shadow: 0 1px 2px rgba(15, 23, 32, 0.05);
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s;
-  }
-  .fern-row:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 1px 2px rgba(15, 23, 32, 0.05), 0 14px 28px -18px rgba(15, 23, 32, 0.35);
-    border-color: #d8e0e9;
-  }
-  .fern-track {
-    height: 26px;
-    border-radius: 999px;
-    background: #dceef3;
-    overflow: hidden;
-    box-shadow: inset 0 1px 2px rgba(15, 23, 32, 0.05);
-  }
-  .fern-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(180deg, #349cb6, #2d8ba3);
-  }
-  .fern-chip {
-    display: inline-flex;
-    align-items: center;
-    background: #eaf1f8;
-    color: #0f3f6d;
-    border: 1px solid #c3d8ea;
-    border-radius: 7px;
-    padding: 1px 8px;
-    font-size: 12.5px;
-    font-weight: 560;
-  }
-  /* Guaranteed inner breathing room for every card */
-  [data-slot="card"] {
-    padding: 10px;
   }
 }

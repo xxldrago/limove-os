@@ -83,19 +83,19 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDING":
       return (
-        <Badge variant="outline" className="border-yellow-500 text-yellow-700 bg-yellow-50">
+        <Badge variant="outline" className="border-[rgba(251,191,36,0.4)] text-[#FBBF24] bg-[rgba(251,191,36,0.1)]">
           🟡 Ожидает
         </Badge>
       );
     case "PAID":
       return (
-        <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
+        <Badge variant="outline" className="border-[#34D399] text-[#34D399] bg-[rgba(52,211,153,0.1)]">
           🟢 Оплачен
         </Badge>
       );
     case "CANCELLED":
       return (
-        <Badge variant="outline" className="border-gray-500 text-gray-700 bg-gray-50">
+        <Badge variant="outline" className="border-[#263147] text-[#94A3B8] bg-[#131926]">
           ⚫ Обнулён
         </Badge>
       );
@@ -195,7 +195,7 @@ export function InvoicesPageClient() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Ожидают оплаты</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{pendingInvoices.length}</div>
+            <div className="text-2xl font-bold text-[#FBBF24]">{pendingInvoices.length}</div>
             <p className="text-sm text-muted-foreground">{formatMoney(pendingSum)}</p>
           </CardContent>
         </Card>
@@ -204,7 +204,7 @@ export function InvoicesPageClient() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Оплачено</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{paidInvoices.length}</div>
+            <div className="text-2xl font-bold text-[#34D399]">{paidInvoices.length}</div>
             <p className="text-sm text-muted-foreground">{formatMoney(paidSum)}</p>
           </CardContent>
         </Card>
@@ -213,7 +213,7 @@ export function InvoicesPageClient() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Обнулено</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{cancelledInvoices.length}</div>
+            <div className="text-2xl font-bold text-[#94A3B8]">{cancelledInvoices.length}</div>
           </CardContent>
         </Card>
       </div>

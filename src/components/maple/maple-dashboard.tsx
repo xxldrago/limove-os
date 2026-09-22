@@ -111,13 +111,13 @@ export function MapleDashboard({
             <span className="font-display text-2xl font-bold text-[#E8A552]">L</span>
           </div>
           <div>
-            <p className="text-sm tracking-wide text-[#756a60]">
+            <p className="text-sm tracking-wide text-[#64748B]">
               Добрый вечер{userName ? `, ${userName}` : ""}
             </p>
-            <h1 className="font-display text-2xl font-bold leading-tight text-[#4a4239]">
+            <h1 className="font-display text-2xl font-bold leading-tight text-[#F8FAFC]">
               Limove House
             </h1>
-            <p className="font-mono mt-0.5 text-xs text-[#756a60]">
+            <p className="font-mono mt-0.5 text-xs text-[#64748B]">
               {clockTemp} · {filtered.length} проектов · {todos.length} дел
             </p>
           </div>
@@ -132,7 +132,7 @@ export function MapleDashboard({
                 key={m.id}
                 onClick={() => setMode(m.id)}
                 className={`font-display press flex items-center gap-2.5 rounded-[20px] px-5 py-4 text-[15px] font-semibold transition-all active:scale-95 sm:px-8 ${
-                  isActive ? "recessed text-[#E8A552]" : "raised text-[#8a7f73]"
+                  isActive ? "recessed text-[#E8A552]" : "raised text-[#64748B]"
                 }`}
               >
                 <Icon className="text-base" size={18} />
@@ -147,8 +147,8 @@ export function MapleDashboard({
         {/* Left — project tiles */}
         <section>
           <div className="mb-5 flex items-center justify-between px-1">
-            <h2 className="font-display text-lg font-semibold text-[#4a4239]">Проекты</h2>
-            <span className="text-sm text-[#756a60]">
+            <h2 className="font-display text-lg font-semibold text-[#F8FAFC]">Проекты</h2>
+            <span className="text-sm text-[#64748B]">
               {projects.length} проектов · {formatShort(totalIncome)} доход
             </span>
           </div>
@@ -162,10 +162,10 @@ export function MapleDashboard({
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-display text-xl font-semibold text-[#4a4239]">
+                    <h3 className="font-display text-xl font-semibold text-[#F8FAFC]">
                       {top.name}
                     </h3>
-                    <p className="mt-0.5 text-sm text-[#756a60]">
+                    <p className="mt-0.5 text-sm text-[#64748B]">
                       {formatMoney(top.income)} · {offIds.has(top.id) ? "пауза" : top.status}
                     </p>
                   </div>
@@ -185,8 +185,8 @@ export function MapleDashboard({
                 </div>
                 <div className="mt-auto flex items-end justify-between gap-4">
                   <div>
-                    <p className="mb-1 text-xs text-[#756a60]">Прибыль</p>
-                    <p className="font-mono text-3xl font-medium text-[#4a4239]">
+                    <p className="mb-1 text-xs text-[#64748B]">Прибыль</p>
+                    <p className="font-mono text-3xl font-medium text-[#F8FAFC]">
                       {formatShort(top.profit)}
                       <span className="text-lg"> ₽</span>
                     </p>
@@ -198,14 +198,14 @@ export function MapleDashboard({
                     </Link>
                   </div>
                   <div className="w-1/2">
-                    <div className="mb-2 flex justify-between text-xs text-[#756a60]">
+                    <div className="mb-2 flex justify-between text-xs text-[#64748B]">
                       <span>Доход</span>
                       <span className="font-mono text-[#E8A552]">{incomePct}%</span>
                     </div>
                     <div className="recessed-sm h-4 rounded-full p-1">
                       <div className="h-full rounded-full bg-[#E8A552]" style={{ width: `${incomePct}%` }} />
                     </div>
-                    <div className="mb-2 mt-3 flex justify-between text-xs text-[#756a60]">
+                    <div className="mb-2 mt-3 flex justify-between text-xs text-[#64748B]">
                       <span>Расходы</span>
                       <span className="font-mono text-[#7FB069]">{expensePct}%</span>
                     </div>
@@ -217,8 +217,8 @@ export function MapleDashboard({
               </article>
             ) : (
               <article className="dim flex flex-col rounded-[20px] p-6 col-span-2 row-span-2 items-center justify-center text-center">
-                <p className="font-display font-semibold text-[#8a7f73]">Нет проектов в этом режиме</p>
-                <p className="mt-1 text-sm text-[#756a60]">Переключите фильтр выше</p>
+                <p className="font-display font-semibold text-[#64748B]">Нет проектов в этом режиме</p>
+                <p className="mt-1 text-sm text-[#64748B]">Переключите фильтр выше</p>
               </article>
             )}
 
@@ -230,7 +230,7 @@ export function MapleDashboard({
                   className={`flex flex-col rounded-[20px] p-5 ${off ? "dim" : "raised"}`}
                 >
                   <div className="flex items-start justify-between">
-                    <h3 className={`font-display text-base font-semibold ${off ? "text-[#8a7f73]" : "text-[#4a4239]"}`}>
+                    <h3 className={`font-display text-base font-semibold ${off ? "text-[#64748B]" : "text-[#F8FAFC]"}`}>
                       {p.name}
                     </h3>
                     <button
@@ -251,11 +251,11 @@ export function MapleDashboard({
                     </button>
                   </div>
                   <div className="mt-auto">
-                    <p className={`font-mono text-2xl font-medium ${off ? "text-[#6b6258]" : "text-[#4a4239]"}`}>
+                    <p className={`font-mono text-2xl font-medium ${off ? "text-[#6b6258]" : "text-[#F8FAFC]"}`}>
                       {formatShort(p.profit)}
                       <span className="text-sm"> ₽</span>
                     </p>
-                    <p className="text-xs text-[#756a60]">
+                    <p className="text-xs text-[#64748B]">
                       {off ? "на паузе" : `${formatShort(p.income)} / −${formatShort(p.expenses)}`}
                     </p>
                   </div>
@@ -268,10 +268,10 @@ export function MapleDashboard({
               <article className="raised flex flex-col rounded-[20px] p-5 col-span-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-display text-base font-semibold text-[#4a4239]">
+                    <h3 className="font-display text-base font-semibold text-[#F8FAFC]">
                       {filtered[0]?.name ?? "Фокус"} · детали
                     </h3>
-                    <p className="mt-0.5 text-xs text-[#756a60]">
+                    <p className="mt-0.5 text-xs text-[#64748B]">
                       Маржа {marginPct}% · {pendingInvoices} счетов ждут
                     </p>
                   </div>
@@ -280,12 +280,12 @@ export function MapleDashboard({
                   </span>
                 </div>
                 <div className="mt-auto flex items-end justify-between gap-4">
-                  <p className="font-mono text-2xl font-medium text-[#4a4239]">
+                  <p className="font-mono text-2xl font-medium text-[#F8FAFC]">
                     {formatShort(profit)}
                     <span className="text-sm"> ₽</span>
                   </p>
                   <div className="w-2/5">
-                    <div className="mb-1.5 flex justify-between text-[11px] text-[#756a60]">
+                    <div className="mb-1.5 flex justify-between text-[11px] text-[#64748B]">
                       <span>Маржа</span>
                       <span className="font-mono text-[#E8A552]">{marginPct}%</span>
                     </div>
@@ -300,8 +300,8 @@ export function MapleDashboard({
             {/* Quick scenes */}
             <article className="raised flex flex-col rounded-[20px] p-5 col-span-2">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-display text-base font-semibold text-[#4a4239]">Быстрые действия</h3>
-                <span className="text-xs text-[#756a60]">tap to activate</span>
+                <h3 className="font-display text-base font-semibold text-[#F8FAFC]">Быстрые действия</h3>
+                <span className="text-xs text-[#64748B]">tap to activate</span>
               </div>
               <div className="mt-auto grid grid-cols-3 gap-3">
                 {[
@@ -333,7 +333,7 @@ export function MapleDashboard({
         {/* Right — energy + checklist */}
         <aside className="flex flex-col gap-7">
           <div className="raised rounded-[20px] p-6">
-            <h2 className="font-display mb-5 text-lg font-semibold text-[#4a4239]">Финансы</h2>
+            <h2 className="font-display mb-5 text-lg font-semibold text-[#F8FAFC]">Финансы</h2>
             <div className="grid grid-cols-2 gap-5">
               <RadialGauge value={incomePct} color="#E8A552" label="Доход" unit="₽" reading={formatShort(totalIncome)} />
               <RadialGauge value={expensePct} color="#5B7DB1" label="Расходы" unit="₽" reading={formatShort(totalExpenses)} />
@@ -350,7 +350,7 @@ export function MapleDashboard({
 
           <div className="raised rounded-[20px] p-6">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold text-[#4a4239]">Что сделать</h2>
+              <h2 className="font-display text-lg font-semibold text-[#F8FAFC]">Что сделать</h2>
               <span
                 className={`recessed-sm rounded-full px-3 py-1 text-xs font-semibold ${
                   todos.length === 0 ? "text-[#7FB069]" : "text-[#E8A552]"
@@ -361,20 +361,20 @@ export function MapleDashboard({
             </div>
             <div className="flex flex-col gap-4">
               {todos.length === 0 && (
-                <p className="text-sm text-[#756a60]">Все в порядке 🎉</p>
+                <p className="text-sm text-[#64748B]">Все в порядке 🎉</p>
               )}
               {todos.slice(0, 5).map((t) => (
                 <Link key={t.key} href={t.href} className="flex items-center gap-4">
                   <div className="recessed-sm flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px]">
                     {t.severity === "critical" ? (
-                      <Lock size={18} className="text-[#c25e4e]" />
+                      <Lock size={18} className="text-[#F87171]" />
                     ) : (
                       <Check size={18} className="text-[#7FB069]" />
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="font-display text-sm font-semibold text-[#4a4239]">{t.text}</p>
-                    <p className="text-xs text-[#756a60]">
+                    <p className="font-display text-sm font-semibold text-[#F8FAFC]">{t.text}</p>
+                    <p className="text-xs text-[#64748B]">
                       {t.severity === "critical" ? "срочно" : "внимание"}
                     </p>
                   </div>
@@ -382,7 +382,7 @@ export function MapleDashboard({
                 </Link>
               ))}
               {todos.length > 5 && (
-                <p className="font-mono text-xs text-[#756a60]">+ ещё {todos.length - 5}</p>
+                <p className="font-mono text-xs text-[#64748B]">+ ещё {todos.length - 5}</p>
               )}
             </div>
           </div>

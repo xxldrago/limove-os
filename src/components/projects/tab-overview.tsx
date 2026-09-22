@@ -74,12 +74,12 @@ export function OverviewTab({ project, onProjectUpdate }: Props) {
   }
 
   const statCards = [
-    { label: "Доход", value: formatMoney(project.totalIncome), color: "text-green-600" },
-    { label: "Расходы", value: formatMoney(project.totalExpenses), color: "text-red-600" },
+    { label: "Доход", value: formatMoney(project.totalIncome), color: "text-[#34D399]" },
+    { label: "Расходы", value: formatMoney(project.totalExpenses), color: "text-[#F87171]" },
     {
       label: "Профит",
       value: formatMoney(project.profit),
-      color: project.profit >= 0 ? "text-green-600" : "text-red-600",
+      color: project.profit >= 0 ? "text-[#34D399]" : "text-[#F87171]",
     },
   ];
 

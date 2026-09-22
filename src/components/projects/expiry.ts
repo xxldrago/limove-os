@@ -25,9 +25,9 @@ export const EXPIRY_EMOJI: Record<ExpiryLevel, string> = {
 };
 
 export const EXPIRY_CLASSES: Record<ExpiryLevel, string> = {
-  green: "text-green-600",
-  yellow: "text-yellow-600",
-  red: "text-red-600",
+  green: "text-[#34D399]",
+  yellow: "text-[#FBBF24]",
+  red: "text-[#F87171]",
   expired: "text-foreground",
   none: "text-muted-foreground",
 };

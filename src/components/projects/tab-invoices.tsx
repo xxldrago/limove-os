@@ -39,19 +39,19 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDING":
       return (
-        <Badge variant="outline" className="border-yellow-500 text-yellow-700 bg-yellow-50">
+        <Badge variant="outline" className="border-[rgba(251,191,36,0.4)] text-[#FBBF24] bg-[rgba(251,191,36,0.1)]">
           🟡 Ожидает
         </Badge>
       );
     case "PAID":
       return (
-        <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
+        <Badge variant="outline" className="border-[#34D399] text-[#34D399] bg-[rgba(52,211,153,0.1)]">
           🟢 Оплачен
         </Badge>
       );
     case "CANCELLED":
       return (
-        <Badge variant="outline" className="border-gray-500 text-gray-700 bg-gray-50">
+        <Badge variant="outline" className="border-[#263147] text-[#94A3B8] bg-[#131926]">
           ⚫ Обнулён
         </Badge>
       );
@@ -83,13 +83,13 @@ export function InvoicesTab({ project }: Props) {
         <Card>
           <CardContent className="p-4">
             <div className="text-xs text-muted-foreground">Ожидают оплаты</div>
-            <div className="text-lg font-bold text-yellow-600">{formatMoney(pendingSum)}</div>
+            <div className="text-lg font-bold text-[#FBBF24]">{formatMoney(pendingSum)}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-xs text-muted-foreground">Оплачено</div>
-            <div className="text-lg font-bold text-green-600">{formatMoney(paidSum)}</div>
+            <div className="text-lg font-bold text-[#34D399]">{formatMoney(paidSum)}</div>
           </CardContent>
         </Card>
       </div>

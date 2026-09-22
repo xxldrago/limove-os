@@ -130,7 +130,7 @@ export function FinancialGoalCard() {
     <Card>
       <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <Target className="h-4 w-4 text-[#16548f]" />
+          <Target className="h-4 w-4 text-[#10B981]" />
           Финансовая цель {goal?.year}
         </CardTitle>
         <Button
@@ -151,11 +151,11 @@ export function FinancialGoalCard() {
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Заработано</div>
-                <div className="font-semibold text-[#1f8a5c]">{formatMoney(goal.earned)}</div>
+                <div className="font-semibold text-[#34D399]">{formatMoney(goal.earned)}</div>
               </div>
               <div>
                 <div className="text-xs text-muted-foreground">Осталось</div>
-                <div className="font-semibold text-[#0f3f6d]">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
+                <div className="font-semibold text-[#34D399]">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
               </div>
             </div>
             <div className="space-y-1">

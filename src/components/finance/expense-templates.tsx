@@ -355,7 +355,7 @@ export function ExpenseTemplates({
                       </Button>
                       <Button
                         size="sm"
-                        className="h-7 text-xs flex-1 bg-emerald-600 hover:bg-emerald-700"
+                        className="h-7 text-xs flex-1 bg-[#10B981] hover:bg-[#059669]"
                         onClick={() => onQuickAdd(t)}
                       >
                         <Zap className="mr-1 h-3 w-3" /> Добавить сейчас

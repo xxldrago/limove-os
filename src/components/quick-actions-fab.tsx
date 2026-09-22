@@ -44,7 +44,7 @@ export function QuickActionsFAB() {
         {open && (
           <>
             <FabButton label="Добавить приход" onClick={() => trigger("INCOME")} icon={<TrendingUp className="h-5 w-5 text-emerald-500" />} />
-            <FabButton label="Добавить расход" onClick={() => trigger("EXPENSE")} icon={<TrendingDown className="h-5 w-5 text-red-500" />} />
+            <FabButton label="Добавить расход" onClick={() => trigger("EXPENSE")} icon={<TrendingDown className="h-5 w-5 text-[#F87171]" />} />
             <FabButton label="Загрузить счёт" onClick={() => trigger("INVOICES")} icon={<FileText className="h-5 w-5 text-blue-500" />} />
           </>
         )}
@@ -52,7 +52,7 @@ export function QuickActionsFAB() {
           type="button"
           aria-label={open ? "Закрыть" : "Быстрые действия"}
           onClick={() => setOpen((v) => !v)}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#16548f] text-white shadow-[0_4px_8px_rgba(15,63,109,0.22),0_18px_30px_-14px_rgba(15,63,109,0.75)] transition-transform hover:bg-[#1c68ad] active:scale-95"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#10B981] text-[#090D14] shadow-[0_4px_8px_rgba(15,63,109,0.22),0_18px_30px_-14px_rgba(15,63,109,0.75)] transition-transform hover:bg-[#059669] active:scale-95"
         >
           {open ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
         </button>

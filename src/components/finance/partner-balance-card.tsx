@@ -130,15 +130,15 @@ export function PartnerBalanceCard({
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Получено</span>
-                <span className="font-medium text-emerald-600">{formatMoney(p.received)}</span>
+                <span className="font-medium text-[#34D399]">{formatMoney(p.received)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Потрачено</span>
-                <span className="font-medium text-red-600">{formatMoney(p.spent)}</span>
+                <span className="font-medium text-[#F87171]">{formatMoney(p.spent)}</span>
               </div>
               <div className="flex justify-between border-t pt-1">
                 <span className="text-muted-foreground">Итого на руках</span>
-                <span className={`font-semibold ${p.net >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                <span className={`font-semibold ${p.net >= 0 ? "text-[#34D399]" : "text-[#F87171]"}`}>
                   {formatMoney(p.net)}
                 </span>
               </div>
@@ -163,7 +163,7 @@ export function PartnerBalanceCard({
         <div className="space-y-2 pt-1">
           <Button
             type="button"
-            className="w-full bg-[#14558f] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_1px_2px_rgba(15,63,109,0.24),0_12px_22px_-14px_rgba(15,63,109,0.95)] hover:bg-[#1c68ad]"
+            className="w-full bg-[#10B981] text-[#090D14] shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_1px_2px_rgba(15,63,109,0.24),0_12px_22px_-14px_rgba(15,63,109,0.95)] hover:bg-[#059669]"
             onClick={() => {
               setChoice((c) => (c === null ? "full" : null));
               setMessage(null);
@@ -261,7 +261,7 @@ export function PartnerBalanceCard({
               className={`rounded-lg p-3 text-center text-xs font-medium ${
                 isError
                   ? "bg-destructive/10 text-destructive"
-                  : "bg-emerald-100/70 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+                  : "bg-[rgba(52,211,153,0.12)] text-[#34D399] dark:bg-emerald-950/30 dark:text-emerald-400"
               }`}
             >
               {message}

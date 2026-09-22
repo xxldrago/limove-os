@@ -39,8 +39,8 @@ interface VpnSub {
 const PROVIDERS = ["Happ", "Amnezia", "Oversub", "2kabana"];
 
 const STATUS_META: Record<string, { label: string; emoji: string; cls: string }> = {
-  ACTIVE: { label: "ACTIVE", emoji: "🟢", cls: "text-green-700 bg-green-50 border-green-200" },
-  REVOKED: { label: "REVOKED", emoji: "🔴", cls: "text-red-700 bg-red-50 border-red-200" },
+  ACTIVE: { label: "ACTIVE", emoji: "🟢", cls: "text-[#34D399] bg-[rgba(52,211,153,0.1)] border-[rgba(52,211,153,0.2)]" },
+  REVOKED: { label: "REVOKED", emoji: "🔴", cls: "text-[#F87171] bg-[rgba(248,113,113,0.1)] border-[rgba(248,113,113,0.2)]" },
   EXPIRED: { label: "EXPIRED", emoji: "⚫", cls: "text-foreground bg-muted border-muted" },
 };
 
@@ -64,10 +64,10 @@ function ExpiryDisplay({ expiresAt }: { expiresAt: string | null }) {
   const now = new Date();
   const exp = new Date(expiresAt);
   const days = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  let emoji = "🟢", cls = "text-green-600";
+  let emoji = "🟢", cls = "text-[#34D399]";
   if (days < 0) { emoji = "⚫"; cls = "text-foreground"; }
-  else if (days < 7) { emoji = "🔴"; cls = "text-red-600"; }
-  else if (days < 30) { emoji = "🟡"; cls = "text-yellow-600"; }
+  else if (days < 7) { emoji = "🔴"; cls = "text-[#F87171]"; }
+  else if (days < 30) { emoji = "🟡"; cls = "text-[#FBBF24]"; }
   return <span className={cls}>{emoji} {formatDate(expiresAt)}</span>;
 }
 
@@ -217,7 +217,7 @@ export function VpnPageClient() {
                             >
                               <Copy className="h-3.5 w-3.5" />
                             </Button>
-                            {copied[s.id] && <span className="text-xs text-green-600">✓</span>}
+                            {copied[s.id] && <span className="text-xs text-[#34D399]">✓</span>}
                           </>
                         )}
                       </div>
@@ -241,7 +241,7 @@ export function VpnPageClient() {
                           onClick={() => setDeleting(s)}
                           aria-label="Удалить"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-4 w-4 text-[#F87171]" />
                         </Button>
                       </div>
                     </TableCell>

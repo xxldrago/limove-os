@@ -169,7 +169,7 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
               <Label>Описание</Label>
               <Input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={`Оплата ElementX: ${fullName || ""}`} />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-[#F87171]">{error}</p>}
           </div>
           <div className="flex justify-end gap-2">
             <Button
@@ -243,7 +243,7 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
             <Label>Заметки <span className="text-muted-foreground">(опц.)</span></Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-[#F87171]">{error}</p>}
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>

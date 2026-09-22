@@ -35,9 +35,9 @@ const PRIORITY_LABELS: Record<string, string> = {
 };
 
 const PRIORITY_CLASSES: Record<string, string> = {
-  URGENT: "bg-red-500/15 text-red-700 dark:text-red-400",
-  HIGH: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400",
-  MEDIUM: "bg-green-500/15 text-green-700 dark:text-green-400",
+  URGENT: "bg-[rgba(248,113,113,0.1)] text-[#F87171] dark:text-[#F87171]",
+  HIGH: "bg-[rgba(251,191,36,0.1)] text-[#FBBF24] dark:text-[#FBBF24]",
+  MEDIUM: "bg-[rgba(52,211,153,0.1)] text-[#34D399] dark:text-[#34D399]",
   LOW: "bg-muted text-muted-foreground",
 };
 
@@ -170,7 +170,7 @@ export function TasksTab({ project, onProjectUpdate }: Props) {
                           <span />
                         )}
                         {t.dueDate && (
-                          <span className={t.dueDate < new Date().toISOString() ? "text-red-600" : ""}>
+                          <span className={t.dueDate < new Date().toISOString() ? "text-[#F87171]" : ""}>
                             📅 {formatDate(t.dueDate)}
                           </span>
                         )}

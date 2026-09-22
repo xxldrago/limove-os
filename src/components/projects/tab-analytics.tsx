@@ -158,7 +158,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
               {metricConnected ? (
-                <Badge className="bg-green-500/15 text-green-700">
+                <Badge className="bg-[rgba(52,211,153,0.1)] text-[#34D399]">
                   <Link2 className="h-3 w-3 mr-1" /> Метрика подключена
                 </Badge>
               ) : (
@@ -169,7 +169,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
             </div>
             <div className="flex items-center gap-2">
               {wmConnected ? (
-                <Badge className="bg-green-500/15 text-green-700">
+                <Badge className="bg-[rgba(52,211,153,0.1)] text-[#34D399]">
                   <TrendingUp className="h-3 w-3 mr-1" /> Вебмастер подключён
                 </Badge>
               ) : (
@@ -248,7 +248,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
             href={`/reports/${slug}?year=${reportYear}&month=${reportMonth}`}
             target="_blank"
           >
-            <Button size="sm" variant="default" className="bg-indigo-600 hover:bg-indigo-700">
+            <Button size="sm" variant="default" className="bg-[#10B981] hover:bg-[#059669]">
               <FileText className="h-4 w-4 mr-1.5" /> Сформировать отчёт
             </Button>
           </Link>

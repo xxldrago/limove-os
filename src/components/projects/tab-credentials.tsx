@@ -152,7 +152,7 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
                         <Copy />
                       </Button>
                       {copied[c.id] && (
-                        <span className="text-xs text-green-600">✓</span>
+                        <span className="text-xs text-[#34D399]">✓</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -192,7 +192,7 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-red-600"
+                          className="h-6 w-6 text-[#F87171]"
                           onClick={() => setDeleting(c)}
                           aria-label="Удалить"
                         >

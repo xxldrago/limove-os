@@ -101,7 +101,7 @@ export function DomainsTab({ project, onProjectUpdate }: Props) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-red-600"
+                          className="h-6 w-6 text-[#F87171]"
                           onClick={() => setDeleting(d)}
                           aria-label="Удалить"
                         >

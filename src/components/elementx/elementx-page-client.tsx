@@ -37,10 +37,10 @@ interface ExUser {
 }
 
 const STATUS_META: Record<string, { label: string; emoji: string; cls: string }> = {
-  PAID: { label: "PAID", emoji: "🟢", cls: "text-green-700 bg-green-50 border-green-200" },
-  TRIAL: { label: "TRIAL", emoji: "🟡", cls: "text-yellow-700 bg-yellow-50 border-yellow-200" },
-  READY_UNPAID: { label: "READY_UNPAID", emoji: "🟠", cls: "text-orange-700 bg-orange-50 border-orange-200" },
-  NOT_INSTALLED: { label: "NOT_INSTALLED", emoji: "🔴", cls: "text-red-700 bg-red-50 border-red-200" },
+  PAID: { label: "PAID", emoji: "🟢", cls: "text-[#34D399] bg-[rgba(52,211,153,0.1)] border-[rgba(52,211,153,0.2)]" },
+  TRIAL: { label: "TRIAL", emoji: "🟡", cls: "text-[#FBBF24] bg-[rgba(251,191,36,0.1)] border-yellow-200" },
+  READY_UNPAID: { label: "READY_UNPAID", emoji: "🟠", cls: "text-[#FBBF24] bg-orange-50 border-orange-200" },
+  NOT_INSTALLED: { label: "NOT_INSTALLED", emoji: "🔴", cls: "text-[#F87171] bg-[rgba(248,113,113,0.1)] border-[rgba(248,113,113,0.2)]" },
   EXPIRED: { label: "EXPIRED", emoji: "⚫", cls: "text-foreground bg-muted border-muted" },
 };
 
@@ -204,7 +204,7 @@ export function ElementxPageClient() {
                           onClick={() => setDeleting(u)}
                           aria-label="Удалить"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600" />
+                          <Trash2 className="h-4 w-4 text-[#F87171]" />
                         </Button>
                       </div>
                     </TableCell>

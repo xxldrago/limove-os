@@ -88,7 +88,7 @@ function intervalLabel(sec: number): string {
 
 function UptimeBar({ pct }: { pct: number | null }) {
   if (pct === null) return <span className="text-xs text-muted-foreground">Нет данных</span>;
-  const color = pct >= 99 ? "bg-emerald-500" : pct >= 95 ? "bg-amber-500" : "bg-red-500";
+  const color = pct >= 99 ? "bg-[#10B981]" : pct >= 95 ? "bg-amber-500" : "bg-[#F87171]";
   return (
     <div className="flex items-center gap-2">
       <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
@@ -287,7 +287,7 @@ export function MonitoringDashboard() {
             <CardTitle className="text-sm font-medium">Online</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-600">{stats.online}</div>
+            <div className="text-2xl font-bold text-[#34D399]">{stats.online}</div>
           </CardContent>
         </Card>
         <Card>
@@ -295,7 +295,7 @@ export function MonitoringDashboard() {
             <CardTitle className="text-sm font-medium">Offline</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.offline}</div>
+            <div className="text-2xl font-bold text-[#F87171]">{stats.offline}</div>
           </CardContent>
         </Card>
         <Card>
@@ -311,14 +311,14 @@ export function MonitoringDashboard() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-lg border border-[rgba(248,113,113,0.2)] bg-[rgba(248,113,113,0.1)] p-3 text-sm text-[#F87171]">
           {error}
         </div>
       )}
 
       {/* Toolbar */}
       <div className="flex items-center justify-between px-1">
-        <h2 className="m-0 text-[16.5px] font-bold tracking-[-0.02em] text-[#0f1720]">Статус сайтов</h2>
+        <h2 className="m-0 text-[16.5px] font-bold tracking-[-0.02em] text-[#F8FAFC]">Статус сайтов</h2>
       </div>
 
       {/* Site grid */}
@@ -420,7 +420,7 @@ export function MonitoringDashboard() {
               />
               <Label htmlFor="isActive">Активен</Label>
             </div>
-            {formError && <p className="text-sm text-red-600">{formError}</p>}
+            {formError && <p className="text-sm text-[#F87171]">{formError}</p>}
           </div>
           <DialogFooter>
             <DialogClose render={<Button variant="outline">Отмена</Button>} />
@@ -470,7 +470,7 @@ function SiteCard({
     <Card
       className={
         down
-          ? "border-red-300 shadow-sm"
+          ? "border-[rgba(248,113,113,0.3)] shadow-sm"
           : site.isActive
             ? "border-emerald-200/70 shadow-sm"
             : "opacity-70"
@@ -482,9 +482,9 @@ function SiteCard({
             <span
               className={`inline-block h-3 w-3 rounded-full ${
                 down
-                  ? "animate-pulse bg-red-500"
+                  ? "animate-pulse bg-[#F87171]"
                   : site.isActive
-                    ? "bg-emerald-500"
+                    ? "bg-[#10B981]"
                     : "bg-gray-400"
               }`}
             />
@@ -523,7 +523,7 @@ function SiteCard({
         </div>
 
         {down && site.downSince && (
-          <div className="rounded-md bg-red-50 p-2 text-xs text-red-700">
+          <div className="rounded-md bg-[rgba(248,113,113,0.1)] p-2 text-xs text-[#F87171]">
             В дауне: {fmtDownSince(site.downSince)} · код {site.lastStatus ?? "нет"}
           </div>
         )}

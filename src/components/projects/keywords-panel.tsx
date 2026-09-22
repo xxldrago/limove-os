@@ -90,7 +90,7 @@ export function KeywordsPanel({ slug }: { slug: string }) {
   };
 
   const initColor = (pos: number) =>
-    pos <= 3 ? "text-green-600" : pos <= 10 ? "text-indigo-600" : pos <= 30 ? "text-amber-600" : "text-red-600";
+    pos <= 3 ? "text-[#34D399]" : pos <= 10 ? "text-[#34D399]" : pos <= 30 ? "text-[#FBBF24]" : "text-[#F87171]";
 
   return (
     <Card>
@@ -116,7 +116,7 @@ export function KeywordsPanel({ slug }: { slug: string }) {
             <Plus className="h-4 w-4" />
           </Button>
         </div>
-        {error && <div className="text-xs text-red-600">{error}</div>}
+        {error && <div className="text-xs text-[#F87171]">{error}</div>}
         {hasWebmaster && (
           <div className="text-xs text-muted-foreground">Позиции — средняя позиция показа из Яндекса Вебмастера (бесплатно, без парсинга выдачи).</div>
         )}
@@ -134,8 +134,8 @@ export function KeywordsPanel({ slug }: { slug: string }) {
               let TrendIcon = Minus, trendTone = "text-muted-foreground";
               let trendText = "—";
               if (current != null && prev != null) {
-                if (current < prev) { TrendIcon = TrendingUp; trendTone = "text-green-600"; trendText = `▲ ${prev - current}`; }
-                else if (current > prev) { TrendIcon = TrendingDown; trendTone = "text-red-600"; trendText = `▼ ${current - prev}`; }
+                if (current < prev) { TrendIcon = TrendingUp; trendTone = "text-[#34D399]"; trendText = `▲ ${prev - current}`; }
+                else if (current > prev) { TrendIcon = TrendingDown; trendTone = "text-[#F87171]"; trendText = `▼ ${current - prev}`; }
                 else { trendText = "="; }
               }
               return (

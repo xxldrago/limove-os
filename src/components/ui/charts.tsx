@@ -125,9 +125,9 @@ export function StatTile({ label, value, sub, tone = "default" }: {
   tone?: "default" | "green" | "amber" | "red";
 }) {
   const toneClass =
-    tone === "green" ? "text-green-600"
-    : tone === "amber" ? "text-amber-600"
-    : tone === "red" ? "text-red-600"
+    tone === "green" ? "text-[#34D399]"
+    : tone === "amber" ? "text-[#FBBF24]"
+    : tone === "red" ? "text-[#F87171]"
     : "text-foreground";
   return (
     <div className="rounded-lg border p-3">

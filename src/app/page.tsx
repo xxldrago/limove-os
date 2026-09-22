@@ -263,7 +263,7 @@ export default async function DashboardPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <div>
-          <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">
+          <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">
             Последние операции
           </h2>
           <Card>
@@ -271,28 +271,28 @@ export default async function DashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-[#5d6b7c]">Дата</TableHead>
-                    <TableHead className="text-[#5d6b7c]">Описание</TableHead>
-                    <TableHead className="text-[#5d6b7c]">Проект</TableHead>
-                    <TableHead className="text-[#5d6b7c]">Категория</TableHead>
-                    <TableHead className="text-right text-[#5d6b7c]">Сумма</TableHead>
+                    <TableHead className="text-[#94A3B8]">Дата</TableHead>
+                    <TableHead className="text-[#94A3B8]">Описание</TableHead>
+                    <TableHead className="text-[#94A3B8]">Проект</TableHead>
+                    <TableHead className="text-[#94A3B8]">Категория</TableHead>
+                    <TableHead className="text-right text-[#94A3B8]">Сумма</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.transactions.map((t) => (
                     <TableRow key={t.id}>
-                      <TableCell className="num whitespace-nowrap text-[#354354]">
+                      <TableCell className="num whitespace-nowrap text-[#94A3B8]">
                         {new Date(t.date).toLocaleDateString("ru-RU")}
                       </TableCell>
-                      <TableCell className="text-[#0f1720]">{t.description}</TableCell>
-                      <TableCell className="text-[#5d6b7c]">{t.project?.name ?? "—"}</TableCell>
+                      <TableCell className="text-[#F8FAFC]">{t.description}</TableCell>
+                      <TableCell className="text-[#94A3B8]">{t.project?.name ?? "—"}</TableCell>
                       <TableCell>
                         <span className="fern-chip">{t.category}</span>
                       </TableCell>
                       <TableCell
                         className={
                           "num text-right font-semibold " +
-                          (t.type === "INCOME" ? "text-[#1f8a5c]" : "text-[#0f1720]")
+                          (t.type === "INCOME" ? "text-[#34D399]" : "text-[#F8FAFC]")
                         }
                       >
                         {t.type === "INCOME" ? "+" : "−"}
@@ -307,22 +307,22 @@ export default async function DashboardPage() {
         </div>
         <div className="flex flex-col gap-6">
           <div>
-            <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">
+            <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">
               Цель года
             </h2>
             <FinancialGoalCard />
           </div>
           {todoItems.length > 0 && (
             <div>
-              <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">
+              <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">
                 Что нужно сделать · {todoItems.length}
               </h2>
               <Card>
                 <CardContent>
-                  <ul className="divide-y divide-[#eef2f6]">
+                  <ul className="divide-y divide-[#1E2638]">
                     {todoItems.slice(0, 6).map((item) => (
                       <li key={item.key} className="py-2 first:pt-0 last:pb-0">
-                        <a href={item.href} className="flex items-center justify-between gap-3 text-sm text-[#0f1720] hover:underline">
+                        <a href={item.href} className="flex items-center justify-between gap-3 text-sm text-[#F8FAFC] hover:underline">
                           <span>{item.text}</span>
                           <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
                             {item.severity === "critical" ? "срочно" : "внимание"}

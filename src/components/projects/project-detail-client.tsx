@@ -33,23 +33,23 @@ export function ProjectDetailClient({ project }: Props) {
 
   return (
     <div className="fern-panel overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-[#eef2f6] px-7 pb-5 pt-[26px]">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[#1E2638] px-7 pb-5 pt-[26px]">
         <Link
           href="/projects"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-[#e4e9ef] text-[#5d6b7c] transition hover:bg-[#f5f8fa] hover:text-[#0f1720]"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-[#1E2638] text-[#94A3B8] transition hover:bg-[#131926] hover:text-[#F8FAFC]"
           aria-label="Назад к проектам"
         >
           <ArrowLeft size={18} />
         </Link>
-        <h1 className="m-0 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">{projectData.name}</h1>
+        <h1 className="m-0 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">{projectData.name}</h1>
         <Badge variant="outline">
           {STATUS_LABELS[projectData.status] ?? projectData.status}
         </Badge>
         <Badge variant="outline" className={
           projectData.siteStatus === "UP"
-            ? "bg-green-500/15 text-green-700 dark:text-green-400"
+            ? "bg-[rgba(52,211,153,0.1)] text-[#34D399] dark:text-[#34D399]"
             : projectData.siteStatus === "DOWN"
-              ? "bg-red-500/15 text-red-700 dark:text-red-400"
+              ? "bg-[rgba(248,113,113,0.1)] text-[#F87171] dark:text-[#F87171]"
               : "bg-muted text-muted-foreground"
         }>
           {projectData.siteStatus === "UP"

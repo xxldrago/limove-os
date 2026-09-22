@@ -42,7 +42,7 @@ interface StatusData {
 function Msg({ msg }: { msg: { ok: boolean; text: string } | null }) {
   if (!msg) return null;
   return (
-    <p className={`text-sm ${msg.ok ? "text-[#1f8a5c]" : "text-[#c25e4e]"}`}>{msg.text}</p>
+    <p className={`text-sm ${msg.ok ? "text-[#34D399]" : "text-[#F87171]"}`}>{msg.text}</p>
   );
 }
 
@@ -231,7 +231,7 @@ export function SettingsPageClient() {
               <Button
                 onClick={changeOwnPassword}
                 disabled={pwSaving || !currentPassword || !newPassword}
-                className="h-10 rounded-[12px] bg-[#16548f] px-[18px] text-white hover:bg-[#1c68ad]"
+                className="h-10 rounded-[12px] bg-[#10B981] px-[18px] text-[#090D14] hover:bg-[#059669]"
               >
                 {pwSaving ? "Сохранение..." : "Сохранить пароль"}
               </Button>
@@ -284,7 +284,7 @@ export function SettingsPageClient() {
                 <Button
                   onClick={changePartnerPassword}
                   disabled={partnerSaving || !targetUserId || !partnerPassword}
-                  className="h-10 rounded-[12px] bg-[#16548f] px-[18px] text-white hover:bg-[#1c68ad]"
+                  className="h-10 rounded-[12px] bg-[#10B981] px-[18px] text-[#090D14] hover:bg-[#059669]"
                 >
                   {partnerSaving ? "Сохранение..." : "Задать пароль"}
                 </Button>

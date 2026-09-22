@@ -89,7 +89,7 @@ export function InstallBanner() {
           <button
             type="button"
             onClick={handleInstall}
-            className="rounded-md bg-[#16548f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1c68ad]"
+            className="rounded-md bg-[#10B981] px-3 py-1.5 text-xs font-semibold text-[#090D14] hover:bg-[#059669]"
           >
             Установить
           </button>

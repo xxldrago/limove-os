@@ -88,19 +88,19 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDING":
       return (
-        <Badge variant="outline" className="border-yellow-500 text-yellow-700 bg-yellow-50">
+        <Badge variant="outline" className="border-[rgba(251,191,36,0.4)] text-[#FBBF24] bg-[rgba(251,191,36,0.1)]">
           🟡 Ожидает
         </Badge>
       );
     case "PAID":
       return (
-        <Badge variant="outline" className="border-green-500 text-green-700 bg-green-50">
+        <Badge variant="outline" className="border-[#34D399] text-[#34D399] bg-[rgba(52,211,153,0.1)]">
           🟢 Оплачен
         </Badge>
       );
     case "CANCELLED":
       return (
-        <Badge variant="outline" className="border-gray-500 text-gray-700 bg-gray-50">
+        <Badge variant="outline" className="border-[#263147] text-[#94A3B8] bg-[#131926]">
           ⚫ Обнулён
         </Badge>
       );
@@ -364,7 +364,7 @@ export function InvoiceDetailDialog({
           {invoice.status === "CANCELLED" && invoice.cancelReason && (
             <div className="bg-muted rounded-lg p-3">
               <div className="flex items-center gap-2 text-sm font-medium mb-1">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <AlertTriangle className="h-4 w-4 text-[#FBBF24]" />
                 Причина обнуления
               </div>
               <p className="text-sm text-muted-foreground">{invoice.cancelReason}</p>
@@ -502,7 +502,7 @@ export function InvoiceDetailDialog({
                 />
               </div>
               {paymentMethod === "BANK_TRANSFER" && (
-                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded p-2">
+                <p className="text-xs text-[#FBBF24] bg-amber-50 border border-amber-200 rounded p-2">
                   Автоматически будет создан расход «Налог 6%» от суммы счёта.
                 </p>
               )}

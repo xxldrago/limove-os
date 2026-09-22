@@ -77,9 +77,9 @@ export function ForecastCard() {
           <span className="num font-medium">{fmt(forecast.goal)} ₽</span>
         </div>
         {forecast.projectedMet ? (
-          <Badge className="bg-[#7fb069]/15 !text-[#1f8a5c] border-0">✅ Достигнет цели</Badge>
+          <Badge className="bg-[#7fb069]/15 !text-[#34D399] border-0">✅ Достигнет цели</Badge>
         ) : (
-          <Badge className="bg-[#e8a552]/20 !text-[#8a5a1f] border-0">
+          <Badge className="bg-[#e8a552]/20 !text-[#FBBF24] border-0">
             ⚠️ Не хватает {fmt(Math.round(forecast.shortfall))} ₽
           </Badge>
         )}
@@ -108,7 +108,7 @@ export function MarginsRankCard() {
               <a
                 key={m.id}
                 href={`/projects/${m.slug}`}
-                className="flex items-center justify-between rounded-[10px] border border-[#eef2f6] p-2.5 transition-colors hover:bg-[#f5f8fa]"
+                className="flex items-center justify-between rounded-[10px] border border-[#1E2638] p-2.5 transition-colors hover:bg-[#131926]"
               >
                 <div className="flex min-w-0 items-center gap-2">
                   <span className="num w-4 text-xs text-muted-foreground">{i + 1}</span>
@@ -116,7 +116,7 @@ export function MarginsRankCard() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="num hidden text-xs text-muted-foreground sm:inline">{m.marginPct}% маржи</span>
-                  <span className={`num text-sm font-semibold ${m.margin >= 0 ? "text-[#1f8a5c]" : "text-[#c25e4e]"}`}>
+                  <span className={`num text-sm font-semibold ${m.margin >= 0 ? "text-[#34D399]" : "text-[#F87171]"}`}>
                     {fmt(m.margin)} ₽
                   </span>
                 </div>

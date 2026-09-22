@@ -140,7 +140,7 @@ export function AddTransactionDialog({
             <Button
               type="button"
               variant={type === "INCOME" ? "default" : "outline"}
-              className={type === "INCOME" ? "bg-emerald-600 hover:bg-emerald-700 flex-1" : "flex-1"}
+              className={type === "INCOME" ? "bg-[#10B981] hover:bg-[#059669] flex-1" : "flex-1"}
               onClick={() => setType("INCOME")}
             >
               Приход
@@ -148,7 +148,7 @@ export function AddTransactionDialog({
             <Button
               type="button"
               variant={type === "EXPENSE" ? "default" : "outline"}
-              className={type === "EXPENSE" ? "bg-red-600 hover:bg-red-700 flex-1" : "flex-1"}
+              className={type === "EXPENSE" ? "bg-[#F87171] hover:bg-[#EF4444] flex-1" : "flex-1"}
               onClick={() => setType("EXPENSE")}
             >
               Расход
@@ -253,7 +253,7 @@ export function AddTransactionDialog({
             >
               Отмена
             </Button>
-            <Button type="submit" disabled={loading} className={type === "INCOME" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-red-600 hover:bg-red-700"}>
+            <Button type="submit" disabled={loading} className={type === "INCOME" ? "bg-[#10B981] hover:bg-[#059669]" : "bg-[#F87171] hover:bg-[#EF4444]"}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Сохранить
             </Button>

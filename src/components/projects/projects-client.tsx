@@ -40,8 +40,8 @@ const SITE_STATUS_LABELS: Record<string, string> = {
 };
 
 const SITE_STATUS_CLASSES: Record<string, string> = {
-  UP: "bg-green-500/15 text-green-700 dark:text-green-400",
-  DOWN: "bg-red-500/15 text-red-700 dark:text-red-400",
+  UP: "bg-[rgba(52,211,153,0.1)] text-[#34D399] dark:text-[#34D399]",
+  DOWN: "bg-[rgba(248,113,113,0.1)] text-[#F87171] dark:text-[#F87171]",
   UNKNOWN: "bg-muted text-muted-foreground",
 };
 
@@ -52,8 +52,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_CLASSES: Record<string, string> = {
-  ACTIVE: "bg-green-500/15 text-green-700 dark:text-green-400",
-  PAUSED: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400",
+  ACTIVE: "bg-[rgba(52,211,153,0.1)] text-[#34D399] dark:text-[#34D399]",
+  PAUSED: "bg-[rgba(251,191,36,0.1)] text-[#FBBF24] dark:text-[#FBBF24]",
   ARCHIVED: "bg-muted text-muted-foreground",
 };
 
@@ -138,8 +138,8 @@ export function ProjectsClient() {
                         <Badge
                           className={
                             p.expiring.level === "red"
-                              ? "bg-red-500 text-white"
-                              : "bg-yellow-500 text-white"
+                              ? "bg-[#F87171] text-[#090D14]"
+                              : "bg-[#FBBF24] text-[#090D14]"
                           }
                           title={`${p.expiring.name} ${p.expiring.value} — ${p.expiring.level === "red" ? "истёк" : "истекает"} ${formatDate(p.expiring.expiresAt)}`}
                         >
@@ -147,10 +147,10 @@ export function ProjectsClient() {
                         </Badge>
                       )}
                       {!p.expiring && p.domainWarning === "red" && (
-                        <Badge className="bg-red-500 text-white">Истёк срок</Badge>
+                        <Badge className="bg-[#F87171] text-[#090D14]">Истёк срок</Badge>
                       )}
                       {!p.expiring && p.domainWarning === "yellow" && (
-                        <Badge className="bg-yellow-500 text-white">Скоро истекает</Badge>
+                        <Badge className="bg-[#FBBF24] text-[#090D14]">Скоро истекает</Badge>
                       )}
                     </div>
                   </div>
@@ -159,15 +159,15 @@ export function ProjectsClient() {
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
                       <div className="text-xs text-muted-foreground">Доход</div>
-                      <div className="font-semibold whitespace-nowrap text-green-600">{formatMoney(p.income)}</div>
+                      <div className="font-semibold whitespace-nowrap text-[#34D399]">{formatMoney(p.income)}</div>
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground">Расход</div>
-                      <div className="font-semibold whitespace-nowrap text-red-600">{formatMoney(p.expenses)}</div>
+                      <div className="font-semibold whitespace-nowrap text-[#F87171]">{formatMoney(p.expenses)}</div>
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground">Профит</div>
-                      <div className={`font-semibold whitespace-nowrap ${p.profit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                      <div className={`font-semibold whitespace-nowrap ${p.profit >= 0 ? "text-[#34D399]" : "text-[#F87171]"}`}>
                         {formatMoney(p.profit)}
                       </div>
                     </div>
