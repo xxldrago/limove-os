@@ -226,7 +226,11 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
           </div>
           <div className="space-y-1.5">
             <Label>Статус</Label>
-            <Select value={status} onValueChange={(v) => { if (v != null) setStatus(v); }}>
+            <Select
+              value={status}
+              onValueChange={(v) => { if (v != null) setStatus(v); }}
+              items={STATUSES.map((s) => ({ value: s, label: s }))}
+            >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {STATUSES.map((s) => (

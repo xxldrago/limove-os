@@ -12,7 +12,7 @@ export async function GET() {
     orderBy: { name: "asc" },
     include: {
       credentials: { select: { id: true } },
-      domains: { select: { id: true, expiresAt: true } },
+      domains: { select: { id: true, name: true, value: true, expiresAt: true } },
       tasks: { select: { id: true } },
       siteMonitors: {
         select: { id: true, lastStatus: true, isError: true, checkedAt: true, isActive: true },
@@ -42,15 +42,43 @@ export async function GET() {
       else siteStatus = "UNKNOWN";
     }
 
-    // Check for expiring domains
+    // Check for expiring domains — remember WHAT exactly expires (домен/хостинг/Тильда)
     const now = new Date();
     let domainWarning: "none" | "yellow" | "red" = "none";
+    let expiring: {
+      id: number;
+      name: string;
+      value: string;
+      expiresAt: string;
+      daysLeft: number;
+      level: "yellow" | "red";
+    } | null = null;
+
     for (const d of p.domains) {
       const daysLeft = Math.ceil(
         (new Date(d.expiresAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       );
-      if (daysLeft < 0) domainWarning = "red";
-      else if (daysLeft < 30 && domainWarning !== "red") domainWarning = "yellow";
+      const level: "yellow" | "red" | null = daysLeft < 0 ? "red" : daysLeft < 30 ? "yellow" : null;
+      if (!level) continue;
+
+      if (level === "red") domainWarning = "red";
+      else if (domainWarning !== "red") domainWarning = "yellow";
+
+      // Показываем самое срочное: сначала просрочки, затем ближайший дедлайн.
+      const isWorse =
+        !expiring ||
+        (level === "red" && expiring.level !== "red") ||
+        (level === expiring.level && daysLeft < expiring.daysLeft);
+      if (isWorse) {
+        expiring = {
+          id: d.id,
+          name: d.name,
+          value: d.value,
+          expiresAt: new Date(d.expiresAt).toISOString(),
+          daysLeft,
+          level,
+        };
+      }
     }
 
     return {
@@ -65,6 +93,7 @@ export async function GET() {
       domainsCount: p.domains.length,
       tasksCount: p.tasks.length,
       domainWarning,
+      expiring,
       siteStatus,
     };
   });

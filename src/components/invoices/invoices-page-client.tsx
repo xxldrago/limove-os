@@ -240,7 +240,14 @@ export function InvoicesPageClient() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 items-end">
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">Проект</Label>
-            <Select value={filterProject} onValueChange={(v) => v != null && setFilterProject(v)}>
+            <Select
+              value={filterProject}
+              onValueChange={(v) => v != null && setFilterProject(v)}
+              items={[
+                { value: "ALL", label: "Все проекты" },
+                ...projects.map((p) => ({ value: String(p.id), label: p.name })),
+              ]}
+            >
               <SelectTrigger className="h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>

@@ -138,7 +138,11 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm">Аналитика (Яндекс)</CardTitle>
-          <Select value={range} onValueChange={(v) => v != null && setRange(v as RangeKey)}>
+          <Select
+            value={range}
+            onValueChange={(v) => v != null && setRange(v as RangeKey)}
+            items={rangeOptions.map((r) => ({ value: r.value, label: r.label }))}
+          >
             <SelectTrigger className="w-36 h-8">
               <SelectValue />
             </SelectTrigger>
@@ -226,7 +230,11 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-3">
-          <Select value={String(reportMonth)} onValueChange={(v) => v != null && setReportMonth(Number(v))}>
+          <Select
+            value={String(reportMonth)}
+            onValueChange={(v) => v != null && setReportMonth(Number(v))}
+            items={monthsLabel.map((m) => ({ value: String(m.value), label: m.label }))}
+          >
             <SelectTrigger className="w-40 h-8">
               <SelectValue />
             </SelectTrigger>

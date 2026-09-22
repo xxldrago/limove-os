@@ -174,7 +174,11 @@ export function FinancialGoalCard() {
               <div className="space-y-2 border-t pt-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Год</Label>
-                  <Select value={String(yearInput)} onValueChange={(v) => v != null && onYearChange(v)}>
+                  <Select
+                    value={String(yearInput)}
+                    onValueChange={(v) => v != null && onYearChange(v)}
+                    items={yearOptions(new Date().getFullYear()).map((y) => ({ value: String(y), label: String(y) }))}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

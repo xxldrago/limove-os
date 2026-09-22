@@ -443,7 +443,14 @@ export function InvoiceDetailDialog({
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Способ оплаты</Label>
-                  <Select value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as "CASH" | "BANK_TRANSFER")}>
+                  <Select
+                    value={paymentMethod}
+                    onValueChange={(v) => setPaymentMethod(v as "CASH" | "BANK_TRANSFER")}
+                    items={[
+                      { value: "CASH", label: "Наличные" },
+                      { value: "BANK_TRANSFER", label: "Банковский перевод" },
+                    ]}
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
@@ -455,7 +462,18 @@ export function InvoiceDetailDialog({
                 </div>
                 <div className="space-y-2">
                   <Label>Кто получил деньги</Label>
-                  <Select value={paidById} onValueChange={(v) => setPaidById(v ?? "1")}>
+                  <Select
+                    value={paidById}
+                    onValueChange={(v) => setPaidById(v ?? "1")}
+                    items={
+                      partners.length > 0
+                        ? partners.map((p) => ({ value: String(p.id), label: p.name }))
+                        : [
+                            { value: "1", label: "Лёша" },
+                            { value: "2", label: "Гена" },
+                          ]
+                    }
+                  >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>

@@ -129,7 +129,11 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Провайдер</Label>
-              <Select value={provider} onValueChange={(v) => v != null && setProvider(v)}>
+              <Select
+                value={provider}
+                onValueChange={(v) => v != null && setProvider(v)}
+                items={PROVIDERS.map((p) => ({ value: p, label: p }))}
+              >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {PROVIDERS.map((p) => (
@@ -163,7 +167,11 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
           </div>
           <div className="space-y-1.5">
             <Label>Статус</Label>
-            <Select value={status} onValueChange={(v) => v != null && setStatus(v)}>
+            <Select
+              value={status}
+              onValueChange={(v) => v != null && setStatus(v)}
+              items={STATUSES.map((s) => ({ value: s, label: s }))}
+            >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {STATUSES.map((s) => (

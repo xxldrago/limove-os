@@ -167,7 +167,14 @@ export function CreateInvoiceDialog({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Проект</Label>
-            <Select value={projectId} onValueChange={(v) => setProjectId(v ?? "none")}>
+            <Select
+              value={projectId}
+              onValueChange={(v) => setProjectId(v ?? "none")}
+              items={[
+                { value: "none", label: "Без проекта" },
+                ...projects.map((p) => ({ value: String(p.id), label: p.name })),
+              ]}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>

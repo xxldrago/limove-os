@@ -118,7 +118,11 @@ export function ElementxPageClient() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <Select value={company} onValueChange={(v) => { if (v != null) setCompany(v); }}>
+        <Select
+          value={company}
+          onValueChange={(v) => { if (v != null) setCompany(v); }}
+          items={[{ value: "ALL", label: "Все компании" }, ...companies.map((c) => ({ value: c, label: c }))]}
+        >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Компания" />
           </SelectTrigger>
@@ -129,7 +133,15 @@ export function ElementxPageClient() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={sort} onValueChange={(v) => { if (v != null) setSort(v); }}>
+        <Select
+          value={sort}
+          onValueChange={(v) => { if (v != null) setSort(v); }}
+          items={[
+            { value: "id", label: "По добавлению" },
+            { value: "registerDate", label: "По дате регистрации" },
+            { value: "paidDate", label: "По дате оплаты" },
+          ]}
+        >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Сортировка" />
           </SelectTrigger>

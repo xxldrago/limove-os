@@ -182,11 +182,14 @@ export function AddTransactionDialog({
             <Label>Кто {type === "INCOME" ? "получил" : "потратил"}</Label>
             <Select value={paidById} onValueChange={(v) => v != null && setPaidById(v)}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue>
+                  {paidById === "1" ? "Лёша" : paidById === "2" ? "Гена" : "—"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">Лёша</SelectItem>
                 <SelectItem value="2">Гена</SelectItem>
+                <SelectItem value="3">—</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -195,7 +198,11 @@ export function AddTransactionDialog({
             <Label>Проект</Label>
             <Select value={projectId} onValueChange={(v) => v != null && setProjectId(v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Без проекта" />
+                <SelectValue>
+                  {projectId === "none"
+                    ? "Без проекта"
+                    : projects.find((p) => String(p.id) === projectId)?.name ?? "Без проекта"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Без проекта</SelectItem>
@@ -212,7 +219,9 @@ export function AddTransactionDialog({
             <Label>Категория</Label>
             <Select value={category} onValueChange={(v) => v != null && setCategory(v)}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue>
+                  {category}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {categories.map((c) => (

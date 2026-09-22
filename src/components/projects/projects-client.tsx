@@ -22,6 +22,14 @@ interface ProjectSummary {
   domainsCount: number;
   tasksCount: number;
   domainWarning: "none" | "yellow" | "red";
+  expiring: {
+    id: number;
+    name: string;
+    value: string;
+    expiresAt: string;
+    daysLeft: number;
+    level: "yellow" | "red";
+  } | null;
   siteStatus: "UP" | "DOWN" | "UNKNOWN";
 }
 
@@ -55,6 +63,14 @@ function formatMoney(n: number) {
     currency: "RUB",
     maximumFractionDigits: 0,
   }).format(n);
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 export function ProjectsClient() {
@@ -118,11 +134,23 @@ export function ProjectsClient() {
                       <Badge variant="outline" className={SITE_STATUS_CLASSES[p.siteStatus]}>
                         {SITE_STATUS_LABELS[p.siteStatus] ?? p.siteStatus}
                       </Badge>
-                      {p.domainWarning === "red" && (
-                        <Badge className="bg-red-500 text-white">Домен истёк</Badge>
+                      {p.expiring && (
+                        <Badge
+                          className={
+                            p.expiring.level === "red"
+                              ? "bg-red-500 text-white"
+                              : "bg-yellow-500 text-white"
+                          }
+                          title={`${p.expiring.name} ${p.expiring.value} — ${p.expiring.level === "red" ? "истёк" : "истекает"} ${formatDate(p.expiring.expiresAt)}`}
+                        >
+                          {p.expiring.name} {p.expiring.level === "red" ? "истёк" : `истекает ${formatDate(p.expiring.expiresAt)}`}
+                        </Badge>
                       )}
-                      {p.domainWarning === "yellow" && (
-                        <Badge className="bg-yellow-500 text-white">Домен скоро истечёт</Badge>
+                      {!p.expiring && p.domainWarning === "red" && (
+                        <Badge className="bg-red-500 text-white">Истёк срок</Badge>
+                      )}
+                      {!p.expiring && p.domainWarning === "yellow" && (
+                        <Badge className="bg-yellow-500 text-white">Скоро истекает</Badge>
                       )}
                     </div>
                   </div>

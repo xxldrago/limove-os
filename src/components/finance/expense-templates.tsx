@@ -222,7 +222,11 @@ export function ExpenseTemplates({
             </div>
             <div className="space-y-1">
               <Label className="text-xs">Категория</Label>
-              <Select value={newCategory} onValueChange={(v) => v != null && setNewCategory(v)}>
+              <Select
+                value={newCategory}
+                onValueChange={(v) => v != null && setNewCategory(v)}
+                items={categories.map((c) => ({ value: c, label: c }))}
+              >
                 <SelectTrigger className="h-8 w-36 text-xs">
                   <SelectValue />
                 </SelectTrigger>
@@ -276,7 +280,11 @@ export function ExpenseTemplates({
                         value={editAmount}
                         onChange={(e) => setEditAmount(e.target.value)}
                       />
-                      <Select value={editCategory} onValueChange={(v) => v != null && setEditCategory(v)}>
+                      <Select
+                        value={editCategory}
+                        onValueChange={(v) => v != null && setEditCategory(v)}
+                        items={categories.map((c) => ({ value: c, label: c }))}
+                      >
                         <SelectTrigger className="h-8 w-32 text-xs">
                           <SelectValue />
                         </SelectTrigger>

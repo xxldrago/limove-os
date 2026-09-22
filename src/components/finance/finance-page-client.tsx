@@ -58,9 +58,14 @@ interface BalanceData {
   totalIncome: number;
   totalExpenses: number;
   profit: number;
+  settled: boolean;
+  settledAmount: number;
+  debt: number;
+  debtor: string;
+  creditor: string;
   partners: {
-    lesha: { name: string; share: number; spent: number; balance: number };
-    gena: { name: string; share: number; spent: number; balance: number };
+    lesha: { name: string; share: number; spent: number; received: number; net: number; balance: number };
+    gena: { name: string; share: number; spent: number; received: number; net: number; balance: number };
   };
 }
 
@@ -331,19 +336,40 @@ export function FinancePageClient() {
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-5">
-              <div className="text-xs text-muted-foreground">Лёша потратил</div>
-              <div className="text-lg font-bold whitespace-nowrap">{formatMoney(balance.partners.lesha.spent)}</div>
+            <CardContent className="space-y-2 p-5">
+              <div>
+                <div className="text-xs text-muted-foreground">Лёша потратил</div>
+                <div className="text-lg font-bold whitespace-nowrap text-red-600">{formatMoney(balance.partners.lesha.spent)}</div>
+              </div>
+              <div className="border-t pt-2">
+                <div className="text-xs text-muted-foreground">Лёша получил</div>
+                <div className="text-lg font-bold whitespace-nowrap text-emerald-600">{formatMoney(balance.partners.lesha.received)}</div>
+              </div>
             </CardContent>
           </Card>
           <Card>
-                      <CardContent className="p-5">
-                        <div className="text-xs text-muted-foreground">Гена потратил</div>
-                        <div className="text-lg font-bold whitespace-nowrap">{formatMoney(balance.partners.gena.spent)}</div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
+            <CardContent className="space-y-2 p-5">
+              <div>
+                <div className="text-xs text-muted-foreground">Гена потратил</div>
+                <div className="text-lg font-bold whitespace-nowrap text-red-600">{formatMoney(balance.partners.gena.spent)}</div>
+              </div>
+              <div className="border-t pt-2">
+                <div className="text-xs text-muted-foreground">Гена получил</div>
+                <div className="text-lg font-bold whitespace-nowrap text-emerald-600">{formatMoney(balance.partners.gena.received)}</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Баланс партнёров — сразу под строкой со сводкой */}
+      {balance && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <PartnerBalanceCard balance={balance} onSettled={fetchBalance} />
+          </div>
+        </div>
+      )}
 
                 {/* Pending invoices summary */}
                 <Card>
@@ -397,12 +423,10 @@ export function FinancePageClient() {
                                                                 {/* Margins + forecast (пункт D) */}
                                                 <MarginsCard />
 
-      {/* Filters and Partner Balance */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div className="lg:col-span-3">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-wrap items-center gap-3">
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground mr-1">Тип:</span>
                   {["ALL", "INCOME", "EXPENSE"].map((t) => (
@@ -422,7 +446,11 @@ export function FinancePageClient() {
 
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground mr-1">Месяц:</span>
-                  <Select value={filterMonth} onValueChange={(v) => v != null && setFilterMonth(v)}>
+                  <Select
+                    value={filterMonth}
+                    onValueChange={(v) => v != null && setFilterMonth(v)}
+                    items={monthOptions.map((m) => ({ value: m.value, label: m.label }))}
+                  >
                     <SelectTrigger className="h-7 w-40 text-xs">
                       <SelectValue />
                     </SelectTrigger>
@@ -440,19 +468,35 @@ export function FinancePageClient() {
                   <span className="text-xs text-muted-foreground mr-1">Партнёр:</span>
                   <Select value={filterPartner} onValueChange={(v) => v != null && setFilterPartner(v)}>
                     <SelectTrigger className="h-7 w-32 text-xs">
-                      <SelectValue />
+                      <SelectValue>
+                        {filterPartner === "ALL"
+                          ? "Все"
+                          : filterPartner === "1"
+                            ? "Лёша"
+                            : filterPartner === "2"
+                              ? "Гена"
+                              : "—"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ALL">Все</SelectItem>
                       <SelectItem value="1">Лёша</SelectItem>
                       <SelectItem value="2">Гена</SelectItem>
+                      <SelectItem value="3">—</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground mr-1">Проект:</span>
-                  <Select value={filterProject} onValueChange={(v) => v != null && setFilterProject(v)}>
+                  <Select
+                    value={filterProject}
+                    onValueChange={(v) => v != null && setFilterProject(v)}
+                    items={[
+                      { value: "ALL", label: "Все" },
+                      ...projects.map((p) => ({ value: String(p.id), label: p.name })),
+                    ]}
+                  >
                     <SelectTrigger className="h-7 w-36 text-xs">
                       <SelectValue />
                     </SelectTrigger>
@@ -467,7 +511,14 @@ export function FinancePageClient() {
 
                 <div className="flex items-center gap-1">
                   <span className="text-xs text-muted-foreground mr-1">Категория:</span>
-                  <Select value={filterCategory} onValueChange={(v) => v != null && setFilterCategory(v)}>
+                  <Select
+                    value={filterCategory}
+                    onValueChange={(v) => v != null && setFilterCategory(v)}
+                    items={[
+                      { value: "ALL", label: "Все" },
+                      ...usedCategories.map((c) => ({ value: c, label: c })),
+                    ]}
+                  >
                     <SelectTrigger className="h-7 w-36 text-xs">
                       <SelectValue />
                     </SelectTrigger>
@@ -482,12 +533,6 @@ export function FinancePageClient() {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="lg:col-span-1">
-          {balance && <PartnerBalanceCard balance={balance} />}
-        </div>
-      </div>
 
       {/* Transaction Table */}
       <Card>
@@ -523,13 +568,24 @@ export function FinancePageClient() {
                         {new Date(t.date).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" })}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={t.type === "INCOME" ? "default" : "destructive"} className="text-xs">
-                          {t.type === "INCOME" ? "Приход" : "Расход"}
+                        <Badge
+                          variant={t.type === "INCOME" ? "default" : t.type === "DEBT_SETTLEMENT" ? "secondary" : "destructive"}
+                          className="text-xs"
+                        >
+                          {t.type === "INCOME" ? "Приход" : t.type === "DEBT_SETTLEMENT" ? "Расчёт" : "Расход"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-xs max-w-[200px] truncate">{t.description}</TableCell>
-                      <TableCell className={`text-xs text-right font-medium ${t.type === "INCOME" ? "text-emerald-600" : "text-red-600"}`}>
-                        {t.type === "INCOME" ? "+" : "-"}
+                      <TableCell
+                        className={`text-xs text-right font-medium ${
+                          t.type === "INCOME"
+                            ? "text-emerald-600"
+                            : t.type === "DEBT_SETTLEMENT"
+                              ? "text-muted-foreground"
+                              : "text-red-600"
+                        }`}
+                      >
+                        {t.type === "INCOME" ? "+" : t.type === "DEBT_SETTLEMENT" ? "" : "-"}
                         {formatMoney(Number(t.amount))}
                       </TableCell>
                       <TableCell className="text-xs">{t.paidBy.name}</TableCell>

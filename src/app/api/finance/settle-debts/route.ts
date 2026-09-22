@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import {
+  computePartnerBalance,
+  ensurePlaceholderUserId,
+  LESHA_ID,
+  GENA_ID,
+} from "@/lib/finance-balance";
 
 /**
  * POST /api/finance/settle-debts
- * Writes off partner debts for a given month (or the current month).
- * Records a lightweight DEBT_SETTLEMENT transaction so the balance route
- * equalizes both partners' balances for that month going forward.
- * Body: { month?: "YYYY-MM" } (optional; defaults to current month).
+ * Гашение долгов между партнёрами за месяц.
+ *
+ * Body:
+ *   { month?: "YYYY-MM", mode?: "full" | "partial" | "skip",
+ *     person?: "lesha" | "gena", amount?: number }
+ *
+ * - full    — погасить весь текущий долг (DEBT_SETTLEMENT на всю сумму)
+ * - partial — частичное погашение: person = кто получил деньги (кредитор),
+ *             amount = сколько получил; долг уменьшается на эту сумму
+ * - skip    — ничего не делать
+ *
+ * Записи DEBT_SETTLEMENT не влияют на приход/расход и в балансе уменьшают долг.
  */
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -15,18 +29,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { month?: string } = {};
+  let body: {
+    month?: string;
+    mode?: "full" | "partial" | "skip";
+    person?: "lesha" | "gena";
+    amount?: number;
+  } = {};
   try {
     body = await req.json();
   } catch {
     body = {};
   }
 
+  const mode = body.mode ?? "full";
+
   let year: number;
   let mon: number;
-  const month = body.month;
-  if (month && /^\d{4}-\d{1,2}$/.test(month)) {
-    [year, mon] = month.split("-").map(Number);
+  if (body.month && /^\d{4}-\d{1,2}$/.test(body.month)) {
+    [year, mon] = body.month.split("-").map(Number);
   } else {
     const now = new Date();
     year = now.getFullYear();
@@ -35,70 +55,92 @@ export async function POST(req: NextRequest) {
 
   const start = new Date(year, mon - 1, 1);
   const end = new Date(year, mon, 0, 23, 59, 59, 999);
+  const monthKey = `${year}-${String(mon).padStart(2, "0")}`;
 
-  // Same per-month balance computation as the balance route.
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      date: { gte: start, lte: end },
-    },
-    select: {
-      type: true,
-      amount: true,
-      paidById: true,
-    },
-  });
+  if (mode === "skip") {
+    return NextResponse.json({ skipped: true, settled: false, month: monthKey });
+  }
 
-  let totalIncome = 0;
-  let leshaExpenses = 0;
-  let genaExpenses = 0;
+  const [transactions, users] = await Promise.all([
+    prisma.transaction.findMany({
+      where: { date: { gte: start, lte: end } },
+      select: { type: true, amount: true, paidById: true },
+    }),
+    prisma.user.findMany({
+      where: { id: { in: [LESHA_ID, GENA_ID] } },
+      select: { id: true, name: true },
+    }),
+  ]);
 
-  for (const t of transactions) {
-    const amt = Number(t.amount);
-    if (t.type === "INCOME") {
-      totalIncome += amt;
-    } else if (t.type !== "DEBT_SETTLEMENT") {
-      if (t.paidById === 1) leshaExpenses += amt;
-      if (t.paidById === 2) genaExpenses += amt;
+  const b = computePartnerBalance(transactions, LESHA_ID, GENA_ID);
+  const nameOf = (id: number, fallback: string) =>
+    users.find((u) => u.id === id)?.name ?? fallback;
+  const leshaName = nameOf(LESHA_ID, "Лёша");
+  const genaName = nameOf(GENA_ID, "Гена");
+
+  const outstanding = Math.abs(b.debt);
+  if (outstanding < 0.01) {
+    return NextResponse.json({ alreadyEqual: true, settled: true, month: monthKey, remainingDebt: 0 });
+  }
+
+  // Кто кому должен (по знаку долга): debt > 0 → Лёша должен Гене
+  const debtor = b.debt > 0 ? leshaName : genaName;
+  const creditor = b.debt > 0 ? genaName : leshaName;
+
+  // Сумма к погашению
+  let amount: number;
+  if (mode === "partial") {
+    amount = Number(body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return NextResponse.json({ error: "Укажите сумму больше нуля" }, { status: 400 });
     }
+    // Частичное гашение не может превысить текущий долг
+    amount = Math.min(amount, outstanding);
+    // Кто получил — кредитор; если выбрали не того, всё равно гасим долг на сумму
+    const receiver = body.person === "gena" ? genaName : body.person === "lesha" ? leshaName : null;
+    if (receiver && receiver === debtor) {
+      return NextResponse.json(
+        { error: `Деньги должен получить ${creditor}, а не ${debtor}` },
+        { status: 400 }
+      );
+    }
+  } else {
+    amount = outstanding;
   }
 
-  const partnerShare = totalIncome / 2;
-  const leshaBalance = partnerShare - leshaExpenses;
-  const genaBalance = partnerShare - genaExpenses;
-  const diff = leshaBalance - genaBalance;
-  const absDiff = Math.abs(diff);
-
-  if (absDiff < 0.01) {
-    return NextResponse.json({
-      alreadyEqual: true,
-      settled: true,
-      month: `${year}-${String(mon).padStart(2, "0")}`,
-    });
-  }
-
-  const debtor = diff < 0 ? "Лёша" : "Гена";
-  const creditor = diff < 0 ? "Гена" : "Лёша";
+  const placeholderId = await ensurePlaceholderUserId();
 
   await prisma.transaction.create({
     data: {
       type: "DEBT_SETTLEMENT",
-      amount: absDiff,
-      description: `Погашение долга: ${debtor} → ${creditor} (${absDiff}₽)`,
-      paidById: diff < 0 ? 1 : 2, // debtor party id (lesha=1, gena=2)
+      amount,
+      description:
+        mode === "partial"
+          ? `Частичное погашение долга: ${debtor} → ${creditor}`
+          : `Погашение долга: ${debtor} → ${creditor}`,
+      paidById: placeholderId, // в истории партнёр отображается как «—»
       category: "Расчёт",
       date: new Date(year, mon - 1, Math.min(new Date().getDate(), end.getDate())),
     },
   });
 
-  const num = absDiff.toLocaleString("ru-RU", { maximumFractionDigits: 2 });
+  // Новый остаток долга после погашения
+  const remainingDebt = Math.max(0, Math.round((outstanding - amount) * 100) / 100);
+  const num = amount.toLocaleString("ru-RU", { maximumFractionDigits: 2 });
 
   return NextResponse.json({
     settled: true,
+    skipped: false,
     alreadyEqual: false,
-    month: `${year}-${String(mon).padStart(2, "0")}`,
-    amount: absDiff,
+    month: monthKey,
+    mode,
+    amount,
     debtor,
     creditor,
-    message: `Долг ${debtor} → ${creditor} (${num}₽) погашен`,
+    remainingDebt,
+    message:
+      mode === "partial"
+        ? `Частично погашено ${num}₽ (${debtor} → ${creditor}). Остаток долга: ${remainingDebt.toLocaleString("ru-RU")}₽`
+        : `Долг ${num}₽ (${debtor} → ${creditor}) погашен`,
   });
 }

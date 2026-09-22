@@ -133,7 +133,11 @@ export function VpnPageClient() {
     >
 
       <div className="flex flex-wrap items-center gap-3">
-        <Select value={provider} onValueChange={(v) => v != null && setProvider(v)}>
+        <Select
+          value={provider}
+          onValueChange={(v) => v != null && setProvider(v)}
+          items={[{ value: "ALL", label: "Все" }, ...PROVIDERS.map((p) => ({ value: p, label: p }))]}
+        >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Провайдер" />
           </SelectTrigger>
@@ -144,7 +148,16 @@ export function VpnPageClient() {
             ))}
           </SelectContent>
         </Select>
-        <Select value={status} onValueChange={(v) => v != null && setStatus(v)}>
+        <Select
+          value={status}
+          onValueChange={(v) => v != null && setStatus(v)}
+          items={[
+            { value: "ALL", label: "Все" },
+            { value: "ACTIVE", label: "Активен" },
+            { value: "REVOKED", label: "Отозван" },
+            { value: "EXPIRED", label: "Истёк" },
+          ]}
+        >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Статус" />
           </SelectTrigger>

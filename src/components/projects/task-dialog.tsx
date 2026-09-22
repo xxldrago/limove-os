@@ -125,7 +125,11 @@ export function TaskDialog({
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Приоритет</Label>
-            <Select value={priority} onValueChange={(v) => v && setPriority(v)}>
+            <Select
+              value={priority}
+              onValueChange={(v) => v && setPriority(v)}
+              items={PRIORITIES.map((p) => ({ value: p.value, label: p.label }))}
+            >
               <SelectTrigger className="col-span-3 w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -138,7 +142,11 @@ export function TaskDialog({
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Статус</Label>
-            <Select value={status} onValueChange={(v) => v && setStatus(v)}>
+            <Select
+              value={status}
+              onValueChange={(v) => v && setStatus(v)}
+              items={STATUSES.map((s) => ({ value: s.value, label: s.label }))}
+            >
               <SelectTrigger className="col-span-3 w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -151,7 +159,15 @@ export function TaskDialog({
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Исполнитель</Label>
-            <Select value={assignee} onValueChange={(v) => v !== null && setAssignee(v)}>
+            <Select
+              value={assignee}
+              onValueChange={(v) => v !== null && setAssignee(v)}
+              items={[
+                { value: "", label: "Не назначен" },
+                { value: "1", label: "Лёша" },
+                { value: "2", label: "Гена" },
+              ]}
+            >
               <SelectTrigger className="col-span-3 w-full">
                 <SelectValue />
               </SelectTrigger>

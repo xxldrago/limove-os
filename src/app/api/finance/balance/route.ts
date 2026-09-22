@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { computePartnerBalance, LESHA_ID, GENA_ID } from "@/lib/finance-balance";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -25,68 +26,53 @@ export async function GET(req: NextRequest) {
   const start = new Date(year, mon - 1, 1);
   const end = new Date(year, mon, 0, 23, 59, 59, 999);
 
-  // Get all transactions for the month
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      date: { gte: start, lte: end },
-    },
-    select: {
-      type: true,
-      amount: true,
-      paidById: true,
-    },
-  });
+  const [transactions, users] = await Promise.all([
+    prisma.transaction.findMany({
+      where: { date: { gte: start, lte: end } },
+      select: { type: true, amount: true, paidById: true },
+    }),
+    prisma.user.findMany({
+      where: { id: { in: [LESHA_ID, GENA_ID] } },
+      select: { id: true, name: true },
+    }),
+  ]);
 
-  // Calculate totals
-  let totalIncome = 0;
-  let totalExpenses = 0;
-  let leshaExpenses = 0;
-  let genaExpenses = 0;
-  let debtSettled = false;
+  const b = computePartnerBalance(transactions, LESHA_ID, GENA_ID);
 
-  for (const t of transactions) {
-    const amt = Number(t.amount);
-    if (t.type === "DEBT_SETTLEMENT") {
-      // Debt settlement writes off debts between partners: balances become equal.
-      debtSettled = true;
-    } else if (t.type === "INCOME") {
-      totalIncome += amt;
-    } else {
-      totalExpenses += amt;
-      if (t.paidById === 1) leshaExpenses += amt;
-      if (t.paidById === 2) genaExpenses += amt;
-    }
-  }
+  const nameOf = (id: number, fallback: string) =>
+    users.find((u) => u.id === id)?.name ?? fallback;
+  const leshaName = nameOf(LESHA_ID, "Лёша");
+  const genaName = nameOf(GENA_ID, "Гена");
 
-  const partnerShare = totalIncome / 2;
-  let leshaBalance = partnerShare - leshaExpenses;
-  let genaBalance = partnerShare - genaExpenses;
-
-  // If debts were settled this month, both balances are equalized at the average.
-  if (debtSettled) {
-    const avg = (leshaBalance + genaBalance) / 2;
-    leshaBalance = avg;
-    genaBalance = avg;
-  }
+  const debtor = b.debt > 0 ? leshaName : genaName;
+  const creditor = b.debt > 0 ? genaName : leshaName;
 
   return NextResponse.json({
     month: `${year}-${String(mon).padStart(2, "0")}`,
-    totalIncome,
-    totalExpenses,
-    profit: totalIncome - totalExpenses,
-    settled: debtSettled,
+    totalIncome: b.totalIncome,
+    totalExpenses: b.totalExpenses,
+    profit: b.profit,
+    settled: b.settledAmount > 0,
+    settledAmount: b.settledAmount,
+    debt: Math.abs(b.debt),
+    debtor,
+    creditor,
     partners: {
       lesha: {
-        name: "Лёша",
-        share: partnerShare,
-        spent: leshaExpenses,
-        balance: leshaBalance,
+        name: leshaName,
+        share: b.lesha.share,
+        spent: b.lesha.spent,
+        received: b.lesha.received,
+        net: b.lesha.net,
+        balance: b.lesha.net,
       },
       gena: {
-        name: "Гена",
-        share: partnerShare,
-        spent: genaExpenses,
-        balance: genaBalance,
+        name: genaName,
+        share: b.gena.share,
+        spent: b.gena.spent,
+        received: b.gena.received,
+        net: b.gena.net,
+        balance: b.gena.net,
       },
     },
   });

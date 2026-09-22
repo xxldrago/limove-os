@@ -367,8 +367,12 @@ export function MonitoringDashboard() {
             <div className="space-y-1.5">
               <Label>Привязка к проекту</Label>
               <Select
-                value={form.projectId || ""}
+                value={form.projectId || "__none"}
                 onValueChange={(v) => setForm({ ...form, projectId: !v || v === "__none" ? "" : v })}
+                items={[
+                  { value: "__none", label: "Без проекта" },
+                  ...projects.map((p) => ({ value: String(p.id), label: p.name })),
+                ]}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Без проекта" />
@@ -388,6 +392,12 @@ export function MonitoringDashboard() {
               <Select
                 value={form.checkInterval}
                 onValueChange={(v: string | null) => setForm({ ...form, checkInterval: v ?? "300" })}
+                items={[
+                  { value: "300", label: "5 минут" },
+                  { value: "900", label: "15 минут" },
+                  { value: "1800", label: "30 минут" },
+                  { value: "3600", label: "1 час" },
+                ]}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />

@@ -107,7 +107,11 @@ export function OverviewTab({ project, onProjectUpdate }: Props) {
                 </Button>
               </div>
             )}
-            <Select value={project.status} onValueChange={(v) => v && saveStatus(v)}>
+            <Select
+              value={project.status}
+              onValueChange={(v) => v && saveStatus(v)}
+              items={EXPECTED_STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s] }))}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
