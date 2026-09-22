@@ -323,7 +323,7 @@ export function MonitoringDashboard() {
 
       {/* Add/Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>{editing ? "Редактировать сайт" : "Добавить сайт"}</DialogTitle>
           </DialogHeader>

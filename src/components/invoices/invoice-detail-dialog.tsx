@@ -115,9 +115,9 @@ function FilePreview({ filePath, fileName }: { filePath: string; fileName: strin
   const isPdf = /\.pdf$/i.test(filePath);
 
   return (
-    <div className="border rounded-lg p-3 space-y-2">
+    <div className="box stack-sm">
       <div className="flex items-center gap-2">
-        {isImage ? <Image className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+        {isImage ? <Image className="icon-xs" /> : <FileText className="icon-xs" />}
         <span className="text-sm font-medium truncate">{fileName}</span>
       </div>
       {isImage && (
@@ -130,7 +130,7 @@ function FilePreview({ filePath, fileName }: { filePath: string; fileName: strin
         </div>
       )}
       <a href={url} download className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-input bg-background hover:bg-muted hover:text-foreground px-2.5 h-7 text-sm font-medium whitespace-nowrap transition-colors outline-none">
-        <Download className="mr-2 h-4 w-4" />
+        <Download className="icon-xs" />
         Скачать
       </a>
     </div>
@@ -301,7 +301,7 @@ export function InvoiceDetailDialog({
           <DialogDescription>{invoice.description}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="stack">
           {/* Info */}
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
@@ -345,7 +345,7 @@ export function InvoiceDetailDialog({
                 fileName={getFileName(invoice.invoiceFile)}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">Файл не загружен</p>
+              <p className="page-sub">Файл не загружен</p>
             )}
           </div>
 
@@ -367,7 +367,7 @@ export function InvoiceDetailDialog({
                 <AlertTriangle className="h-4 w-4 text-[#FBBF24]" />
                 Причина обнуления
               </div>
-              <p className="text-sm text-muted-foreground">{invoice.cancelReason}</p>
+              <p className="page-sub">{invoice.cancelReason}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Обнулён: {formatDate(invoice.cancelledAt)}
               </p>
@@ -381,7 +381,7 @@ export function InvoiceDetailDialog({
             {/* Download ZIP */}
             {invoice.invoiceFile && invoice.receiptFile && (
               <a href={`/api/invoices/${invoice.id}/zip`} className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-input bg-background hover:bg-muted hover:text-foreground px-2.5 h-7 text-sm font-medium whitespace-nowrap transition-colors outline-none">
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="icon-xs" />
                   Скачать оба (ZIP)
                 </a>
             )}
@@ -392,7 +392,7 @@ export function InvoiceDetailDialog({
                 size="sm"
                 onClick={() => setShowReceiptUpload(!showReceiptUpload)}
               >
-                <CreditCard className="mr-2 h-4 w-4" />
+                <CreditCard className="icon-xs" />
                 Оплачено — приложить чек
               </Button>
             )}
@@ -405,7 +405,7 @@ export function InvoiceDetailDialog({
                 onClick={handleRestore}
                 disabled={loading}
               >
-                <RotateCcw className="mr-2 h-4 w-4" />
+                <RotateCcw className="icon-xs" />
                 Восстановить
               </Button>
             )}
@@ -417,7 +417,7 @@ export function InvoiceDetailDialog({
                 variant="destructive"
                 onClick={() => setShowCancelForm(true)}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className="icon-xs" />
                 Обнулить счёт
               </Button>
             )}
@@ -438,10 +438,10 @@ export function InvoiceDetailDialog({
 
           {/* Receipt upload form */}
           {showReceiptUpload && (
-            <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+            <div className="box stack-sm">
               <h4 className="text-sm font-medium">Отметить оплату</h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
+              <div className="form-grid-2">
+                <div className="form-row">
                   <Label>Способ оплаты</Label>
                   <Select
                     value={paymentMethod}
@@ -460,7 +460,7 @@ export function InvoiceDetailDialog({
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="form-row">
                   <Label>Кто получил деньги</Label>
                   <Select
                     value={paidById}
@@ -492,7 +492,7 @@ export function InvoiceDetailDialog({
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="form-row">
                 <Label htmlFor="paidDate">Дата оплаты</Label>
                 <Input
                   id="paidDate"
@@ -506,7 +506,7 @@ export function InvoiceDetailDialog({
                   Автоматически будет создан расход «Налог 6%» от суммы счёта.
                 </p>
               )}
-              <div className="space-y-2">
+              <div className="form-row">
                 <Label>Чек (необязательно)</Label>
                 <input
                   ref={fileInputRef}
@@ -516,8 +516,8 @@ export function InvoiceDetailDialog({
                   onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
                 />
               </div>
-              {error && <p className="text-sm text-destructive">{error}</p>}
-              <div className="flex gap-2">
+              {error && <p className="text-neg">{error}</p>}
+              <div className="form-actions">
                 <Button
                   size="sm"
                   onClick={handleMarkPaid}
@@ -540,10 +540,10 @@ export function InvoiceDetailDialog({
           {showCancelForm && (
             <div className="border rounded-lg p-4 space-y-3 bg-destructive/5">
               <h4 className="text-sm font-medium flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4" />
+                <AlertTriangle className="icon-xs" />
                 Обнулить счёт
               </h4>
-              <div className="space-y-2">
+              <div className="form-row">
                 <Label htmlFor="cancelReason">Причина обнуления *</Label>
                 <Textarea
                   id="cancelReason"
@@ -553,8 +553,8 @@ export function InvoiceDetailDialog({
                   rows={3}
                 />
               </div>
-              {error && <p className="text-sm text-destructive">{error}</p>}
-              <div className="flex gap-2">
+              {error && <p className="text-neg">{error}</p>}
+              <div className="form-actions">
                 <Button
                   size="sm"
                   variant="destructive"

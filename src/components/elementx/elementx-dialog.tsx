@@ -161,17 +161,17 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-3 py-2">
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Сумма (₽)</Label>
               <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="50000" />
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Описание</Label>
               <Input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={`Оплата ElementX: ${fullName || ""}`} />
             </div>
             {error && <p className="text-sm text-[#F87171]">{error}</p>}
           </div>
-          <div className="flex justify-end gap-2">
+          <div className="form-actions form-actions--end">
             <Button
               variant="outline"
               disabled={loading}
@@ -201,30 +201,30 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
             {user ? "Измените данные пользователя ElementX" : "Новый пользователь ElementX"}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-2">
-          <div className="space-y-1.5">
+        <div className="stack">
+          <div className="form-row">
             <Label>Полное имя</Label>
             <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Вадим Исмагилович" />
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Логин</Label>
             <Input value={login} onChange={(e) => setLogin(e.target.value)} placeholder="vi" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+          <div className="form-grid-2">
+            <div className="form-row">
               <Label>Дата регистрации</Label>
               <Input type="date" value={registerDate} onChange={(e) => setRegisterDate(e.target.value)} />
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Дата оплаты <span className="text-muted-foreground">(опц.)</span></Label>
               <Input type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
             </div>
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Компания <span className="text-muted-foreground">(опц.)</span></Label>
             <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="РС" />
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Статус</Label>
             <Select
               value={status}
@@ -239,13 +239,13 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Заметки <span className="text-muted-foreground">(опц.)</span></Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </div>
           {error && <p className="text-sm text-[#F87171]">{error}</p>}
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="form-actions form-actions--end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>
           <Button onClick={handleSaveClick} disabled={loading}>
             {loading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}

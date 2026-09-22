@@ -123,14 +123,14 @@ export function EditTransactionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Редактировать транзакцию</DialogTitle>
           <DialogDescription>Измените данные транзакции</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex gap-2">
+        <form onSubmit={handleSubmit} className="stack">
+          <div className="form-actions">
             <Button
               type="button"
               variant={type === "INCOME" ? "default" : "outline"}
@@ -149,7 +149,7 @@ export function EditTransactionDialog({
             </Button>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="amount">Сумма</Label>
             <Input
               id="amount"
@@ -162,7 +162,7 @@ export function EditTransactionDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="desc">Описание</Label>
             <Input
               id="desc"
@@ -171,7 +171,7 @@ export function EditTransactionDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Кто {type === "INCOME" ? "получил" : "потратил"}</Label>
             <Select value={paidById} onValueChange={(v) => v != null && setPaidById(v)}>
               <SelectTrigger>
@@ -187,7 +187,7 @@ export function EditTransactionDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Проект</Label>
             <Select value={projectId} onValueChange={(v) => v != null && setProjectId(v)}>
               <SelectTrigger>
@@ -208,7 +208,7 @@ export function EditTransactionDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Категория</Label>
             <Select value={category} onValueChange={(v) => v != null && setCategory(v)}>
               <SelectTrigger>
@@ -224,7 +224,7 @@ export function EditTransactionDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="date">Дата</Label>
             <Input
               id="date"
@@ -234,9 +234,9 @@ export function EditTransactionDialog({
             />
           </div>
 
-          {error && <div className="text-sm text-destructive">{error}</div>}
+          {error && <div className="text-neg">{error}</div>}
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="form-actions form-actions--end">
             <Button
               type="button"
               variant="outline"
@@ -245,7 +245,7 @@ export function EditTransactionDialog({
               Отмена
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {loading ? <Loader2 className="icon-xs" /> : null}
               Сохранить
             </Button>
           </div>

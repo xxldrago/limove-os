@@ -102,35 +102,35 @@ export function TaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>{isEdit ? "Редактировать задачу" : "Новая задача"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Название</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Название</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right pt-2">Описание</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions form-actions--end">Описание</Label>
             <Textarea
-              className="col-span-3 min-h-20"
+              className="form-grid-field"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Приоритет</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Приоритет</Label>
             <Select
               value={priority}
               onValueChange={(v) => v && setPriority(v)}
               items={PRIORITIES.map((p) => ({ value: p.value, label: p.label }))}
             >
-              <SelectTrigger className="col-span-3 w-full">
+              <SelectTrigger className="form-grid-field">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -140,14 +140,14 @@ export function TaskDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Статус</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Статус</Label>
             <Select
               value={status}
               onValueChange={(v) => v && setStatus(v)}
               items={STATUSES.map((s) => ({ value: s.value, label: s.label }))}
             >
-              <SelectTrigger className="col-span-3 w-full">
+              <SelectTrigger className="form-grid-field">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -157,8 +157,8 @@ export function TaskDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Исполнитель</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Исполнитель</Label>
             <Select
               value={assignee}
               onValueChange={(v) => v !== null && setAssignee(v)}
@@ -168,7 +168,7 @@ export function TaskDialog({
                 { value: "2", label: "Гена" },
               ]}
             >
-              <SelectTrigger className="col-span-3 w-full">
+              <SelectTrigger className="form-grid-field">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -178,10 +178,10 @@ export function TaskDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Срок</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Срок</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
@@ -196,7 +196,7 @@ export function TaskDialog({
               </Button>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="form-actions">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Отмена
             </Button>

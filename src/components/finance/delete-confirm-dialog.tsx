@@ -64,9 +64,9 @@ export function DeleteConfirmDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {error && <div className="text-sm text-destructive">{error}</div>}
+        {error && <div className="text-neg">{error}</div>}
 
-        <div className="flex justify-end gap-2">
+        <div className="form-actions form-actions--end">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
@@ -78,7 +78,7 @@ export function DeleteConfirmDialog({
             onClick={handleDelete}
             disabled={loading}
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            {loading ? <Loader2 className="icon-xs" /> : null}
             Удалить
           </Button>
         </div>

@@ -113,14 +113,14 @@ export function UploadInvoiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Загрузить счёт</DialogTitle>
           <DialogDescription>Добавьте новый счёт в систему</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="stack">
+          <div className="form-row">
             <Label htmlFor="description">Описание *</Label>
             <Input
               id="description"
@@ -131,7 +131,7 @@ export function UploadInvoiceDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="amount">Сумма (₽) *</Label>
             <Input
               id="amount"
@@ -145,7 +145,7 @@ export function UploadInvoiceDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Проект</Label>
             <Select value={projectId} onValueChange={(v) => v != null && setProjectId(v)}>
               <SelectTrigger>
@@ -162,7 +162,7 @@ export function UploadInvoiceDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="dueDate">Срок оплаты</Label>
             <Input
               id="dueDate"
@@ -172,7 +172,7 @@ export function UploadInvoiceDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Файл счёта</Label>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
@@ -207,7 +207,7 @@ export function UploadInvoiceDialog({
                     size="sm"
                     onClick={(e) => { e.stopPropagation(); setFile(null); }}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="icon-xs" />
                   </Button>
                 </div>
               ) : (
@@ -220,14 +220,14 @@ export function UploadInvoiceDialog({
             </div>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="text-neg">{error}</p>}
 
-          <div className="flex justify-end gap-2">
+          <div className="form-actions form-actions--end">
             <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Отмена
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading && <Loader2 className="icon-xs" />}
               Загрузить
             </Button>
           </div>

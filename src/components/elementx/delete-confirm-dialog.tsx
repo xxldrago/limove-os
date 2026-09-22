@@ -29,7 +29,7 @@ export function DeleteConfirmDialog({ open, onOpenChange, title, description, on
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="flex justify-end gap-2">
+        <div className="form-actions form-actions--end">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Отмена
           </Button>

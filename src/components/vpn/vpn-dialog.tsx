@@ -125,9 +125,9 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
             {sub ? "Измените данные VPN-подписки" : "Новая VPN-подписка"}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-2">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+        <div className="stack">
+          <div className="form-grid-2">
+            <div className="form-row">
               <Label>Провайдер</Label>
               <Select
                 value={provider}
@@ -142,30 +142,30 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Сервер <span className="text-muted-foreground">(опц.)</span></Label>
               <Input value={serverName} onChange={(e) => setServerName(e.target.value)} placeholder="Germany" />
             </div>
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Клиент</Label>
             <Input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Кому подписка" />
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Ссылка/Ключ <span className="text-muted-foreground">(опц.)</span></Label>
             <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="vpn://... или ключ" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
+          <div className="form-grid-2">
+            <div className="form-row">
               <Label>Дата подключения</Label>
               <Input type="date" value={connectedAt} onChange={(e) => setConnectedAt(e.target.value)} />
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Истекает</Label>
               <Input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
             </div>
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Статус</Label>
             <Select
               value={status}
@@ -180,13 +180,13 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
+          <div className="form-row">
             <Label>Заметки <span className="text-muted-foreground">(опц.)</span></Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </div>
           {error && <p className="text-sm text-[#F87171]">{error}</p>}
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="form-actions form-actions--end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>
           <Button onClick={handleSubmit} disabled={loading}>
             {loading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}

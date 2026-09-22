@@ -124,7 +124,7 @@ export function AddTransactionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>
             {type === "INCOME" ? "Добавить приход" : "Добавить расход"}
@@ -134,9 +134,9 @@ export function AddTransactionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="stack">
           {/* Type toggle */}
-          <div className="flex gap-2">
+          <div className="form-actions">
             <Button
               type="button"
               variant={type === "INCOME" ? "default" : "outline"}
@@ -155,7 +155,7 @@ export function AddTransactionDialog({
             </Button>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="amount">Сумма ({type === "INCOME" ? "приход" : "расход"})</Label>
             <Input
               id="amount"
@@ -168,7 +168,7 @@ export function AddTransactionDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="desc">Описание</Label>
             <Input
               id="desc"
@@ -178,7 +178,7 @@ export function AddTransactionDialog({
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Кто {type === "INCOME" ? "получил" : "потратил"}</Label>
             <Select value={paidById} onValueChange={(v) => v != null && setPaidById(v)}>
               <SelectTrigger>
@@ -194,7 +194,7 @@ export function AddTransactionDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Проект</Label>
             <Select value={projectId} onValueChange={(v) => v != null && setProjectId(v)}>
               <SelectTrigger>
@@ -215,7 +215,7 @@ export function AddTransactionDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Категория</Label>
             <Select value={category} onValueChange={(v) => v != null && setCategory(v)}>
               <SelectTrigger>
@@ -233,7 +233,7 @@ export function AddTransactionDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="form-row">
             <Label htmlFor="date">Дата</Label>
             <Input
               id="date"
@@ -243,9 +243,9 @@ export function AddTransactionDialog({
             />
           </div>
 
-          {error && <div className="text-sm text-destructive">{error}</div>}
+          {error && <div className="text-neg">{error}</div>}
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="form-actions form-actions--end">
             <Button
               type="button"
               variant="outline"
@@ -254,7 +254,7 @@ export function AddTransactionDialog({
               Отмена
             </Button>
             <Button type="submit" disabled={loading} className={type === "INCOME" ? "bg-[#10B981] hover:bg-[#059669]" : "bg-[#F87171] hover:bg-[#EF4444]"}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {loading ? <Loader2 className="icon-xs" /> : null}
               Сохранить
             </Button>
           </div>

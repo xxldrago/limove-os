@@ -65,53 +65,53 @@ export function DomainDialog({ open, onOpenChange, domain, slug, onSuccess }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Редактировать запись" : "Новая запись"}
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Название</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Название</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Домен / Хостинг / Тильда"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Значение</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Значение</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="rskrsk.ru"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Истекает</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Истекает</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               type="date"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Напомнить за</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Напомнить за</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               type="number"
               value={reminderDays}
               onChange={(e) => setReminderDays(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Заметки</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Заметки</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />

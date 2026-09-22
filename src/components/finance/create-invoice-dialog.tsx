@@ -157,15 +157,15 @@ export function CreateInvoiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Создать счёт</DialogTitle>
           <DialogDescription>
             Номер будет присвоен автоматически (INV-XXXX), статус — «Ожидает».
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="space-y-2">
+        <div className="stack">
+          <div className="form-row">
             <Label>Проект</Label>
             <Select
               value={projectId}
@@ -186,7 +186,7 @@ export function CreateInvoiceDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Сумма (₽)</Label>
             <Input
               type="number"
@@ -197,7 +197,7 @@ export function CreateInvoiceDialog({
               onChange={(e) => setAmount(e.target.value)}
             />
           </div>
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Описание</Label>
             <Input
               placeholder="Оплата за разработку"
@@ -205,7 +205,7 @@ export function CreateInvoiceDialog({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-          <div className="space-y-2">
+          <div className="form-row">
             <Label>Файл счёта (необязательно)</Label>
             <div
               className={[
@@ -241,11 +241,11 @@ export function CreateInvoiceDialog({
                     }}
                     aria-label="Убрать файл"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="icon-xs" />
                   </button>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="page-sub">
                   Перетащите файл сюда
                 </p>
               )}
@@ -268,12 +268,12 @@ export function CreateInvoiceDialog({
               </Button>
             </div>
             {file && (
-              <p className="text-xs text-muted-foreground">
+              <p className="hint">
                 PDF, JPG, PNG · до 10 МБ
               </p>
             )}
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="text-neg">{error}</p>}
           <div className="flex gap-2 justify-end">
             <Button
               variant="outline"
@@ -287,7 +287,7 @@ export function CreateInvoiceDialog({
             <Button onClick={handleSubmit} disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="icon-xs" />
                   Создание...
                 </>
               ) : (

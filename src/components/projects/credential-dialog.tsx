@@ -67,60 +67,60 @@ export function CredentialDialog({ open, onOpenChange, credential, slug, onSucce
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>{isEdit ? "Редактировать доступ" : "Новый доступ"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Сервис</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Сервис</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={serviceName}
               onChange={(e) => setServiceName(e.target.value)}
               placeholder="WordPress"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Логин</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Логин</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={login}
               onChange={(e) => setLogin(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Пароль</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Пароль</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={isEdit ? "(оставьте пустым, чтобы не менять)" : ""}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Ссылка</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Ссылка</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="example.com"
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Истекает</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Истекает</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               type="date"
               value={expiresAt}
               onChange={(e) => setExpiresAt(e.target.value)}
             />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Заметки</Label>
+          <div className="form-grid-label">
+            <Label className="form-actions--end-text">Заметки</Label>
             <Input
-              className="col-span-3"
+              className="form-grid-field"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
