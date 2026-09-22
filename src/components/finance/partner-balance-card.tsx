@@ -163,8 +163,7 @@ export function PartnerBalanceCard({
         <div className="space-y-2 pt-1">
           <Button
             type="button"
-            variant="outline"
-            className="w-full"
+            className="w-full bg-[#14558f] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_1px_2px_rgba(15,63,109,0.24),0_12px_22px_-14px_rgba(15,63,109,0.95)] hover:bg-[#1c68ad]"
             onClick={() => {
               setChoice((c) => (c === null ? "full" : null));
               setMessage(null);
