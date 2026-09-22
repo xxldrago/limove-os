@@ -1353,6 +1353,202 @@
   flex-direction: column;
   gap: 8px;
 }
+
+/* Проекты */
+.project-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.project-card {
+  display: block;
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.project-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(52, 211, 153, 0.35);
+  background-color: var(--bg-card-hover);
+}
+.project-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.project-name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-primary);
+}
+.project-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.project-fin {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.project-fin-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.project-fin-value {
+  margin-top: 2px;
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.project-counts {
+  display: flex;
+  gap: 16px;
+  margin: 14px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.badge-warn {
+  background-color: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+.badge-solid-danger {
+  background-color: #f87171;
+  color: #090d14;
+  border-color: #f87171;
+}
+.badge-solid-warn {
+  background-color: #fbbf24;
+  color: #090d14;
+  border-color: #fbbf24;
+}
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Табы (сегмент-контрол) */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.tabs-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 4px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  background-color: var(--bg-card);
+}
+.tabs-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.tabs-trigger:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-card-hover);
+}
+.tabs-trigger[data-active],
+.tabs-trigger[aria-selected="true"] {
+  background-color: var(--accent-success-bg);
+  color: var(--accent-success);
+}
+.tabs-content {
+  outline: none;
+}
+
+/* Детальная страница проекта */
+.detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 28px 20px;
+  border-bottom: 1px solid var(--border-default);
+}
+.detail-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: var(--text-primary);
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.back-btn:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+.detail-body {
+  padding: 24px 28px;
+}
+
+/* Фильтры в ряд (счета) */
+.filter-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.row-clickable {
+  cursor: pointer;
+}
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mini-item {
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 8px;
+}
+.mini-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 }
 
 /* ============================================================

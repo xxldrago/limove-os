@@ -82,25 +82,13 @@ function formatDate(dateStr: string | null): string {
 function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "PENDING":
-      return (
-        <Badge variant="outline" className="border-[rgba(251,191,36,0.4)] text-[#FBBF24] bg-[rgba(251,191,36,0.1)]">
-          🟡 Ожидает
-        </Badge>
-      );
+      return <span className="badge badge-warn">🟡 Ожидает</span>;
     case "PAID":
-      return (
-        <Badge variant="outline" className="border-[#34D399] text-[#34D399] bg-[rgba(52,211,153,0.1)]">
-          🟢 Оплачен
-        </Badge>
-      );
+      return <span className="badge badge-success">🟢 Оплачен</span>;
     case "CANCELLED":
-      return (
-        <Badge variant="outline" className="border-[#263147] text-[#94A3B8] bg-[#131926]">
-          ⚫ Обнулён
-        </Badge>
-      );
+      return <span className="badge badge-neutral">⚫ Обнулён</span>;
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      return <span className="badge badge-neutral">{status}</span>;
   }
 }
 
@@ -187,59 +175,43 @@ export function InvoicesPageClient() {
       sub="История счетов и чеков. Управление — в разделе «Финансы»."
       total={pendingSum > 0 ? formatMoney(pendingSum) : undefined}
     >
-
-      {/* Stats row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Ожидают оплаты</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#FBBF24]">{pendingInvoices.length}</div>
-            <p className="text-sm text-muted-foreground">{formatMoney(pendingSum)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Оплачено</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#34D399]">{paidInvoices.length}</div>
-            <p className="text-sm text-muted-foreground">{formatMoney(paidSum)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Обнулено</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#94A3B8]">{cancelledInvoices.length}</div>
-          </CardContent>
-        </Card>
+      {/* Сводка */}
+      <div className="grid-3">
+        <div className="card">
+          <div className="stat-label">Ожидают оплаты</div>
+          <div className="stat-value" style={{ color: "#FBBF24" }}>{pendingInvoices.length}</div>
+          <p className="page-sub">{formatMoney(pendingSum)}</p>
+        </div>
+        <div className="card">
+          <div className="stat-label">Оплачено</div>
+          <div className="stat-value stat-value--pos">{paidInvoices.length}</div>
+          <p className="page-sub">{formatMoney(paidSum)}</p>
+        </div>
+        <div className="card">
+          <div className="stat-label">Обнулено</div>
+          <div className="stat-value">{cancelledInvoices.length}</div>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <div className="flex gap-1">
-            {filterButtons.map((fb) => (
-              <Button
-                key={fb.value}
-                variant={filter === fb.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilter(fb.value)}
-              >
-                {fb.label}
-              </Button>
-            ))}
-          </div>
+      {/* Фильтры */}
+      <div className="card" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="filter-bar">
+          <Filter className="icon-xs" />
+          {filterButtons.map((fb) => (
+            <Button
+              key={fb.value}
+              variant={filter === fb.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter(fb.value)}
+            >
+              {fb.label}
+            </Button>
+          ))}
         </div>
 
-        {/* Advanced filters: project, date range, amount range */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2 items-end">
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Проект</Label>
+        <div className="filter-grid">
+          <div className="form-row">
+            <Label>Проект</Label>
             <Select
               value={filterProject}
               onValueChange={(v) => v != null && setFilterProject(v)}
@@ -248,7 +220,7 @@ export function InvoicesPageClient() {
                 ...projects.map((p) => ({ value: String(p.id), label: p.name })),
               ]}
             >
-              <SelectTrigger className="h-8 text-xs">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -259,76 +231,69 @@ export function InvoicesPageClient() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">С даты</Label>
-            <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="h-8 text-xs" />
+          <div className="form-row">
+            <Label>С даты</Label>
+            <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">По дату</Label>
-            <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="h-8 text-xs" />
+          <div className="form-row">
+            <Label>По дату</Label>
+            <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Мин. сумма</Label>
-            <Input type="number" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} placeholder="0" className="h-8 text-xs" />
+          <div className="form-row">
+            <Label>Мин. сумма</Label>
+            <Input type="number" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} placeholder="0" />
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Макс. сумма</Label>
-            <Input type="number" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} placeholder="∞" className="h-8 text-xs" />
+          <div className="form-row">
+            <Label>Макс. сумма</Label>
+            <Input type="number" value={maxAmount} onChange={(e) => setMaxAmount(e.target.value)} placeholder="∞" />
           </div>
         </div>
       </div>
 
-      {/* Table */}
+      {/* Таблица */}
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Загрузка...</div>
+        <div className="empty-state">Загрузка...</div>
       ) : visibleInvoices.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">Нет счетов</div>
+        <div className="empty-state">Нет счетов</div>
       ) : (
-        <Card>
-          <CardContent className="p-0">
+        <div className="card card-flush">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-16">№</TableHead>
+                <TableHead>№</TableHead>
                 <TableHead>Описание</TableHead>
-                <TableHead className="text-right">Сумма</TableHead>
+                <TableHead className="number-cell">Сумма</TableHead>
                 <TableHead>Проект</TableHead>
                 <TableHead>Статус</TableHead>
                 <TableHead>Дата</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
+                <TableHead className="number-cell">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {visibleInvoices.map((invoice) => (
                 <TableRow
                   key={invoice.id}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="row-clickable"
                   onClick={() => setSelectedInvoice(invoice)}
                 >
-                  <TableCell className="font-mono text-muted-foreground">{invoice.invoiceNumber ?? invoice.id}</TableCell>
-                  <TableCell className="font-medium">{invoice.description}</TableCell>
-                  <TableCell className="text-right font-mono">{formatMoney(Number(invoice.amount))}</TableCell>
+                  <TableCell className="num">{invoice.invoiceNumber ?? invoice.id}</TableCell>
+                  <TableCell className="cell-strong">{invoice.description}</TableCell>
+                  <TableCell className="number-cell">{formatMoney(Number(invoice.amount))}</TableCell>
                   <TableCell>{invoice.project?.name ?? "—"}</TableCell>
                   <TableCell><StatusBadge status={invoice.status} /></TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{formatDate(invoice.createdAt)}</TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedInvoice(invoice)}
-                    >
-                      <Eye className="h-4 w-4" />
+                  <TableCell className="num">{formatDate(invoice.createdAt)}</TableCell>
+                  <TableCell className="number-cell" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="icon" onClick={() => setSelectedInvoice(invoice)} aria-label="Открыть счёт">
+                      <Eye className="icon-xs" />
                     </Button>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          </CardContent>
-        </Card>
+        </div>
       )}
 
-      {/* Dialogs */}
       {selectedInvoice && (
         <InvoiceDetailDialog
           invoice={selectedInvoice}

@@ -32,37 +32,35 @@ export function ProjectDetailClient({ project }: Props) {
   };
 
   return (
-    <div className="fern-panel overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-[#1E2638] px-7 pb-5 pt-[26px]">
-        <Link
-          href="/projects"
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] border border-[#1E2638] text-[#94A3B8] transition hover:bg-[#131926] hover:text-[#F8FAFC]"
-          aria-label="Назад к проектам"
-        >
+    <div className="fern-panel">
+      <div className="detail-head">
+        <Link href="/projects" className="back-btn" aria-label="Назад к проектам">
           <ArrowLeft size={18} />
         </Link>
-        <h1 className="m-0 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">{projectData.name}</h1>
-        <Badge variant="outline">
+        <h1 className="detail-title">{projectData.name}</h1>
+        <span className="badge badge-neutral">
           {STATUS_LABELS[projectData.status] ?? projectData.status}
-        </Badge>
-        <Badge variant="outline" className={
-          projectData.siteStatus === "UP"
-            ? "bg-[rgba(52,211,153,0.1)] text-[#34D399] dark:text-[#34D399]"
-            : projectData.siteStatus === "DOWN"
-              ? "bg-[rgba(248,113,113,0.1)] text-[#F87171] dark:text-[#F87171]"
-              : "bg-muted text-muted-foreground"
-        }>
+        </span>
+        <span
+          className={`badge ${
+            projectData.siteStatus === "UP"
+              ? "badge-success"
+              : projectData.siteStatus === "DOWN"
+                ? "badge-danger"
+                : "badge-neutral"
+          }`}
+        >
           {projectData.siteStatus === "UP"
             ? "🟢 UP"
             : projectData.siteStatus === "DOWN"
               ? "🔴 DOWN"
               : "⚪ UNKNOWN"}
-        </Badge>
+        </span>
       </div>
 
-      <div className="px-7 py-6">
+      <div className="detail-body">
       <Tabs defaultValue="overview">
-        <TabsList className="max-w-full overflow-x-auto">
+        <TabsList>
           <TabsTrigger value="overview">Обзор</TabsTrigger>
           <TabsTrigger value="credentials">Доступы</TabsTrigger>
           <TabsTrigger value="domains">Домены</TabsTrigger>
