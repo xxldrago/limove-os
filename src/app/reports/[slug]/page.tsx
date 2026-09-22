@@ -86,119 +86,119 @@ export default async function ReportPage({
   const finance = data?.finance;
 
   return (
-    <div className="min-h-screen bg-[#090D14] p-6 print:bg-[#0D121B] print:p-0">
-      <div className="fern-panel mx-auto max-w-4xl bg-[#0D121B] print:rounded-none print:border-0 print:shadow-none">
-        {/* Header */}
-        <div className="p-8 pb-6 border-b print:border-gray-200 flex items-start justify-between">
+    <div className="report-page">
+      <div className="report-sheet">
+        {/* Шапка */}
+        <div className="report-head">
           <div>
-            <div className="text-xs uppercase tracking-wider text-[#10B981] font-semibold">Limove OS · Отчёт</div>
-            <h1 className="text-2xl font-bold mt-1">{data?.project.name}</h1>
-            <p className="text-[#64748B] mt-1 capitalize">{data?.period.monthName}</p>
+            <div className="report-eyebrow">Limove OS · Отчёт</div>
+            <h1 className="report-title">{data?.project.name}</h1>
+            <p className="report-period">{data?.period.monthName}</p>
           </div>
           <ReportPrintButton />
         </div>
 
-        <div className="p-8 pt-6">
+        <div className="report-body">
           {error ? (
-            <div className="text-[#F87171]">Ошибка: {error}</div>
+            <div className="text-neg">Ошибка: {error}</div>
           ) : (
             <>
-              {/* Metrika summary tiles */}
+              {/* Сводка Метрики */}
               {metrika?.hasMetric && (
-                <section className="mb-8">
-                  <h2 className="text-sm font-semibold text-[#64748B] uppercase mb-3">Посещаемость</h2>
-                  <div className="grid grid-cols-4 gap-3">
+                <section className="report-section">
+                  <h2 className="report-h2">Посещаемость</h2>
+                  <div className="report-tiles-4">
                     {[
                       ["Визиты", fmt(metrika.totalVisits)],
                       ["Посетители", fmt(metrika.totalUsers)],
                       ["Просмотры", fmt(metrika.totalPageviews)],
                       ["Конверсия", `${metrika.convRate.toFixed(1)}%`],
                     ].map(([label, val]) => (
-                      <div key={label} className="rounded-xl border p-4 bg-[#131926] print:bg-[#131926]">
-                        <div className="text-xs text-[#64748B]">{label}</div>
-                        <div className="text-2xl font-bold text-[#34D399]">{val}</div>
+                      <div key={label} className="report-tile">
+                        <div className="stat-label">{label}</div>
+                        <div className="stat-value stat-value--pos">{val}</div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 rounded-xl border border-indigo-100 p-4">
-                    <div className="text-xs text-[#64748B] mb-2">Посещаемость по дням</div>
+                  <div className="report-chart">
+                    <div className="stat-label" style={{ marginBottom: 8 }}>Посещаемость по дням</div>
                     <VisitsChartSvg rows={metrika.daily.map((d) => ({ day: d.day, visits: d.visits }))} />
                   </div>
                   {metrika.daily.some((d) => d.goalReaches > 0) && (
-                    <div className="mt-4 rounded-xl border border-green-100 p-4">
-                      <div className="text-xs text-[#64748B] mb-2">Целевые действия по дням</div>
+                    <div className="report-chart" style={{ marginTop: 16 }}>
+                      <div className="stat-label" style={{ marginBottom: 8 }}>Целевые действия по дням</div>
                       <ConvBarsSvg rows={metrika.daily.map((d) => ({ day: d.day, goalReaches: d.goalReaches }))} />
                     </div>
                   )}
                 </section>
               )}
 
-              {/* Webmaster top queries */}
+              {/* Запросы Вебмастера */}
               {webmaster?.hasWebmaster && (
-                <section className="mb-8">
-                  <h2 className="text-sm font-semibold text-[#64748B] uppercase mb-3">Поисковые запросы</h2>
+                <section className="report-section">
+                  <h2 className="report-h2">Поисковые запросы</h2>
                   {webmaster.topQueries.length > 0 ? (
-                    <div className="rounded-xl border overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-[#131926] border-b">
+                    <div className="report-table-wrap">
+                      <table className="data-table">
+                        <thead>
                           <tr>
-                            <th className="text-left p-3 text-[#64748B] font-medium">Запрос</th>
-                            <th className="p-3 text-right text-[#64748B] font-medium">Показы</th>
-                            <th className="p-3 text-right text-[#64748B] font-medium">Переходы</th>
-                            <th className="p-3 text-right text-[#64748B] font-medium">Позиция</th>
+                            <th>Запрос</th>
+                            <th className="number-cell">Показы</th>
+                            <th className="number-cell">Переходы</th>
+                            <th className="number-cell">Позиция</th>
                           </tr>
                         </thead>
                         <tbody>
                           {webmaster.topQueries.map((q, i) => (
-                            <tr key={i} className="border-b last:border-0">
-                              <td className="p-3 font-medium">{q.query}</td>
-                              <td className="p-3 text-right">{q.shows.toLocaleString("ru-RU")}</td>
-                              <td className="p-3 text-right">{q.clicks.toLocaleString("ru-RU")}</td>
-                              <td className="p-3 text-right">{q.position || "—"}</td>
+                            <tr key={i}>
+                              <td className="cell-strong">{q.query}</td>
+                              <td className="number-cell">{q.shows.toLocaleString("ru-RU")}</td>
+                              <td className="number-cell">{q.clicks.toLocaleString("ru-RU")}</td>
+                              <td className="number-cell">{q.position || "—"}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
                   ) : (
-                    <div className="text-sm text-[#64748B]">Нет данных по запросам за этот месяц.</div>
+                    <div className="hint">Нет данных по запросам за этот месяц.</div>
                   )}
                 </section>
               )}
 
-              {/* Finance block */}
+              {/* Финансы */}
               {finance && (finance.income > 0 || finance.expense > 0) && (
-                <section className="mb-8">
-                  <h2 className="text-sm font-semibold text-[#64748B] uppercase mb-3">Финансы проекта</h2>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="rounded-xl border p-4 bg-[rgba(52,211,153,0.1)] print:bg-[rgba(52,211,153,0.1)]">
-                      <div className="text-xs text-[#64748B]">Доход</div>
-                      <div className="text-xl font-bold text-[#34D399]">{fmt(finance.income)} ₽</div>
+                <section className="report-section">
+                  <h2 className="report-h2">Финансы проекта</h2>
+                  <div className="report-tiles-3">
+                    <div className="report-tile report-tile--pos">
+                      <div className="stat-label">Доход</div>
+                      <div className="stat-value stat-value--pos">{fmt(finance.income)} ₽</div>
                     </div>
-                    <div className="rounded-xl border p-4 bg-[rgba(248,113,113,0.1)] print:bg-[rgba(248,113,113,0.1)]">
-                      <div className="text-xs text-[#64748B]">Расход</div>
-                      <div className="text-xl font-bold text-[#F87171]">{fmt(finance.expense)} ₽</div>
+                    <div className="report-tile report-tile--neg">
+                      <div className="stat-label">Расход</div>
+                      <div className="stat-value stat-value--neg">{fmt(finance.expense)} ₽</div>
                     </div>
-                    <div className="rounded-xl border p-4 bg-[rgba(52,211,153,0.1)] print:bg-[rgba(52,211,153,0.1)]">
-                      <div className="text-xs text-[#64748B]">Профит</div>
-                      <div className="text-xl font-bold text-[#34D399]">{fmt(finance.margin)} ₽</div>
+                    <div className="report-tile report-tile--pos">
+                      <div className="stat-label">Профит</div>
+                      <div className="stat-value stat-value--pos">{fmt(finance.margin)} ₽</div>
                     </div>
                   </div>
                 </section>
               )}
 
               {!metrika?.hasMetric && !webmaster?.hasWebmaster && (!finance || (finance.income === 0 && finance.expense === 0)) && (
-                <div className="text-center py-16 text-[#64748B]">
+                <div className="empty-state">
                   Нет данных для отчёта за этот месяц.
-                  <div className="text-sm mt-2">Подключите Метрику или Вебмастер к проекту, чтобы отчёт наполнялся.</div>
+                  <div className="hint" style={{ marginTop: 8 }}>Подключите Метрику или Вебмастер к проекту, чтобы отчёт наполнялся.</div>
                 </div>
               )}
             </>
           )}
 
-          <div className="mt-10 pt-4 border-t text-xs text-[#64748B] flex justify-between">
+          <div className="report-foot">
             <span>Сформировано {new Date().toLocaleString("ru-RU")}</span>
-            <a href={`/projects/${data?.project.slug}`} className="text-indigo-500 hover:underline">Вернуться к проекту</a>
+            <a href={`/projects/${data?.project.slug}`} className="link">Вернуться к проекту</a>
           </div>
         </div>
       </div>

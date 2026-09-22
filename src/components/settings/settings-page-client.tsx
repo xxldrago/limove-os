@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -182,20 +181,20 @@ export function SettingsPageClient() {
   const partners = (status?.users ?? []).filter((u) => !u.name.startsWith("—"));
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="narrow-col">
       <FernPage
         title="Настройки"
         sub={status?.botUsername ? `Бот: @${status.botUsername}` : "Управление доступом и уведомлениями"}
       >
         {/* Смена своего пароля */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <KeyRound className="h-4 w-4" /> Сменить пароль
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid gap-2">
+        <div className="card">
+          <div className="card-head-row mb-3">
+            <span className="card-title-row">
+              <KeyRound className="icon-xs" /> Сменить пароль
+            </span>
+          </div>
+          <div className="stack-sm">
+            <div className="form-row">
               <Label htmlFor="cur-pass">Текущий пароль</Label>
               <Input
                 id="cur-pass"
@@ -205,8 +204,8 @@ export function SettingsPageClient() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
               />
             </div>
-            <div className="grid gap-2 sm:grid-cols-2">
-              <div className="grid gap-2">
+            <div className="form-grid-2">
+              <div className="form-row">
                 <Label htmlFor="new-pass">Новый пароль</Label>
                 <Input
                   id="new-pass"
@@ -216,7 +215,7 @@ export function SettingsPageClient() {
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="form-row">
                 <Label htmlFor="new-pass2">Повторите новый пароль</Label>
                 <Input
                   id="new-pass2"
@@ -227,37 +226,37 @@ export function SettingsPageClient() {
                 />
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="form-actions">
               <Button
                 onClick={changeOwnPassword}
                 disabled={pwSaving || !currentPassword || !newPassword}
-                className="h-10 rounded-[12px] bg-[#10B981] px-[18px] text-[#090D14] hover:bg-[#059669]"
+                
               >
                 {pwSaving ? "Сохранение..." : "Сохранить пароль"}
               </Button>
               <Msg msg={pwMsg} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Пароль партнёра — только для администратора */}
         {isAdmin && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" /> Задать пароль партнёру
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="grid gap-2">
+          <div className="card">
+            <div className="card-head-row mb-3">
+              <span className="card-title-row">
+                <ShieldCheck className="icon-xs" /> Задать пароль партнёру
+              </span>
+            </div>
+            <div className="stack-sm">
+              <div className="form-grid-2">
+                <div className="form-row">
                   <Label>Пользователь</Label>
                   <Select
                     value={targetUserId}
                     onValueChange={(v) => v != null && setTargetUserId(v)}
                     items={partners.map((u) => ({ value: String(u.id), label: u.name }))}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="btn-block">
                       <SelectValue placeholder="Выберите пользователя" />
                     </SelectTrigger>
                     <SelectContent>
@@ -269,7 +268,7 @@ export function SettingsPageClient() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid gap-2">
+                <div className="form-row">
                   <Label htmlFor="partner-pass">Новый пароль</Label>
                   <Input
                     id="partner-pass"
@@ -280,34 +279,34 @@ export function SettingsPageClient() {
                   />
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="form-actions">
                 <Button
                   onClick={changePartnerPassword}
                   disabled={partnerSaving || !targetUserId || !partnerPassword}
-                  className="h-10 rounded-[12px] bg-[#10B981] px-[18px] text-[#090D14] hover:bg-[#059669]"
+                  
                 >
                   {partnerSaving ? "Сохранение..." : "Задать пароль"}
                 </Button>
                 <Msg msg={partnerMsg} />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Telegram-бот */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm">Telegram-бот</CardTitle>
+        <div className="card">
+          <div className="card-head-row mb-3">
+            <span className="card-title">Telegram-бот</span>
             {status && (
               <Badge variant={status.connected ? "default" : "secondary"}>
                 {status.connected ? "Подключён" : "Не настроен"}
               </Badge>
             )}
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
+          </div>
+          <div className="stack">
+            <div className="form-row">
               <Label htmlFor="token">Токен бота (TELEGRAM_BOT_TOKEN)</Label>
-              <div className="flex gap-2">
+              <div className="input-row">
                 <Input
                   id="token"
                   type="password"
@@ -324,7 +323,7 @@ export function SettingsPageClient() {
               <Button variant="outline" onClick={testConnection} disabled={testing || !status?.connected}>
                 {testing ? "Отправка..." : "Проверить соединение"}
               </Button>
-              <span className="text-sm text-muted-foreground">
+              <span className="page-sub">
                 Отправит тестовое сообщение во все зарегистрированные чаты
               </span>
             </div>
@@ -354,11 +353,11 @@ export function SettingsPageClient() {
                 ))}
               </TableBody>
             </Table>
-            <p className="text-xs text-muted-foreground">
+            <p className="hint">
               Чтобы привязать чат: напишите боту команду /start из вашего Telegram.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </FernPage>
     </div>
   );

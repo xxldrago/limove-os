@@ -3,8 +3,6 @@
 import * as React from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -87,15 +85,15 @@ function intervalLabel(sec: number): string {
 }
 
 function UptimeBar({ pct }: { pct: number | null }) {
-  if (pct === null) return <span className="text-xs text-muted-foreground">Нет данных</span>;
-  const color = pct >= 99 ? "bg-[#10B981]" : pct >= 95 ? "bg-amber-500" : "bg-[#F87171]";
+  if (pct === null) return <span className="hint">Нет данных</span>;
+  const cls = pct >= 99 ? "uptime-fill--ok" : pct >= 95 ? "uptime-fill--warn" : "uptime-fill--bad";
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-2 w-24 overflow-hidden rounded-full bg-muted">
-        <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-      <span className="text-xs font-medium">{pct}%</span>
-    </div>
+    <span className="uptime">
+      <span className="uptime-track">
+        <span className={`uptime-fill ${cls}`} style={{ display: "block", width: `${pct}%` }} />
+      </span>
+      <span className="uptime-pct">{pct}%</span>
+    </span>
   );
 }
 
@@ -273,61 +271,43 @@ export function MonitoringDashboard() {
       }
     >
       {/* Stats row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Всего сайтов</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Online</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#34D399]">{stats.online}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Offline</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#F87171]">{stats.offline}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Среднее время ответа</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.avgLatency !== null ? `${stats.avgLatency} ms` : "Нет данных"}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid-stats">
+        <div className="card">
+          <div className="stat-label">Всего сайтов</div>
+          <div className="stat-value">{stats.total}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Online</div>
+          <div className="stat-value stat-value--pos">{stats.online}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Offline</div>
+          <div className="stat-value stat-value--neg">{stats.offline}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Среднее время ответа</div>
+          <div className="stat-value">
+            {stats.avgLatency !== null ? `${stats.avgLatency} ms` : "Нет данных"}
+          </div>
+        </div>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-[rgba(248,113,113,0.2)] bg-[rgba(248,113,113,0.1)] p-3 text-sm text-[#F87171]">
-          {error}
-        </div>
+        <div className="notice notice--err">{error}</div>
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between px-1">
-        <h2 className="m-0 text-[16.5px] font-bold tracking-[-0.02em] text-[#F8FAFC]">Статус сайтов</h2>
+      <div>
+        <h2 className="section-title">Статус сайтов</h2>
       </div>
 
       {/* Site grid */}
       {sites.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <div className="empty-state">
           Нет сайтов для мониторинга. Нажмите «Добавить сайт».
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="site-grid">
           {sites.map((site) => (
             <SiteCard
               key={site.id}
@@ -467,82 +447,65 @@ function SiteCard({
 }) {
   const down = site.isError;
   return (
-    <Card
-      className={
-        down
-          ? "border-[rgba(248,113,113,0.3)] shadow-sm"
-          : site.isActive
-            ? "border-emerald-200/70 shadow-sm"
-            : "opacity-70"
-      }
-    >
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span
-              className={`inline-block h-3 w-3 rounded-full ${
-                down
-                  ? "animate-pulse bg-[#F87171]"
-                  : site.isActive
-                    ? "bg-[#10B981]"
-                    : "bg-gray-400"
-              }`}
-            />
-            <div>
-              <div className="font-semibold leading-tight">{site.name}</div>
-              <a
-                href={site.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                {site.url.replace(/^https?:\/\//, "")}
-              </a>
-            </div>
+    <div className={`card${down ? " site-card--down" : ""}${!site.isActive ? " site-card--off" : ""}`}>
+      <div className="site-head-card">
+        <div className="site-id">
+          <span
+            className={`site-dot ${
+              down ? "site-dot--bad" : site.isActive ? "site-dot--ok" : "site-dot--off"
+            }`}
+          />
+          <div>
+            <div className="site-name">{site.name}</div>
+            <a
+              href={site.url}
+              target="_blank"
+              rel="noreferrer"
+              className="site-url"
+            >
+              {site.url.replace(/^https?:\/\//, "")}
+            </a>
           </div>
-          <Badge variant={down ? "destructive" : site.isActive ? "default" : "secondary"}>
-            {!site.isActive ? "OFF" : down ? "DOWN" : "UP"}
-          </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            Код:{" "}
-            <span className="font-medium text-foreground">
-              {site.lastStatus ?? "—"}
-            </span>
+        <span className={`badge ${down ? "badge-danger" : site.isActive ? "badge-success" : "badge-neutral"}`}>
+          {!site.isActive ? "OFF" : down ? "DOWN" : "UP"}
+        </span>
+      </div>
+      <div className="site-rows">
+        <div className="site-row">
+          <span>
+            Код: <b>{site.lastStatus ?? "—"}</b>
           </span>
-          <span className="text-muted-foreground">
+          <span className="num">
             {site.lastLatency !== null ? `${site.lastLatency} ms` : "Нет данных"}
           </span>
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Последняя проверка:</span>
-          <span className="font-medium">{fmtTime(site.checkedAt)}</span>
+        <div className="site-row">
+          <span>Последняя проверка:</span>
+          <b>{fmtTime(site.checkedAt)}</b>
         </div>
 
         {down && site.downSince && (
-          <div className="rounded-md bg-[rgba(248,113,113,0.1)] p-2 text-xs text-[#F87171]">
+          <div className="site-down-note">
             В дауне: {fmtDownSince(site.downSince)} · код {site.lastStatus ?? "нет"}
           </div>
         )}
 
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Аптайм 7 дн:</span>
+        <div className="site-row">
+          <span>Аптайм 7 дн:</span>
           <UptimeBar pct={site.uptime7} />
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Аптайм 30 дн:</span>
+        <div className="site-row">
+          <span>Аптайм 30 дн:</span>
           <UptimeBar pct={site.uptime30} />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
-          <span className="text-xs text-muted-foreground">
+        <div className="site-foot">
+          <span className="site-foot-meta">
             {intervalLabel(site.checkInterval)}
             {site.projectName ? ` · ${site.projectName}` : ""}
           </span>
-          <div className="flex flex-wrap justify-end gap-1">
+          <div className="site-foot-actions">
             <Button variant="outline" size="sm" onClick={() => onEdit()}>
               Изменить
             </Button>
@@ -554,7 +517,7 @@ function SiteCard({
             </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -3,8 +3,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Plus, Pencil, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -39,17 +37,17 @@ interface VpnSub {
 const PROVIDERS = ["Happ", "Amnezia", "Oversub", "2kabana"];
 
 const STATUS_META: Record<string, { label: string; emoji: string; cls: string }> = {
-  ACTIVE: { label: "ACTIVE", emoji: "🟢", cls: "text-[#34D399] bg-[rgba(52,211,153,0.1)] border-[rgba(52,211,153,0.2)]" },
-  REVOKED: { label: "REVOKED", emoji: "🔴", cls: "text-[#F87171] bg-[rgba(248,113,113,0.1)] border-[rgba(248,113,113,0.2)]" },
-  EXPIRED: { label: "EXPIRED", emoji: "⚫", cls: "text-foreground bg-muted border-muted" },
+  ACTIVE: { label: "ACTIVE", emoji: "🟢", cls: "badge-success" },
+  REVOKED: { label: "REVOKED", emoji: "🔴", cls: "badge-danger" },
+  EXPIRED: { label: "EXPIRED", emoji: "⚫", cls: "badge-neutral" },
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const m = STATUS_META[status] ?? { label: status, emoji: "⚪", cls: "text-muted-foreground bg-muted border-muted" };
+  const m = STATUS_META[status] ?? { label: status, emoji: "⚪", cls: "badge-neutral" };
   return (
-    <Badge variant="outline" className={m.cls}>
+    <span className={`badge ${m.cls}`}>
       {m.emoji} {m.label}
-    </Badge>
+    </span>
   );
 }
 
@@ -60,14 +58,14 @@ function formatDate(d: string | null): string {
 
 // Color-coded expiry: 🟢 >30d, 🟡 7-30d, 🔴 <7d, ⚫ expired, ⚪ none
 function ExpiryDisplay({ expiresAt }: { expiresAt: string | null }) {
-  if (!expiresAt) return <span className="text-muted-foreground">—</span>;
+  if (!expiresAt) return <span className="hint">—</span>;
   const now = new Date();
   const exp = new Date(expiresAt);
   const days = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  let emoji = "🟢", cls = "text-[#34D399]";
-  if (days < 0) { emoji = "⚫"; cls = "text-foreground"; }
-  else if (days < 7) { emoji = "🔴"; cls = "text-[#F87171]"; }
-  else if (days < 30) { emoji = "🟡"; cls = "text-[#FBBF24]"; }
+  let emoji = "🟢", cls = "text-pos";
+  if (days < 0) { emoji = "⚫"; cls = "cell-strong"; }
+  else if (days < 7) { emoji = "🔴"; cls = "text-neg"; }
+  else if (days < 30) { emoji = "🟡"; cls = "expiry-warn"; }
   return <span className={cls}>{emoji} {formatDate(expiresAt)}</span>;
 }
 
@@ -126,19 +124,19 @@ export function VpnPageClient() {
       title="VPN Подписки"
       total={subs.length > 0 ? `${activeCount} активны` : undefined}
       tools={
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="h-10 rounded-[12px] px-[18px]">
-          <Plus className="mr-1 h-4 w-4" /> Добавить
+        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="btn-tall">
+          <Plus className="icon-xs" /> Добавить
         </Button>
       }
     >
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="filter-bar">
         <Select
           value={provider}
           onValueChange={(v) => v != null && setProvider(v)}
           items={[{ value: "ALL", label: "Все" }, ...PROVIDERS.map((p) => ({ value: p, label: p }))]}
         >
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="select-md">
             <SelectValue placeholder="Провайдер" />
           </SelectTrigger>
           <SelectContent>
@@ -158,7 +156,7 @@ export function VpnPageClient() {
             { value: "EXPIRED", label: "Истёк" },
           ]}
         >
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="select-md">
             <SelectValue placeholder="Статус" />
           </SelectTrigger>
           <SelectContent>
@@ -170,88 +168,85 @@ export function VpnPageClient() {
         </Select>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Список подписок ({subs.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
+      <div className="card">
+        <div className="list-card-head">
+          <span className="card-title">Список подписок ({subs.length})</span>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Провайдер</TableHead>
+              <TableHead>Сервер</TableHead>
+              <TableHead>Клиент</TableHead>
+              <TableHead>Ссылка/Ключ</TableHead>
+              <TableHead>Подключён</TableHead>
+              <TableHead>Истекает</TableHead>
+              <TableHead>Статус</TableHead>
+              <TableHead className="number-cell">Действия</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {subs.length === 0 ? (
               <TableRow>
-                <TableHead>Провайдер</TableHead>
-                <TableHead>Сервер</TableHead>
-                <TableHead>Клиент</TableHead>
-                <TableHead>Ссылка/Ключ</TableHead>
-                <TableHead>Подключён</TableHead>
-                <TableHead>Истекает</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
+                <TableCell colSpan={8} className="empty-row">
+                  Нет подписок
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {subs.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Нет подписок
+            ) : (
+              subs.map((s) => (
+                <TableRow key={s.id}>
+                  <TableCell className="cell-strong">{s.provider}</TableCell>
+                  <TableCell>{s.serverName || "—"}</TableCell>
+                  <TableCell>{s.clientName}</TableCell>
+                  <TableCell>
+                    <span className="cell-actions">
+                      <span className="mono-truncate">
+                        {s.url || "—"}
+                      </span>
+                      {s.url && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleCopy(s)}
+                            aria-label="Скопировать ссылку"
+                          >
+                            <Copy className="icon-xs" />
+                          </Button>
+                          {copied[s.id] && <span className="text-pos">✓</span>}
+                        </>
+                      )}
+                    </span>
+                  </TableCell>
+                  <TableCell>{formatDate(s.connectedAt)}</TableCell>
+                  <TableCell><ExpiryDisplay expiresAt={s.expiresAt} /></TableCell>
+                  <TableCell><StatusBadge status={s.status} /></TableCell>
+                  <TableCell className="number-cell">
+                    <span className="cell-actions">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => { setEditing(s); setDialogOpen(true); }}
+                        aria-label="Редактировать"
+                      >
+                        <Pencil className="icon-xs" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleting(s)}
+                        aria-label="Удалить"
+                      >
+                        <Trash2 className="icon-xs icon-danger" />
+                      </Button>
+                    </span>
                   </TableCell>
                 </TableRow>
-              ) : (
-                subs.map((s) => (
-                  <TableRow key={s.id}>
-                    <TableCell className="font-medium">{s.provider}</TableCell>
-                    <TableCell>{s.serverName || "—"}</TableCell>
-                    <TableCell>{s.clientName}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <span className="max-w-40 truncate font-mono text-xs">
-                          {s.url || "—"}
-                        </span>
-                        {s.url && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => handleCopy(s)}
-                              aria-label="Скопировать ссылку"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>
-                            {copied[s.id] && <span className="text-xs text-[#34D399]">✓</span>}
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{formatDate(s.connectedAt)}</TableCell>
-                    <TableCell><ExpiryDisplay expiresAt={s.expiresAt} /></TableCell>
-                    <TableCell><StatusBadge status={s.status} /></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => { setEditing(s); setDialogOpen(true); }}
-                          aria-label="Редактировать"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleting(s)}
-                          aria-label="Удалить"
-                        >
-                          <Trash2 className="h-4 w-4 text-[#F87171]" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </FernPage>
 
       <VpnDialog

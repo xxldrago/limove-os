@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -53,52 +52,46 @@ function LoginFormContent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#090D14] p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-[11px] bg-gradient-to-br from-[#059669] to-[#34D399] text-[#090D14] shadow-[0_6px_14px_-7px_rgba(15,63,109,0.85)]">
-            <span className="text-xl font-bold">L</span>
+    <div className="login-wrap">
+      <div className="card login-card">
+        <div className="login-head">
+          <div className="login-logo">
+            <span>L</span>
           </div>
-          <CardTitle className="text-2xl">Limove OS</CardTitle>
-          <CardDescription>Войдите в систему, чтобы продолжить</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@limove.ru"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Пароль</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+          <div className="login-title">Limove OS</div>
+          <p className="login-sub">Войдите в систему, чтобы продолжить</p>
+        </div>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-row">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="email@limove.ru"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-row">
+            <Label htmlFor="password">Пароль</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-            {error && (
-              <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </p>
-            )}
+          {error && <p className="notice notice--err">{error}</p>}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Вход..." : "Войти"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          <Button type="submit" className="btn-block" disabled={loading}>
+            {loading ? "Вход..." : "Войти"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

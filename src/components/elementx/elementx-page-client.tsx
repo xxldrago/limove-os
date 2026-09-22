@@ -3,8 +3,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -37,19 +35,19 @@ interface ExUser {
 }
 
 const STATUS_META: Record<string, { label: string; emoji: string; cls: string }> = {
-  PAID: { label: "PAID", emoji: "🟢", cls: "text-[#34D399] bg-[rgba(52,211,153,0.1)] border-[rgba(52,211,153,0.2)]" },
-  TRIAL: { label: "TRIAL", emoji: "🟡", cls: "text-[#FBBF24] bg-[rgba(251,191,36,0.1)] border-yellow-200" },
-  READY_UNPAID: { label: "READY_UNPAID", emoji: "🟠", cls: "text-[#FBBF24] bg-orange-50 border-orange-200" },
-  NOT_INSTALLED: { label: "NOT_INSTALLED", emoji: "🔴", cls: "text-[#F87171] bg-[rgba(248,113,113,0.1)] border-[rgba(248,113,113,0.2)]" },
-  EXPIRED: { label: "EXPIRED", emoji: "⚫", cls: "text-foreground bg-muted border-muted" },
+  PAID: { label: "PAID", emoji: "🟢", cls: "badge-success" },
+  TRIAL: { label: "TRIAL", emoji: "🟡", cls: "badge-warn" },
+  READY_UNPAID: { label: "READY_UNPAID", emoji: "🟠", cls: "badge-warn" },
+  NOT_INSTALLED: { label: "NOT_INSTALLED", emoji: "🔴", cls: "badge-danger" },
+  EXPIRED: { label: "EXPIRED", emoji: "⚫", cls: "badge-neutral" },
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const m = STATUS_META[status] ?? { label: status, emoji: "⚪", cls: "text-muted-foreground bg-muted border-muted" };
+  const m = STATUS_META[status] ?? { label: status, emoji: "⚪", cls: "badge-neutral" };
   return (
-    <Badge variant="outline" className={m.cls}>
+    <span className={`badge ${m.cls}`}>
       {m.emoji} {m.label}
-    </Badge>
+    </span>
   );
 }
 
@@ -105,15 +103,15 @@ export function ElementxPageClient() {
       title="ElementX Пользователи"
       total={users.length > 0 ? `${users.length} чел` : undefined}
       tools={
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="h-10 rounded-[12px] px-[18px]">
-          <Plus className="mr-1 h-4 w-4" /> Добавить
+        <Button onClick={() => { setEditing(null); setDialogOpen(true); }} className="btn-tall">
+          <Plus className="icon-xs" /> Добавить
         </Button>
       }
     >
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="filter-bar">
         <Input
-          className="w-64"
+          className="select-search"
           placeholder="Поиск по имени/логину..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -123,7 +121,7 @@ export function ElementxPageClient() {
           onValueChange={(v) => { if (v != null) setCompany(v); }}
           items={[{ value: "ALL", label: "Все компании" }, ...companies.map((c) => ({ value: c, label: c }))]}
         >
-          <SelectTrigger className="w-44">
+          <SelectTrigger className="select-md">
             <SelectValue placeholder="Компания" />
           </SelectTrigger>
           <SelectContent>
@@ -142,7 +140,7 @@ export function ElementxPageClient() {
             { value: "paidDate", label: "По дате оплаты" },
           ]}
         >
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="select-md">
             <SelectValue placeholder="Сортировка" />
           </SelectTrigger>
           <SelectContent>
@@ -153,68 +151,66 @@ export function ElementxPageClient() {
         </Select>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Список пользователей ({users.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
+      <div className="card">
+        <div className="list-card-head">
+          <span className="card-title">Список пользователей ({users.length})</span>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>#</TableHead>
+              <TableHead>Пользователь</TableHead>
+              <TableHead>Логин</TableHead>
+              <TableHead>Дата регистрации</TableHead>
+              <TableHead>Дата оплаты</TableHead>
+              <TableHead>Компания</TableHead>
+              <TableHead>Статус</TableHead>
+              <TableHead className="number-cell">Действия</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.length === 0 ? (
               <TableRow>
-                <TableHead className="w-10">#</TableHead>
-                <TableHead>Пользователь</TableHead>
-                <TableHead>Логин</TableHead>
-                <TableHead>Дата регистрации</TableHead>
-                <TableHead>Дата оплаты</TableHead>
-                <TableHead>Компания</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
+                <TableCell colSpan={8} className="empty-row">
+                  Нет пользователей
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                    Нет пользователей
+            ) : (
+              users.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell className="hint">{u.id}</TableCell>
+                  <TableCell className="cell-strong">{u.fullName}</TableCell>
+                  <TableCell className="num">{u.login}</TableCell>
+                  <TableCell>{formatDate(u.registerDate)}</TableCell>
+                  <TableCell>{formatDate(u.paidDate)}</TableCell>
+                  <TableCell>{u.company || "—"}</TableCell>
+                  <TableCell><StatusBadge status={u.status} /></TableCell>
+                  <TableCell className="number-cell">
+                    <span className="cell-actions">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => { setEditing(u); setDialogOpen(true); }}
+                        aria-label="Редактировать"
+                      >
+                        <Pencil className="icon-xs" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setDeleting(u)}
+                        aria-label="Удалить"
+                      >
+                        <Trash2 className="icon-xs icon-danger" />
+                      </Button>
+                    </span>
                   </TableCell>
                 </TableRow>
-              ) : (
-                users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="text-muted-foreground">{u.id}</TableCell>
-                    <TableCell className="font-medium">{u.fullName}</TableCell>
-                    <TableCell className="font-mono text-xs">{u.login}</TableCell>
-                    <TableCell>{formatDate(u.registerDate)}</TableCell>
-                    <TableCell>{formatDate(u.paidDate)}</TableCell>
-                    <TableCell>{u.company || "—"}</TableCell>
-                    <TableCell><StatusBadge status={u.status} /></TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => { setEditing(u); setDialogOpen(true); }}
-                          aria-label="Редактировать"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleting(u)}
-                          aria-label="Удалить"
-                        >
-                          <Trash2 className="h-4 w-4 text-[#F87171]" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </FernPage>
 
       <ElementxDialog
