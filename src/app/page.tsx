@@ -2,10 +2,6 @@ import { AppShell } from "@/components/app-shell";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import {
   Table,
   TableBody,
   TableCell,
@@ -261,78 +257,63 @@ export default async function DashboardPage() {
         plannedTotal={data.monthExpenses}
       />
 
-      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
+      <div className="grid-2-wide">
         <div>
-          <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">
-            Последние операции
-          </h2>
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-[#94A3B8]">Дата</TableHead>
-                    <TableHead className="text-[#94A3B8]">Описание</TableHead>
-                    <TableHead className="text-[#94A3B8]">Проект</TableHead>
-                    <TableHead className="text-[#94A3B8]">Категория</TableHead>
-                    <TableHead className="text-right text-[#94A3B8]">Сумма</TableHead>
+          <h2 className="section-title">Последние операции</h2>
+          <div className="card card-flush">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Дата</TableHead>
+                  <TableHead>Описание</TableHead>
+                  <TableHead>Проект</TableHead>
+                  <TableHead>Категория</TableHead>
+                  <TableHead className="number-cell">Сумма</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.transactions.map((t) => (
+                  <TableRow key={t.id}>
+                    <TableCell className="num">
+                      {new Date(t.date).toLocaleDateString("ru-RU")}
+                    </TableCell>
+                    <TableCell className="cell-strong">{t.description}</TableCell>
+                    <TableCell>{t.project?.name ?? "—"}</TableCell>
+                    <TableCell>
+                      <span className="fern-chip">{t.category}</span>
+                    </TableCell>
+                    <TableCell className={`number-cell cell-strong ${t.type === "INCOME" ? "text-pos" : ""}`}>
+                      {t.type === "INCOME" ? "+" : "−"}
+                      {formatMoney(Number(t.amount))}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.transactions.map((t) => (
-                    <TableRow key={t.id}>
-                      <TableCell className="num whitespace-nowrap text-[#94A3B8]">
-                        {new Date(t.date).toLocaleDateString("ru-RU")}
-                      </TableCell>
-                      <TableCell className="text-[#F8FAFC]">{t.description}</TableCell>
-                      <TableCell className="text-[#94A3B8]">{t.project?.name ?? "—"}</TableCell>
-                      <TableCell>
-                        <span className="fern-chip">{t.category}</span>
-                      </TableCell>
-                      <TableCell
-                        className={
-                          "num text-right font-semibold " +
-                          (t.type === "INCOME" ? "text-[#34D399]" : "text-[#F8FAFC]")
-                        }
-                      >
-                        {t.type === "INCOME" ? "+" : "−"}
-                        {formatMoney(Number(t.amount))}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="stack">
           <div>
-            <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">
-              Цель года
-            </h2>
+            <h2 className="section-title">Цель года</h2>
             <FinancialGoalCard />
           </div>
           {todoItems.length > 0 && (
             <div>
-              <h2 className="mb-3 px-1 text-[20px] font-bold tracking-[-0.028em] text-[#F8FAFC]">
-                Что нужно сделать · {todoItems.length}
-              </h2>
-              <Card>
-                <CardContent>
-                  <ul className="divide-y divide-[#1E2638]">
-                    {todoItems.slice(0, 6).map((item) => (
-                      <li key={item.key} className="py-2 first:pt-0 last:pb-0">
-                        <a href={item.href} className="flex items-center justify-between gap-3 text-sm text-[#F8FAFC] hover:underline">
-                          <span>{item.text}</span>
-                          <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
-                            {item.severity === "critical" ? "срочно" : "внимание"}
-                          </Badge>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <h2 className="section-title">Что нужно сделать · {todoItems.length}</h2>
+              <div className="card">
+                <ul className="todo-list">
+                  {todoItems.slice(0, 6).map((item) => (
+                    <li key={item.key} className="todo-item">
+                      <a href={item.href} className="todo-link">
+                        <span>{item.text}</span>
+                        <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
+                          {item.severity === "critical" ? "срочно" : "внимание"}
+                        </Badge>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>

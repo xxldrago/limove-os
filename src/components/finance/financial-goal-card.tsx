@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -127,100 +126,89 @@ export function FinancialGoalCard() {
   const pct = goal?.progress ?? 0;
 
   return (
-    <Card>
-      <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <Target className="h-4 w-4 text-[#10B981]" />
-          Финансовая цель {goal?.year}
-        </CardTitle>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={startEditing}
-        >
-          <Pencil className="h-3.5 w-3.5" />
+    <div className="card">
+      <div className="card-head-row mb-3">
+        <div className="card-title-row">
+          <Target className="icon-xs" />
+          <span className="card-title">Финансовая цель {goal?.year}</span>
+        </div>
+        <Button size="sm" variant="ghost" onClick={startEditing} aria-label="Редактировать цель">
+          <Pencil className="icon-xs" />
         </Button>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {goal ? (
-          <>
-            <div className="grid grid-cols-3 gap-2 text-sm">
-              <div>
-                <div className="text-xs text-muted-foreground">Цель</div>
-                <div className="font-bold">{goal.targetAmount != null ? formatMoney(goal.targetAmount) : "—"}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Заработано</div>
-                <div className="font-semibold text-[#34D399]">{formatMoney(goal.earned)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Осталось</div>
-                <div className="font-semibold text-[#34D399]">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
-              </div>
+      </div>
+      {goal ? (
+        <>
+          <div className="form-grid-2" style={{ gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
+            <div>
+              <div className="stat-label">Цель</div>
+              <div className="stat-value">{goal.targetAmount != null ? formatMoney(goal.targetAmount) : "—"}</div>
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Прогресс</span>
-                <span className="font-medium">{pct.toFixed(0)}%</span>
+            <div>
+              <div className="stat-label">Заработано</div>
+              <div className="stat-value stat-value--pos">{formatMoney(goal.earned)}</div>
+            </div>
+            <div>
+              <div className="stat-label">Осталось</div>
+              <div className="stat-value">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="progress-label">
+              <span>Прогресс</span>
+              <span>{pct.toFixed(0)}%</span>
+            </div>
+            <div className="meter-track mt-3">
+              <div className="meter-fill" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+          {editing && (
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border-default)", display: "flex", flexDirection: "column", gap: 8 }}>
+              <div className="form-row">
+                <Label>Год</Label>
+                <Select
+                  value={String(yearInput)}
+                  onValueChange={(v) => v != null && onYearChange(v)}
+                  items={yearOptions(new Date().getFullYear()).map((y) => ({ value: String(y), label: String(y) }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions(new Date().getFullYear()).map((y) => (
+                      <SelectItem key={y} value={String(y)}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="fern-track !h-2.5">
-                <div
-                  className="fern-fill transition-all"
-                  style={{ width: `${progress}%` }}
+              <div className="form-row">
+                <Label>Цель на год (₽)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={targetInput}
+                  onChange={(e) => setTargetInput(e.target.value)}
+                  placeholder="например 1200000"
                 />
+                {targetInput === "" && (
+                  <p className="hint">Подсказка: укажите сумму, например 1200000</p>
+                )}
+              </div>
+              <div className="form-actions">
+                <Button size="sm" onClick={saveGoal} disabled={saving}>
+                  {saving ? "Сохранение..." : "Сохранить"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setEditing(false)}>
+                  Отмена
+                </Button>
               </div>
             </div>
-            {editing && (
-              <div className="space-y-2 border-t pt-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Год</Label>
-                  <Select
-                    value={String(yearInput)}
-                    onValueChange={(v) => v != null && onYearChange(v)}
-                    items={yearOptions(new Date().getFullYear()).map((y) => ({ value: String(y), label: String(y) }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {yearOptions(new Date().getFullYear()).map((y) => (
-                        <SelectItem key={y} value={String(y)}>
-                          {y}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Цель на год (₽)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={targetInput}
-                    onChange={(e) => setTargetInput(e.target.value)}
-                    placeholder="например 1200000"
-                  />
-                  {targetInput === "" && (
-                    <p className="text-xs text-muted-foreground">
-                      Подсказка: укажите сумму, например 1200000
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={saveGoal} disabled={saving}>
-                    {saving ? "Сохранение..." : "Сохранить"}
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setEditing(false)}>
-                    Отмена
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground">Загрузка...</p>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </>
+      ) : (
+        <p className="page-sub">Загрузка...</p>
+      )}
+    </div>
   );
 }

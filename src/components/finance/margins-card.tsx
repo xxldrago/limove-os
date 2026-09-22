@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Link2, Target } from "lucide-react";
 
 interface MarginRow {
@@ -57,34 +55,33 @@ export function ForecastCard() {
   if (!forecast || forecast.goal <= 0) return null;
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Target className="h-4 w-4" /> Прогноз на {forecast.year} год
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Заработано</span>
-          <span className="num font-medium">{fmt(forecast.incomeYTD)} ₽</span>
+    <div className="card">
+      <div className="card-title-row mb-3">
+        <Target className="icon-xs" />
+        <span className="card-title">Прогноз на {forecast.year} год</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
+        <div className="partner-row">
+          <span>Заработано</span>
+          <b>{fmt(forecast.incomeYTD)} ₽</b>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Прогноз к концу года</span>
-          <span className="num font-medium">{fmt(Math.round(forecast.forecast))} ₽</span>
+        <div className="partner-row">
+          <span>Прогноз к концу года</span>
+          <b>{fmt(Math.round(forecast.forecast))} ₽</b>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Цель</span>
-          <span className="num font-medium">{fmt(forecast.goal)} ₽</span>
+        <div className="partner-row">
+          <span>Цель</span>
+          <b>{fmt(forecast.goal)} ₽</b>
         </div>
         {forecast.projectedMet ? (
-          <Badge className="bg-[#7fb069]/15 !text-[#34D399] border-0">✅ Достигнет цели</Badge>
+          <span className="badge badge-success">Достигнет цели</span>
         ) : (
-          <Badge className="bg-[#e8a552]/20 !text-[#FBBF24] border-0">
-            ⚠️ Не хватает {fmt(Math.round(forecast.shortfall))} ₽
-          </Badge>
+          <span className="badge badge-neutral">
+            Не хватает {fmt(Math.round(forecast.shortfall))} ₽
+          </span>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -93,39 +90,32 @@ export function MarginsRankCard() {
   const { margins } = useMarginsData();
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Link2 className="h-4 w-4" /> Маржинальность проектов
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {margins.length === 0 ? (
-          <div className="py-4 text-sm text-muted-foreground">Нет данных</div>
-        ) : (
-          <div className="space-y-2">
-            {margins.map((m, i) => (
-              <a
-                key={m.id}
-                href={`/projects/${m.slug}`}
-                className="flex items-center justify-between rounded-[10px] border border-[#1E2638] p-2.5 transition-colors hover:bg-[#131926]"
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="num w-4 text-xs text-muted-foreground">{i + 1}</span>
-                  <span className="truncate text-sm font-medium">{m.name}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="num hidden text-xs text-muted-foreground sm:inline">{m.marginPct}% маржи</span>
-                  <span className={`num text-sm font-semibold ${m.margin >= 0 ? "text-[#34D399]" : "text-[#F87171]"}`}>
-                    {fmt(m.margin)} ₽
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <div className="card">
+      <div className="card-title-row mb-3">
+        <Link2 className="icon-xs" />
+        <span className="card-title">Маржинальность проектов</span>
+      </div>
+      {margins.length === 0 ? (
+        <div className="hint">Нет данных</div>
+      ) : (
+        <div className="rank-list">
+          {margins.map((m, i) => (
+            <a key={m.id} href={`/projects/${m.slug}`} className="rank-row">
+              <span className="rank-left">
+                <span className="rank-num">{i + 1}</span>
+                <span className="rank-name">{m.name}</span>
+              </span>
+              <span className="rank-right">
+                <span className="rank-pct">{m.marginPct}% маржи</span>
+                <span className={`rank-value ${m.margin >= 0 ? "text-pos" : "text-neg"}`}>
+                  {fmt(m.margin)} ₽
+                </span>
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
