@@ -48,22 +48,41 @@ export async function POST(
     include: { project: { select: { id: true, name: true, slug: true } } },
   });
 
-  // If the payment was made via bank transfer, create an EXPENSE tax transaction:
-  // 6% of the invoice amount, category «Налог», paid by whoever received the money.
-  if (method === "BANK_TRANSFER") {
-    const taxAmount = (Number(existing.amount) * 6) / 100;
-    const invNum = existing.invoiceNumber || `INV-${String(existing.id).padStart(4, "0")}`;
+  const invNum = existing.invoiceNumber || `INV-${String(existing.id).padStart(4, "0")}`;
+  const amount = Number(existing.amount);
+  // Only on the actual transition to PAID, so re-saving a paid invoice
+  // doesn't duplicate the money movements.
+  const justPaid = existing.status !== "PAID";
+
+  if (justPaid) {
+    // 1) Доход на сумму счёта — деньги пришли, кто их получил (paidById).
     await prisma.transaction.create({
       data: {
-        type: "EXPENSE",
-        amount: taxAmount,
-        description: `Налог 6% от оплаты счёта ${invNum}`,
+        type: "INCOME",
+        amount,
+        description: `Оплата счёта ${invNum}: ${existing.description}`,
         paidById,
         projectId: existing.projectId,
-        category: "Налог",
-        date: new Date(),
+        category: "Обслужка",
+        date: paidDate ? new Date(paidDate) : new Date(),
       },
     });
+
+    // 2) При оплате по безналу — расход-налог 6% от суммы счёта.
+    if (method === "BANK_TRANSFER") {
+      const taxAmount = (amount * 6) / 100;
+      await prisma.transaction.create({
+        data: {
+          type: "EXPENSE",
+          amount: taxAmount,
+          description: `Налог 6% от оплаты счёта ${invNum}`,
+          paidById,
+          projectId: existing.projectId,
+          category: "Налог",
+          date: new Date(),
+        },
+      });
+    }
   }
 
   // Create notification

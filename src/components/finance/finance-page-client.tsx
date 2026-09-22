@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { Plus, Pencil, Trash2, Zap, CreditCard, TrendingUp } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,43 +32,6 @@ import { ForecastCard, MarginsRankCard } from "@/components/finance/margins-card
 import { CreateInvoiceDialog } from "@/components/finance/create-invoice-dialog";
 import { InvoiceDetailDialog } from "@/components/invoices/invoice-detail-dialog";
 import { FileText } from "lucide-react";
-
-interface CategoryStat {
-  category: string;
-  amount: number;
-  count: number;
-  pct: number;
-}
-
-/** Донат Fernbrook: доля расходов от дохода за месяц. */
-function ExpenseDonut({ pct }: { pct: number }) {
-  const r = 63;
-  const c = 2 * Math.PI * r;
-  const clamped = Math.max(0, Math.min(100, pct));
-  const over = pct > 100;
-  return (
-    <svg
-      width="168"
-      height="168"
-      viewBox="0 0 168 168"
-      role="img"
-      aria-label="Доля расходов от дохода"
-      className="mx-auto mt-[34px] block drop-shadow-[0_16px_26px_rgba(45,139,163,0.22)]"
-    >
-      <circle cx="84" cy="84" r={r} fill="none" stroke="#dceef3" strokeWidth="42" />
-      <circle
-        cx="84"
-        cy="84"
-        r={r}
-        fill="none"
-        stroke={over ? "#d4674e" : "#2d8ba3"}
-        strokeWidth="42"
-        strokeDasharray={`${(c * clamped) / 100} ${c}`}
-        transform="rotate(-90 84 84)"
-      />
-    </svg>
-  );
-}
 
 interface Project {
   id: number;
@@ -160,7 +122,6 @@ export function FinancePageClient() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [balance, setBalance] = useState<BalanceData | null>(null);
-  const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
 
   // Filters
   const [filterType, setFilterType] = useState<string>("ALL");
@@ -260,17 +221,6 @@ export function FinancePageClient() {
     }
   }, [filterMonth]);
 
-  const fetchCategories = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/finance/categories?month=${filterMonth}&type=EXPENSE`);
-      if (res.ok) {
-        const data = await res.json();
-        setCategoryStats(data.categories ?? []);
-      }
-    } catch {
-      // ignore
-    }
-  }, [filterMonth]);
 
   useEffect(() => {
     fetchProjects();
@@ -279,8 +229,7 @@ export function FinancePageClient() {
   useEffect(() => {
     fetchTransactions();
     fetchBalance();
-    fetchCategories();
-  }, [fetchTransactions, fetchBalance, fetchCategories]);
+  }, [fetchTransactions, fetchBalance]);
 
   const handleAddClick = (type: "INCOME" | "EXPENSE") => {
     setAddDialogType(type);
@@ -334,8 +283,7 @@ export function FinancePageClient() {
       if (res.ok) {
         fetchTransactions();
         fetchBalance();
-        fetchCategories();
-      }
+          }
     } catch {
       // ignore
     }
@@ -343,20 +291,6 @@ export function FinancePageClient() {
 
   const monthOptions = getMonthOptions();
   const usedCategories = [...new Set([...categories, ...transactions.map((t) => t.category)])];
-
-  const monthLabel = (() => {
-    const [y, m] = filterMonth.split("-").map(Number);
-    const label = new Date(y, m - 1, 1).toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
-    return label.charAt(0).toUpperCase() + label.slice(1);
-  })();
-
-  const expensePct = balance
-    ? balance.totalIncome > 0
-      ? Math.round((balance.totalExpenses / balance.totalIncome) * 100)
-      : balance.totalExpenses > 0
-        ? 100
-        : 0
-    : 0;
 
   return (
     <>
@@ -379,153 +313,66 @@ export function FinancePageClient() {
       }
     >
 
-      {/* Fernbrook panel: ledger summary + category meters */}
+      {/* Сводка за месяц — Fernbrook-стиль: белые плоские карточки, tabular-цифры */}
       {balance && (
-        <div className="fern-panel overflow-hidden">
-          <div className="grid grid-cols-1 xl:grid-cols-[362px_1fr]">
-            {/* Ledger summary column */}
-            <div className="flex flex-col border-b border-[#e4e9ef] px-6 pb-8 pt-[26px] xl:border-b-0 xl:border-r">
-              <div className="mb-6 flex items-center justify-between gap-3 px-1">
-                <h2 className="m-0 text-[21px] font-bold tracking-[-0.028em] text-[#0f1720]">
-                  {monthLabel}
-                </h2>
-                <span className="num text-sm text-[#5d6b7c]">{balance.month}</span>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-xs text-[#5d6b7c]">Приход за месяц</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#1f8a5c]">
+                +{formatMoney(balance.totalIncome).replace("−", "")}
               </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex w-full items-center gap-[14px] rounded-[12px] border border-[#e4e9ef] bg-white p-[13px_16px] shadow-[0_1px_2px_rgba(15,23,32,0.05)]">
-                  <span aria-hidden className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[12px] text-white" style={{ background: "linear-gradient(155deg,#43b47c,#2c8f5f)" }}>
-                    <Plus size={19} strokeWidth={2.6} />
-                  </span>
-                  <span className="min-w-0 flex-1 text-[15.5px] font-medium tracking-[-0.01em] text-[#354354]">
-                    Доход
-                    <span className="block text-xs font-normal text-[#8a97a6]">за месяц</span>
-                  </span>
-                  <span className="num whitespace-nowrap text-[17px] font-bold tracking-[-0.026em] text-[#1f8a5c]">
-                    +{formatMoney(balance.totalIncome).replace("−", "")}
-                  </span>
-                </div>
-
-                <div className="flex w-full items-center gap-[14px] rounded-[12px] border border-[#e4e9ef] bg-white p-[13px_16px] shadow-[0_1px_2px_rgba(15,23,32,0.05)]">
-                  <span aria-hidden className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[12px] text-white" style={{ background: "linear-gradient(155deg,#6b8fd6,#4a6ec0)" }}>
-                    <Trash2 size={19} strokeWidth={2.6} />
-                  </span>
-                  <span className="min-w-0 flex-1 text-[15.5px] font-medium tracking-[-0.01em] text-[#354354]">
-                    Расходы
-                    <span className="block text-xs font-normal text-[#8a97a6]">за месяц</span>
-                  </span>
-                  <span className="num whitespace-nowrap text-[17px] font-bold tracking-[-0.026em] text-[#0f1720]">
-                    −{formatMoney(balance.totalExpenses).replace("−", "")}
-                  </span>
-                </div>
-
-                <div className="flex w-full items-center gap-[14px] rounded-[12px] border-2 border-[#16548f] bg-[#f7fafd] p-[12px_15px] shadow-[0_1px_2px_rgba(22,84,143,0.1),0_12px_24px_-16px_rgba(22,84,143,0.55)]">
-                  <span aria-hidden className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[12px] text-white" style={{ background: "linear-gradient(155deg,#5fc6d3,#3aa3b3)" }}>
-                    <Zap size={19} strokeWidth={2.6} />
-                  </span>
-                  <span className="min-w-0 flex-1 text-[15.5px] font-semibold tracking-[-0.01em] text-[#16548f]">
-                    Прибыль
-                    <span className="block text-xs font-normal text-[#8a97a6]">доход минус расходы</span>
-                  </span>
-                  <span className="num whitespace-nowrap text-[17px] font-bold tracking-[-0.026em] text-[#0f3f6d]">
-                    {balance.profit >= 0 ? "+" : "−"}
-                    {formatMoney(Math.abs(balance.profit))}
-                  </span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-xs text-[#5d6b7c]">Расход за месяц</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#c25e4e]">
+                −{formatMoney(balance.totalExpenses).replace("−", "")}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-xs text-[#5d6b7c]">Прибыль</div>
+              <div className={`num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap ${balance.profit >= 0 ? "text-[#0f3f6d]" : "text-[#c25e4e]"}`}>
+                {balance.profit >= 0 ? "+" : "−"}
+                {formatMoney(Math.abs(balance.profit))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-xs text-[#5d6b7c]">Лёша потратил</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#c25e4e]">
+                {formatMoney(balance.partners.lesha.spent)}
+              </div>
+              <div className="mt-3 border-t border-[#eef2f6] pt-3">
+                <div className="text-xs text-[#5d6b7c]">Лёша получил</div>
+                <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#1f8a5c]">
+                  {formatMoney(balance.partners.lesha.received)}
                 </div>
               </div>
-
-              <div className="mx-1 my-7 h-px bg-[#e4e9ef]" />
-
-              <div className="flex items-center gap-[14px] px-1">
-                <span aria-hidden className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-[12px] text-white" style={{ background: "linear-gradient(155deg,#5aa2d8,#3b7fb8)" }}>
-                  <TrendingUp size={19} strokeWidth={2.6} />
-                </span>
-                <div className="min-w-0 flex-1 text-center">
-                  <p className="m-0 text-[14.5px] text-[#5d6b7c]">Осталось за месяц</p>
-                  <p className={`num m-0 mt-[3px] text-[30px] font-bold leading-none tracking-[-0.038em] ${balance.profit >= 0 ? "text-[#0f1720]" : "text-[#c9563f]"}`}>
-                    {balance.profit >= 0 ? "" : "−"}
-                    {formatMoney(Math.abs(balance.profit))}
-                  </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-5">
+              <div className="text-xs text-[#5d6b7c]">Гена потратил</div>
+              <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#c25e4e]">
+                {formatMoney(balance.partners.gena.spent)}
+              </div>
+              <div className="mt-3 border-t border-[#eef2f6] pt-3">
+                <div className="text-xs text-[#5d6b7c]">Гена получил</div>
+                <div className="num mt-1 text-[20px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#1f8a5c]">
+                  {formatMoney(balance.partners.gena.received)}
                 </div>
               </div>
-
-              <ExpenseDonut pct={expensePct} />
-            </div>
-
-            {/* Category buckets with aqua meters */}
-            <div className="flex min-w-0 flex-col px-7 pb-8 pt-[26px]">
-              <div className="flex flex-wrap items-center gap-4 border-b border-[#eef2f6] pb-5">
-                <h2 className="m-0 text-[20px] font-bold tracking-[-0.028em] text-[#0f1720]">Расходы по категориям</h2>
-                <span className="num text-[20px] font-semibold tracking-[-0.028em] text-[#354354]">
-                  −{formatMoney(balance.totalExpenses).replace("−", "")}
-                </span>
-                <div className="ml-auto flex flex-wrap items-center gap-[10px]">
-                  <Link
-                    href="#journal"
-                    className="hidden h-10 items-center rounded-[12px] border border-[#e4e9ef] px-[14px] text-[15px] font-medium text-[#354354] transition hover:bg-[#f5f8fa] sm:flex"
-                  >
-                    К журналу
-                  </Link>
-                  <Button
-                    onClick={() => handleAddClick("EXPENSE")}
-                    className="h-10 rounded-[12px] bg-[#16548f] px-[18px] text-white hover:bg-[#1c68ad]"
-                  >
-                    <Plus size={17} strokeWidth={1.9} /> Новый расход
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4 pt-6">
-                {categoryStats.length === 0 ? (
-                  <div className="py-10 text-center text-sm text-muted-foreground">
-                    За этот месяц расходов нет
-                  </div>
-                ) : (
-                  categoryStats.map((c) => (
-                    <div
-                      key={c.category}
-                      className="grid grid-cols-[minmax(0,1.36fr)_minmax(0,1.94fr)_minmax(0,0.94fr)] items-center gap-5 rounded-[16px] border border-[#e4e9ef] bg-white px-[22px] py-[18px] shadow-[0_1px_2px_rgba(15,23,32,0.05)] max-lg:grid-cols-[minmax(0,1fr)] max-lg:gap-4"
-                    >
-                      <div>
-                        <h3 className="m-0 mb-[5px] text-[16.5px] font-bold tracking-[-0.02em] text-[#0f1720]">{c.category}</h3>
-                        <p className="num m-0 text-[13.5px] text-[#5d6b7c]">
-                          <b className="font-bold text-[#0f1720]">{c.count}</b> операций · доля{" "}
-                          <b className="font-bold text-[#0f1720]">{c.pct}%</b>
-                        </p>
-                      </div>
-                      <div>
-                        <div className="num mb-[9px] flex items-baseline justify-between gap-3 text-[13.5px] text-[#5d6b7c]">
-                          <span>Потрачено <b className="font-bold text-[#0f1720]">{formatMoney(c.amount)}</b></span>
-                          <span>из <b className="font-bold text-[#0f1720]">{formatMoney(balance.totalExpenses)}</b></span>
-                        </div>
-                        <div className="fern-track">
-                          <div className="fern-fill" style={{ width: `${Math.min(100, c.pct)}%` }} />
-                        </div>
-                      </div>
-                      <div className="border-l border-[#eef2f6] pl-6 text-right max-lg:border-l-0 max-lg:pl-0 max-lg:text-left">
-                        <p className="num m-0 text-[19px] font-bold tracking-[-0.03em] text-[#0f1720]">{formatMoney(c.amount)}</p>
-                        <p className="m-0 mt-[3px] text-[13px] text-[#5d6b7c]">Всего по категории</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => handleAddClick("EXPENSE")}
-                  className="flex items-center rounded-[16px] border border-[#e4e9ef] bg-[#fbfcfd] px-[22px] py-[30px] text-left transition hover:border-[#c3d8ea] hover:bg-[#f6fafd]"
-                >
-                  <span className="inline-flex items-center gap-[9px] text-[15.5px] font-semibold tracking-[-0.014em] text-[#16548f]">
-                    <Plus size={18} /> Новый расход
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      {/* Партнёры и счета к оплате — в одной строке */}
+      {/* Баланс партнёров + ожидающие счета — в одной строке */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {balance && <PartnerBalanceCard balance={balance} onSettled={fetchBalance} />}
 
@@ -537,22 +384,22 @@ export function FinancePageClient() {
             <span className="num text-sm text-[#5d6b7c]">{pendingInvoices.count} сч.</span>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="text-2xl font-bold whitespace-nowrap text-[#0f3f6d]">
+            <div className="num text-[28px] font-bold tracking-[-0.03em] whitespace-nowrap text-[#0f3f6d]">
               {formatMoney(pendingInvoices.sum)}
             </div>
             {pendingInvoiceList.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Нет неоплаченных счетов</p>
+              <p className="text-sm text-[#5d6b7c]">Нет неоплаченных счетов</p>
             ) : (
               <ul className="space-y-2">
                 {pendingInvoiceList.map((inv) => (
                   <li key={inv.id} className="flex items-center justify-between gap-2 rounded-[10px] border border-[#eef2f6] px-3 py-2">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium">
+                      <div className="truncate text-sm font-medium text-[#0f1720]">
                         {inv.invoiceNumber ?? `INV-${String(inv.id).padStart(4, "0")}`} · {inv.project?.name ?? "—"}
                       </div>
-                      <div className="num text-xs text-muted-foreground">{formatMoney(Number(inv.amount))}</div>
+                      <div className="num text-sm font-semibold text-[#354354]">{formatMoney(Number(inv.amount))}</div>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => setManageInvoice(inv)}>
+                    <Button size="sm" className="h-8 rounded-[10px] bg-[#16548f] text-white hover:bg-[#1c68ad]" onClick={() => setManageInvoice(inv)}>
                       <CreditCard className="mr-1.5 h-4 w-4" /> Оплатить
                     </Button>
                   </li>
@@ -569,7 +416,6 @@ export function FinancePageClient() {
         <ForecastCard />
         <MarginsRankCard />
       </div>
-
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
@@ -764,8 +610,7 @@ export function FinancePageClient() {
         onRefresh={() => {
           fetchTransactions();
           fetchBalance();
-          fetchCategories();
-        }}
+              }}
       />
 
       {/* Dialogs */}
@@ -782,8 +627,7 @@ export function FinancePageClient() {
         onSuccess={() => {
           fetchTransactions();
           fetchBalance();
-          fetchCategories();
-          setPrefillData(null);
+                setPrefillData(null);
         }}
       />
 
@@ -796,8 +640,7 @@ export function FinancePageClient() {
           onSuccess={() => {
             fetchTransactions();
             fetchBalance();
-            fetchCategories();
-          }}
+                  }}
         />
       )}
 
