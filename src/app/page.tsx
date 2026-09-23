@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { redirect } from "next/navigation";
 import { FinancialGoalCard } from "@/components/finance/financial-goal-card";
-import { FernDashboard } from "@/components/fern/fern-dashboard";
+import { DashboardActions, DashboardBalance } from "@/components/dashboard/dashboard-widgets";
 import { getTrafficDropFlags } from "@/lib/analytics-report";
 
 async function loadData() {
@@ -21,14 +21,14 @@ async function loadData() {
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-  const [projectCount, projects, transactions, incomeAgg, expenseAgg, monthIncomeAgg, monthExpenseAgg, catGroups, invoices, domainRecords, siteMonitors] =
+  const [projects, transactions, monthIncomeAgg, monthExpenseAgg, invoices, domainRecords, errorMonitors, monitors] =
     await Promise.all([
-      prisma.project.count(),
       prisma.project.findMany({
         where: { status: "ACTIVE" },
         orderBy: { createdAt: "asc" },
-        include: { transactions: true },
+        select: { id: true, name: true, slug: true },
       }),
       prisma.transaction.findMany({
         orderBy: { date: "desc" },
@@ -37,27 +37,11 @@ async function loadData() {
       }),
       prisma.transaction.aggregate({
         _sum: { amount: true },
-        where: { type: "INCOME" },
-      }),
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: { type: "EXPENSE" },
-      }),
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
         where: { type: "INCOME", date: { gte: monthStart } },
       }),
       prisma.transaction.aggregate({
         _sum: { amount: true },
         where: { type: "EXPENSE", date: { gte: monthStart } },
-      }),
-      prisma.transaction.groupBy({
-        by: ["category"],
-        where: { type: "EXPENSE" },
-        _sum: { amount: true },
-        _count: { _all: true },
-        orderBy: { _sum: { amount: "desc" } },
-        take: 6,
       }),
       prisma.invoice.findMany({
         where: { status: { in: ["PENDING", "PAID"] } },
@@ -87,32 +71,34 @@ async function loadData() {
           project: { select: { slug: true } },
         },
       }),
+      prisma.siteMonitor.findMany({
+        where: { isActive: true },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          isError: true,
+          lastStatus: true,
+          lastLatency: true,
+        },
+      }),
     ]);
 
-  const totalIncome = Number(incomeAgg._sum.amount ?? 0);
-  const totalExpenses = Number(expenseAgg._sum.amount ?? 0);
-  const profit = totalIncome - totalExpenses;
   const monthIncome = Number(monthIncomeAgg._sum.amount ?? 0);
   const monthExpenses = Number(monthExpenseAgg._sum.amount ?? 0);
 
   return {
     session,
-    projectCount,
+    monthKey,
     projects,
     transactions,
-    totalIncome,
-    totalExpenses,
-    profit,
     monthIncome,
     monthExpenses,
-    catGroups: catGroups.map((g) => ({
-      category: g.category,
-      spent: Number(g._sum.amount ?? 0),
-      txCount: g._count._all,
-    })),
     invoices,
     domainRecords,
-    siteMonitors,
+    errorMonitors,
+    monitors,
     trafficDrop: await getTrafficDropFlags(),
   };
 }
@@ -123,18 +109,6 @@ function formatMoney(n: number) {
     currency: "RUB",
     maximumFractionDigits: 0,
   }).format(n);
-}
-
-function projectMoney(project: {
-  transactions: { type: string; amount: { toNumber: () => number } }[];
-}) {
-  let income = 0;
-  let expenses = 0;
-  for (const t of project.transactions) {
-    if (t.type === "INCOME") income += t.amount.toNumber();
-    else expenses += t.amount.toNumber();
-  }
-  return { income, expenses, profit: income - expenses };
 }
 
 export default async function DashboardPage() {
@@ -192,7 +166,7 @@ export default async function DashboardPage() {
     }
   }
 
-  for (const site of data.siteMonitors) {
+  for (const site of data.errorMonitors) {
     const name = site.url || site.name;
     todoItems.push({
       key: `site-down-${site.id}`,
@@ -211,111 +185,152 @@ export default async function DashboardPage() {
     });
   }
 
+  const monthProfit = data.monthIncome - data.monthExpenses;
   const pendingBills = data.invoices.filter((i) => i.status === "PENDING");
   const pendingBillsTotal = pendingBills.reduce((s, i) => s + Number(i.amount), 0);
-  const leftThisMonth = data.monthIncome - data.monthExpenses - pendingBillsTotal;
-  const spentBase = data.monthIncome > 0 ? data.monthIncome : data.monthExpenses + pendingBillsTotal;
-  const spentPct = spentBase > 0 ? Math.round(((data.monthExpenses + pendingBillsTotal) / spentBase) * 100) : 0;
-
   const monthLabel = new Date().toLocaleDateString("ru-RU", { month: "long", year: "numeric" }).replace(/^./, (c) => c.toUpperCase());
-
-  const topCats = data.catGroups.slice(0, 3).map((g) => ({
-    name: g.category,
-    txCount: g.txCount,
-    spent: g.spent,
-    sharePct: data.totalExpenses > 0 ? Math.round((g.spent / data.totalExpenses) * 1000) / 10 : 0,
-  }));
-
-  const quietProjects = data.projects
-    .map((p) => ({ p, m: projectMoney(p) }))
-    .filter(({ m }) => m.income + m.expenses === 0)
-    .slice(0, 2)
-    .map(({ p }) => ({
-      id: p.id,
-      name: p.name,
-      detail: "Нет операций — запланировать первую",
-    }));
+  const shownMonitors = data.monitors.slice(0, 6);
+  const hiddenMonitors = data.monitors.length - shownMonitors.length;
 
   return (
     <AppShell
       userName={data.session.user.name ?? undefined}
       userEmail={data.session.user.email ?? undefined}
     >
-      <FernDashboard
-        monthLabel={monthLabel}
-        buckets={[
-          { id: "income", label: "Доход", amount: data.monthIncome, sub: `за месяц · всего ${formatMoney(data.totalIncome)}`, tone: "pos" },
-          { id: "bills", label: "Счета", amount: -pendingBillsTotal, sub: `${pendingBills.length} ждут оплаты`, tone: "neg" },
-          { id: "planned", label: "Плановые траты", amount: -data.monthExpenses, sub: `за месяц · всего ${formatMoney(data.totalExpenses)}`, tone: "active" },
-          { id: "goals", label: "Цели", amount: data.profit, sub: "накопления · доход минус расходы", tone: data.profit >= 0 ? "pos" : "neg" },
-        ]}
-        activeBucketId="planned"
-        leftThisMonth={leftThisMonth}
-        spentPct={spentPct}
-        categories={topCats}
-        unbudgeted={quietProjects}
-        plannedTotal={data.monthExpenses}
-      />
+      <div className="page-head">
+        <div className="page-head-main">
+          <h1 className="page-title">Дашборд</h1>
+          <p className="page-sub">{monthLabel}</p>
+        </div>
+        <DashboardActions projects={data.projects} />
+      </div>
 
-      <div className="grid-2-wide">
-        <div>
-          <h2 className="section-title">Последние операции</h2>
-          <div className="card card-flush">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Дата</TableHead>
-                  <TableHead>Описание</TableHead>
-                  <TableHead>Проект</TableHead>
-                  <TableHead>Категория</TableHead>
-                  <TableHead className="number-cell">Сумма</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.transactions.map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell className="num">
-                      {new Date(t.date).toLocaleDateString("ru-RU")}
-                    </TableCell>
-                    <TableCell className="cell-strong">{t.description}</TableCell>
-                    <TableCell>{t.project?.name ?? "—"}</TableCell>
-                    <TableCell>
-                      <span className="fern-chip">{t.category}</span>
-                    </TableCell>
-                    <TableCell className={`number-cell cell-strong ${t.type === "INCOME" ? "text-pos" : ""}`}>
-                      {t.type === "INCOME" ? "+" : "−"}
-                      {formatMoney(Number(t.amount))}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+      <div className="grid-stats">
+        <div className="card">
+          <div className="stat-label">Приход за месяц</div>
+          <div className="stat-value stat-value--pos">+{formatMoney(data.monthIncome)}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Расход за месяц</div>
+          <div className="stat-value stat-value--neg">−{formatMoney(data.monthExpenses)}</div>
+        </div>
+        <div className="card">
+          <div className="stat-label">Чистая прибыль</div>
+          <div className={`stat-value ${monthProfit >= 0 ? "stat-value--pos" : "stat-value--neg"}`}>
+            {monthProfit >= 0 ? "+" : "−"}{formatMoney(Math.abs(monthProfit))}
           </div>
         </div>
-        <div className="stack">
-          <div>
-            <h2 className="section-title">Цель года</h2>
-            <FinancialGoalCard />
+        <div className="card">
+          <div className="stat-label">Счета ожидают оплаты</div>
+          <div className="stat-value">{pendingBills.length}</div>
+          <p className="page-sub">на {formatMoney(pendingBillsTotal)}</p>
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <div>
+          <h2 className="section-title">Финансовая цель</h2>
+          <FinancialGoalCard />
+        </div>
+        <div>
+          <h2 className="section-title">Баланс партнёров</h2>
+          <DashboardBalance month={data.monthKey} />
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-head-row mb-3">
+            <span className="card-title">Мониторинг</span>
+            <a href="/monitoring" className="link">Все сайты</a>
           </div>
-          {todoItems.length > 0 && (
-            <div>
-              <h2 className="section-title">Что нужно сделать · {todoItems.length}</h2>
-              <div className="card">
-                <ul className="todo-list">
-                  {todoItems.slice(0, 6).map((item) => (
-                    <li key={item.key} className="todo-item">
-                      <a href={item.href} className="todo-link">
-                        <span>{item.text}</span>
-                        <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
-                          {item.severity === "critical" ? "срочно" : "внимание"}
-                        </Badge>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+          {data.monitors.length === 0 ? (
+            <p className="page-sub">Нет сайтов для мониторинга</p>
+          ) : (
+            <ul className="todo-list">
+              {shownMonitors.map((m) => (
+                <li key={m.id} className="todo-item">
+                  <a href="/monitoring" className="todo-link">
+                    <span className="cell-actions">
+                      <span className={`site-dot ${m.isError ? "site-dot--bad" : "site-dot--ok"}`} />
+                      <span>
+                        <span className="cell-strong">{m.name}</span>
+                        <br />
+                        <span className="hint">{(m.url || "").replace(/^https?:\/\//, "")}</span>
+                      </span>
+                    </span>
+                    <span className="num">
+                      {m.lastLatency !== null && m.lastLatency !== undefined
+                        ? `${m.lastLatency} ms`
+                        : m.lastStatus !== null && m.lastStatus !== undefined
+                          ? `код ${m.lastStatus}`
+                          : "—"}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           )}
+          {hiddenMonitors > 0 && (
+            <p className="page-sub">и ещё {hiddenMonitors}… <a href="/monitoring" className="link">открыть мониторинг</a></p>
+          )}
+        </div>
+
+        <div className="card">
+          <div className="card-head-row mb-3">
+            <span className="card-title">Уведомления · {todoItems.length}</span>
+          </div>
+          {todoItems.length === 0 ? (
+            <p className="page-sub">Всё спокойно 🎉</p>
+          ) : (
+            <ul className="todo-list">
+              {todoItems.slice(0, 6).map((item) => (
+                <li key={item.key} className="todo-item">
+                  <a href={item.href} className="todo-link">
+                    <span>{item.text}</span>
+                    <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
+                      {item.severity === "critical" ? "срочно" : "внимание"}
+                    </Badge>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="section-title">Последние операции</h2>
+        <div className="card card-flush">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Дата</TableHead>
+                <TableHead>Описание</TableHead>
+                <TableHead>Проект</TableHead>
+                <TableHead>Категория</TableHead>
+                <TableHead className="number-cell">Сумма</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.transactions.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell className="num">
+                    {new Date(t.date).toLocaleDateString("ru-RU")}
+                  </TableCell>
+                  <TableCell className="cell-strong">{t.description}</TableCell>
+                  <TableCell>{t.project?.name ?? "—"}</TableCell>
+                  <TableCell>
+                    <span className="fern-chip">{t.category}</span>
+                  </TableCell>
+                  <TableCell className={`number-cell cell-strong ${t.type === "INCOME" ? "text-pos" : ""}`}>
+                    {t.type === "INCOME" ? "+" : "−"}
+                    {formatMoney(Number(t.amount))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </AppShell>
