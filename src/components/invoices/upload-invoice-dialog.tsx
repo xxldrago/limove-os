@@ -45,7 +45,10 @@ export function UploadInvoiceDialog({
   const [amount, setAmount] = useState("");
   const [projectId, setProjectId] = useState<string>("none");
   const [dueDate, setDueDate] = useState("");
+  const [status, setStatus] = useState("PENDING");
+  const [paidDate, setPaidDate] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [receipt, setReceipt] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
@@ -56,7 +59,10 @@ export function UploadInvoiceDialog({
     setAmount("");
     setProjectId("none");
     setDueDate("");
+    setStatus("PENDING");
+    setPaidDate("");
     setFile(null);
+    setReceipt(null);
     setError("");
   };
 
@@ -89,7 +95,10 @@ export function UploadInvoiceDialog({
       formData.append("amount", amount);
       if (projectId && projectId !== "none") formData.append("projectId", projectId);
       if (dueDate) formData.append("dueDate", dueDate);
+      formData.append("status", status);
+      if (status === "PAID" && paidDate) formData.append("paidDate", paidDate);
       if (file) formData.append("file", file);
+      if (receipt) formData.append("receipt", receipt);
 
       const res = await fetch("/api/invoices", {
         method: "POST",
@@ -115,8 +124,8 @@ export function UploadInvoiceDialog({
     <Dialog open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Загрузить счёт</DialogTitle>
-          <DialogDescription>Добавьте новый счёт в систему</DialogDescription>
+          <DialogTitle>Добавить счёт / чек</DialogTitle>
+          <DialogDescription>Перенос старых счетов и чеков — в приход/расход не попадает</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="stack">
@@ -147,7 +156,14 @@ export function UploadInvoiceDialog({
 
           <div className="form-row">
             <Label>Проект</Label>
-            <Select value={projectId} onValueChange={(v) => v != null && setProjectId(v)}>
+            <Select
+              value={projectId}
+              onValueChange={(v) => v != null && setProjectId(v)}
+              items={[
+                { value: "none", label: "Без проекта" },
+                ...projects.map((p) => ({ value: String(p.id), label: p.name })),
+              ]}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Без проекта" />
               </SelectTrigger>
@@ -173,11 +189,54 @@ export function UploadInvoiceDialog({
           </div>
 
           <div className="form-row">
+            <Label>Статус счёта</Label>
+            <Select
+              value={status}
+              onValueChange={(v) => v != null && setStatus(v)}
+              items={[
+                { value: "PENDING", label: "Ожидает оплаты" },
+                { value: "PAID", label: "Оплачен" },
+                { value: "CANCELLED", label: "Обнулён" },
+              ]}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PENDING">Ожидает оплаты</SelectItem>
+                <SelectItem value="PAID">Оплачен</SelectItem>
+                <SelectItem value="CANCELLED">Обнулён</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {status === "PAID" && (
+            <>
+              <div className="form-row">
+                <Label htmlFor="paidDate">Дата оплаты</Label>
+                <Input
+                  id="paidDate"
+                  type="date"
+                  value={paidDate}
+                  onChange={(e) => setPaidDate(e.target.value)}
+                />
+              </div>
+              <div className="form-row">
+                <Label>Чек (необязательно)</Label>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="file-input"
+                  onChange={(e) => setReceipt(e.target.files?.[0] || null)}
+                />
+              </div>
+            </>
+          )}
+
+          <div className="form-row">
             <Label>Файл счёта</Label>
             <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25"
-              }`}
+              className={`dropzone${dragOver ? " is-over" : ""}`}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={(e) => {

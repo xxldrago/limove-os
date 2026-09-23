@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { readFile } from "fs/promises";
 import { join } from "path";
+import { uploadsDir } from "@/lib/uploads";
 import JSZip from "jszip";
 
 export async function GET(
@@ -20,7 +21,7 @@ export async function GET(
 
   // Add invoice file
   if (invoice.invoiceFile) {
-    const invPath = join("/app/uploads", invoice.invoiceFile);
+    const invPath = join(uploadsDir(), invoice.invoiceFile);
     try {
       const invData = await readFile(invPath);
       zip.file(`счёт_${invoice.id}${getExtension(invoice.invoiceFile)}`, invData);
@@ -31,7 +32,7 @@ export async function GET(
 
   // Add receipt file
   if (invoice.receiptFile) {
-    const recPath = join("/app/uploads", invoice.receiptFile);
+    const recPath = join(uploadsDir(), invoice.receiptFile);
     try {
       const recData = await readFile(recPath);
       zip.file(`чек_${invoice.id}${getExtension(invoice.receiptFile)}`, recData);

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { unlink } from "fs/promises";
-import { join } from "path";
+import { uploadsPath } from "@/lib/uploads";
 
 export async function DELETE(
   request: Request,
@@ -17,8 +17,8 @@ export async function DELETE(
 
   // Try to delete the physical file
   try {
-    const absPath = join("/app/uploads/projects", String(file.projectId), file.fileName);
-    await unlink(absPath);
+    const absPath = uploadsPath("projects", String(file.projectId), file.fileName);
+    if (absPath) await unlink(absPath);
   } catch {
     // File might not exist, continue with DB delete
   }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { readFile } from "fs/promises";
-import { join, normalize } from "path";
+import { uploadsPath } from "@/lib/uploads";
 import { getSession } from "@/lib/session";
 
 export async function GET(
@@ -14,9 +14,8 @@ export async function GET(
 
   const { path } = await params;
   // Normalize and prevent path traversal
-  const rel = path.join("/");
-  const absPath = normalize(join("/app/uploads", rel));
-  if (!absPath.startsWith("/app/uploads/")) {
+  const absPath = uploadsPath(...path);
+  if (!absPath) {
     return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
 

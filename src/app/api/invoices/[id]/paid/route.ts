@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { uploadsPath } from "@/lib/uploads";
 
 export async function POST(
   request: Request,
@@ -28,7 +29,8 @@ export async function POST(
   let receiptFile: string | undefined;
   if (file && file.size > 0) {
     // Save receipt file
-    const uploadDir = join("/app/uploads/invoices", String(existing.id));
+    const uploadDir = uploadsPath("invoices", String(existing.id));
+    if (!uploadDir) throw new Error("Invalid upload path");
     await mkdir(uploadDir, { recursive: true });
     const filePath = join(uploadDir, `receipt_${file.name}`);
     const buffer = Buffer.from(await file.arrayBuffer());

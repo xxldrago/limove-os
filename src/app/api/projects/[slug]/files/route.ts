@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { uploadsPath } from "@/lib/uploads";
 
 export async function GET(
   request: Request,
@@ -36,7 +37,8 @@ export async function POST(
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
   // Ensure upload directory exists
-  const uploadDir = join("/app/uploads/projects", String(project.id));
+  const uploadDir = uploadsPath("projects", String(project.id));
+  if (!uploadDir) return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   await mkdir(uploadDir, { recursive: true });
 
   const filePath = join(uploadDir, file.name);
