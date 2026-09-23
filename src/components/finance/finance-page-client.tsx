@@ -26,7 +26,7 @@ import { DeleteConfirmDialog } from "@/components/finance/delete-confirm-dialog"
 import { PartnerBalanceCard } from "@/components/finance/partner-balance-card";
 import { ExpenseTemplates } from "@/components/finance/expense-templates";
 import { FinancialGoalCard } from "@/components/finance/financial-goal-card";
-import { ForecastCard, MarginsRankCard } from "@/components/finance/margins-card";
+import { ForecastCard } from "@/components/finance/margins-card";
 import { CreateInvoiceDialog } from "@/components/finance/create-invoice-dialog";
 import { InvoiceDetailDialog } from "@/components/invoices/invoice-detail-dialog";
 import { FileText } from "lucide-react";
@@ -351,46 +351,44 @@ export function FinancePageClient() {
         </div>
       )}
 
-      {/* Баланс партнёров + ожидающие счета — в одной строке */}
+      {/* Вторая строка: слева баланс партнёров, справа — счета, цель и прогноз */}
       <div className="grid-2">
         {balance && <PartnerBalanceCard balance={balance} onSettled={fetchBalance} />}
 
-        <div className="card">
-          <div className="card-head-row mb-3">
-            <div className="card-title-row">
-              <FileText className="icon-xs" />
-              <span className="card-title">Ожидают оплаты</span>
+        <div className="stack">
+          <div className="card">
+            <div className="card-head-row mb-3">
+              <div className="card-title-row">
+                <FileText className="icon-xs" />
+                <span className="card-title">Ожидают оплаты</span>
+              </div>
+              <span className="page-total">{pendingInvoices.count} сч.</span>
             </div>
-            <span className="page-total">{pendingInvoices.count} сч.</span>
-          </div>
-          <div className="stat-value stat-value--pos">{formatMoney(pendingInvoices.sum)}</div>
-          {pendingInvoiceList.length === 0 ? (
-            <p className="page-sub">Нет неоплаченных счетов</p>
-          ) : (
-            <ul className="pending-list mt-3">
-              {pendingInvoiceList.map((inv) => (
-                <li key={inv.id} className="pending-item">
-                  <div style={{ minWidth: 0 }}>
-                    <div className="pending-name">
-                      {inv.invoiceNumber ?? `INV-${String(inv.id).padStart(4, "0")}`} · {inv.project?.name ?? "—"}
+            <div className="stat-value stat-value--pos">{formatMoney(pendingInvoices.sum)}</div>
+            {pendingInvoiceList.length === 0 ? (
+              <p className="page-sub">Нет неоплаченных счетов</p>
+            ) : (
+              <ul className="pending-list mt-3">
+                {pendingInvoiceList.map((inv) => (
+                  <li key={inv.id} className="pending-item">
+                    <div style={{ minWidth: 0 }}>
+                      <div className="pending-name">
+                        {inv.invoiceNumber ?? `INV-${String(inv.id).padStart(4, "0")}`} · {inv.project?.name ?? "—"}
+                      </div>
+                      <div className="pending-sum">{formatMoney(Number(inv.amount))}</div>
                     </div>
-                    <div className="pending-sum">{formatMoney(Number(inv.amount))}</div>
-                  </div>
-                  <Button size="sm" onClick={() => setManageInvoice(inv)}>
-                    <CreditCard className="icon-xs" /> Оплатить
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
+                    <Button size="sm" onClick={() => setManageInvoice(inv)}>
+                      <CreditCard className="icon-xs" /> Оплатить
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
-      {/* Цель, прогноз и маржинальность — в одной строке */}
-      <div className="grid-3">
-        <FinancialGoalCard />
-        <ForecastCard />
-        <MarginsRankCard />
+          <FinancialGoalCard />
+          <ForecastCard />
+        </div>
       </div>
 
       {/* Фильтры */}

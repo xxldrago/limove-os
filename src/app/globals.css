@@ -114,6 +114,9 @@
 @layer components {
   /* Карточки */
   .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background-color: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--r-lg);
@@ -582,10 +585,14 @@
 .stat-value--sm {
   font-size: 16px;
 }
-.goal-3col {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.goal-list .num {
+  font-size: 14px;
+  font-weight: 700;
 }
 .stat-sub {
   margin-top: 12px;

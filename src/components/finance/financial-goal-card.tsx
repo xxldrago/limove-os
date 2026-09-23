@@ -138,18 +138,18 @@ export function FinancialGoalCard() {
       </div>
       {goal ? (
         <>
-          <div className="goal-3col">
-            <div>
-              <div className="stat-label">Цель</div>
-              <div className="stat-value">{goal.targetAmount != null ? formatMoney(goal.targetAmount) : "—"}</div>
+          <div className="goal-list">
+            <div className="partner-row">
+              <span>Цель</span>
+              <b className="num">{goal.targetAmount != null ? formatMoney(goal.targetAmount) : "—"}</b>
             </div>
-            <div>
-              <div className="stat-label">Заработано</div>
-              <div className="stat-value stat-value--pos">{formatMoney(goal.earned)}</div>
+            <div className="partner-row">
+              <span>Заработано</span>
+              <b className="num text-pos">{formatMoney(goal.earned)}</b>
             </div>
-            <div>
-              <div className="stat-label">Осталось</div>
-              <div className="stat-value">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</div>
+            <div className="partner-row">
+              <span>Осталось</span>
+              <b className="num">{goal.remaining != null ? formatMoney(goal.remaining) : "—"}</b>
             </div>
           </div>
           <div className="mt-3">
