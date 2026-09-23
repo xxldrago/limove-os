@@ -205,40 +205,64 @@ export default async function DashboardPage() {
         <DashboardActions projects={data.projects} />
       </div>
 
-      <div className="grid-stats">
-        <div className="card">
-          <div className="stat-label">Приход за месяц</div>
-          <div className="stat-value stat-value--pos">+{formatMoney(data.monthIncome)}</div>
-        </div>
-        <div className="card">
-          <div className="stat-label">Расход за месяц</div>
-          <div className="stat-value stat-value--neg">−{formatMoney(data.monthExpenses)}</div>
-        </div>
-        <div className="card">
-          <div className="stat-label">Чистая прибыль</div>
-          <div className={`stat-value ${monthProfit >= 0 ? "stat-value--pos" : "stat-value--neg"}`}>
-            {monthProfit >= 0 ? "+" : "−"}{formatMoney(Math.abs(monthProfit))}
+      <div className="grid-2">
+        <div className="stack">
+          <FinancialGoalCard />
+          <div className="grid-3--auto">
+            <div className="card">
+              <div className="stat-label">Приход за месяц</div>
+              <div className="stat-value stat-value--pos">+{formatMoney(data.monthIncome)}</div>
+            </div>
+            <div className="card">
+              <div className="stat-label">Расход за месяц</div>
+              <div className="stat-value stat-value--neg">−{formatMoney(data.monthExpenses)}</div>
+            </div>
+            <div className="card">
+              <div className="stat-label">Чистая прибыль</div>
+              <div className={`stat-value ${monthProfit >= 0 ? "stat-value--pos" : "stat-value--neg"}`}>
+                {monthProfit >= 0 ? "+" : "−"}{formatMoney(Math.abs(monthProfit))}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="card">
-          <div className="stat-label">Счета ожидают оплаты</div>
-          <div className="stat-value">{pendingBills.length}</div>
-          <p className="page-sub">на {formatMoney(pendingBillsTotal)}</p>
-        </div>
-      </div>
-
-      <div className="grid-2">
         <div>
-          <h2 className="section-title">Финансовая цель</h2>
-          <FinancialGoalCard />
-        </div>
-        <div>
-          <h2 className="section-title">Баланс партнёров</h2>
           <DashboardBalance month={data.monthKey} />
         </div>
       </div>
 
       <div className="grid-2">
+        <div className="stack">
+          <div className="card">
+            <div className="card-head-row mb-3">
+              <span className="card-title">Счета ожидают оплаты</span>
+              <span className="page-total">{pendingBills.length} сч.</span>
+            </div>
+            <div className="stat-value">{formatMoney(pendingBillsTotal)}</div>
+          </div>
+
+        <div className="card">
+          <div className="card-head-row mb-3">
+            <span className="card-title">Уведомления · {todoItems.length}</span>
+          </div>
+          {todoItems.length === 0 ? (
+            <p className="page-sub">Всё спокойно 🎉</p>
+          ) : (
+            <ul className="todo-list">
+              {todoItems.slice(0, 6).map((item) => (
+                <li key={item.key} className="todo-item">
+                  <a href={item.href} className="todo-link">
+                    <span>{item.text}</span>
+                    <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
+                      {item.severity === "critical" ? "срочно" : "внимание"}
+                    </Badge>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        </div>
+
         <div className="card">
           <div className="card-head-row mb-3">
             <span className="card-title">Мониторинг</span>
@@ -273,28 +297,6 @@ export default async function DashboardPage() {
           )}
           {hiddenMonitors > 0 && (
             <p className="page-sub">и ещё {hiddenMonitors}… <a href="/monitoring" className="link">открыть мониторинг</a></p>
-          )}
-        </div>
-
-        <div className="card">
-          <div className="card-head-row mb-3">
-            <span className="card-title">Уведомления · {todoItems.length}</span>
-          </div>
-          {todoItems.length === 0 ? (
-            <p className="page-sub">Всё спокойно 🎉</p>
-          ) : (
-            <ul className="todo-list">
-              {todoItems.slice(0, 6).map((item) => (
-                <li key={item.key} className="todo-item">
-                  <a href={item.href} className="todo-link">
-                    <span>{item.text}</span>
-                    <Badge variant={item.severity === "critical" ? "destructive" : "secondary"}>
-                      {item.severity === "critical" ? "срочно" : "внимание"}
-                    </Badge>
-                  </a>
-                </li>
-              ))}
-            </ul>
           )}
         </div>
       </div>
