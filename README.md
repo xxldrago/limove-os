@@ -30,7 +30,7 @@ docker compose exec app npx prisma db seed
 
 ## Технологии
 
-- Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- Next.js 14 (App Router), TypeScript, нативный CSS (дизайн-система Limove OS Finance в `src/app/globals.css`), shadcn/ui-примитивы на base-ui
 - Prisma 6 + PostgreSQL 16
 - NextAuth.js (Credentials), bcryptjs
 - Шифрование паролей: AES-256-GCM (ключ `MASTER_KEY`, 64 hex = 32 байта)

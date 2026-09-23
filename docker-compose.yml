@@ -43,7 +43,6 @@ services:
       - ./public:/app/public
       - ./scripts:/app/scripts
       - ./.eslintrc.json:/app/.eslintrc.json
-      - ./tailwind.config.ts:/app/tailwind.config.ts
       - ./tsconfig.json:/app/tsconfig.json
       - ./next.config.mjs:/app/next.config.mjs
       - uploads_data:/app/uploads
