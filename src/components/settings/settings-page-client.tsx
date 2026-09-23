@@ -319,7 +319,7 @@ export function SettingsPageClient() {
                 </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="form-actions">
               <Button variant="outline" onClick={testConnection} disabled={testing || !status?.connected}>
                 {testing ? "Отправка..." : "Проверить соединение"}
               </Button>

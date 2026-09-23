@@ -192,15 +192,15 @@ export function UploadInvoiceDialog({
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="hidden"
+                className="hidden-input"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
                   if (f) handleFile(f);
                 }}
               />
               {file ? (
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-sm">{file.name}</span>
+                <div className="row-center">
+                  <span className="cell-strong">{file.name}</span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -211,10 +211,10 @@ export function UploadInvoiceDialog({
                   </Button>
                 </div>
               ) : (
-                <div className="text-muted-foreground">
-                  <Upload className="h-8 w-8 mx-auto mb-2" />
-                  <p className="text-sm">Перетащите файл или нажмите для выбора</p>
-                  <p className="text-xs mt-1">PDF, JPG, PNG — макс. 10 МБ</p>
+                <div className="drop-hint">
+                  <Upload className="drop-hint-icon" />
+                  <p className="cell-strong">Перетащите файл или нажмите для выбора</p>
+                  <p className="hint">PDF, JPG, PNG — макс. 10 МБ</p>
                 </div>
               )}
             </div>

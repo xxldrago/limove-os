@@ -5,7 +5,7 @@ import { ReportPrintButton } from "@/components/reports/print-button";
 
 // Простая SVG-линия графика посещаемости (серверный рендер, без зависимостей)
 function VisitsChartSvg({ rows }: { rows: { day: number; visits: number }[] }) {
-  if (rows.length === 0) return <div className="text-sm text-[#64748B] py-6 text-center">Нет данных</div>;
+  if (rows.length === 0) return <div className="empty-state">Нет данных</div>;
   const w = 700, h = 200, padL = 40, padR = 10, padT = 20, padB = 30;
   const max = Math.max(...rows.map((r) => r.visits), 1);
   const plotW = w - padL - padR, plotH = h - padT - padB;
@@ -17,7 +17,7 @@ function VisitsChartSvg({ rows }: { rows: { day: number; visits: number }[] }) {
   const area = `${padL},${padT + plotH} ${pts} ${padL + plotW},${padT + plotH}`;
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto">
+    <svg viewBox={`0 0 ${w} ${h}`} className="chart-svg">
       {[0, 0.33, 0.66, 1].map((g) => (
         <line key={g} x1={padL} y1={padT + g * plotH} x2={w - padR} y2={padT + g * plotH} stroke="#e5e7eb" strokeWidth={1} />
       ))}
@@ -34,13 +34,13 @@ function VisitsChartSvg({ rows }: { rows: { day: number; visits: number }[] }) {
 
 // Простая SVG-диаграмма бар (конверсии по дням)
 function ConvBarsSvg({ rows }: { rows: { day: number; goalReaches: number }[] }) {
-  if (rows.length === 0) return <div className="text-sm text-[#64748B] py-6 text-center">Нет данных</div>;
+  if (rows.length === 0) return <div className="empty-state">Нет данных</div>;
   const w = 700, h = 200, padL = 40, padR = 10, padT = 20, padB = 30;
   const max = Math.max(...rows.map((r) => r.goalReaches), 1);
   const plotW = w - padL - padR, plotH = h - padT - padB;
   const bw = plotW / rows.length;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto">
+    <svg viewBox={`0 0 ${w} ${h}`} className="chart-svg">
       {rows.map((r, i) => {
         const bx = padL + i * bw + bw * 0.25;
         const bh = (r.goalReaches / max) * plotH;

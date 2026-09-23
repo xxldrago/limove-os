@@ -39,26 +39,26 @@ export function QuickActionsFAB() {
 
   return (
     <>
-      {/* FAB — visible on mobile only (hidden on md+) */}
-      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3 md:hidden">
+      {/* FAB — только на мобильных (скрыт на md+) */}
+      <div className="fab-wrap">
         {open && (
           <>
-            <FabButton label="Добавить приход" onClick={() => trigger("INCOME")} icon={<TrendingUp className="h-5 w-5 text-emerald-500" />} />
-            <FabButton label="Добавить расход" onClick={() => trigger("EXPENSE")} icon={<TrendingDown className="h-5 w-5 text-[#F87171]" />} />
-            <FabButton label="Загрузить счёт" onClick={() => trigger("INVOICES")} icon={<FileText className="h-5 w-5 text-blue-500" />} />
+            <FabButton label="Добавить приход" onClick={() => trigger("INCOME")} icon={<TrendingUp className="fab-mini-icon text-pos" />} />
+            <FabButton label="Добавить расход" onClick={() => trigger("EXPENSE")} icon={<TrendingDown className="fab-mini-icon text-neg" />} />
+            <FabButton label="Загрузить счёт" onClick={() => trigger("INVOICES")} icon={<FileText className="fab-mini-icon" />} />
           </>
         )}
         <button
           type="button"
           aria-label={open ? "Закрыть" : "Быстрые действия"}
           onClick={() => setOpen((v) => !v)}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#10B981] text-[#090D14] shadow-[0_4px_8px_rgba(15,63,109,0.22),0_18px_30px_-14px_rgba(15,63,109,0.75)] transition-transform hover:bg-[#059669] active:scale-95"
+          className="fab-main"
         >
-          {open ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+          {open ? <X className="fab-main-icon" /> : <Plus className="fab-main-icon" />}
         </button>
       </div>
 
-      {/* Quick action -> full AddTransactionDialog */}
+      {/* Быстрое действие -> полный AddTransactionDialog */}
       {(action === "INCOME" || action === "EXPENSE") && (
         <AddTransactionDialog
           open={!!action}
@@ -82,11 +82,7 @@ function FabButton({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex items-center gap-2 rounded-full border bg-background py-2 pl-3 pr-4 text-sm font-medium shadow-md"
-    >
+    <button type="button" onClick={onClick} className="fab-mini">
       {icon}
       {label}
     </button>

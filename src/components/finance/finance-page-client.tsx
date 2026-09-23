@@ -370,7 +370,7 @@ export function FinancePageClient() {
             <ul className="pending-list mt-3">
               {pendingInvoiceList.map((inv) => (
                 <li key={inv.id} className="pending-item">
-                  <div className="min-w-0">
+                  <div style={{ minWidth: 0 }}>
                     <div className="pending-name">
                       {inv.invoiceNumber ?? `INV-${String(inv.id).padStart(4, "0")}`} · {inv.project?.name ?? "—"}
                     </div>

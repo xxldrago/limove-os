@@ -55,7 +55,7 @@ export function DeleteConfirmDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>Удалить транзакцию?</DialogTitle>
           <DialogDescription>

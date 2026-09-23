@@ -254,7 +254,7 @@ export function MonitoringDashboard() {
     }
   };
 
-  if (loading) return <div className="text-sm text-muted-foreground">Загрузка…</div>;
+  if (loading) return <div className="empty-state">Загрузка…</div>;
 
   return (
     <FernPage
@@ -263,10 +263,10 @@ export function MonitoringDashboard() {
       total={stats.avgLatency !== null ? `${stats.avgLatency} ms` : undefined}
       tools={
         <>
-          <Button variant="outline" onClick={load} className="h-10 rounded-[12px] px-[18px]">
-            <RefreshCw className="mr-1 h-4 w-4" /> Обновить
+          <Button variant="outline" onClick={load} className="btn-tall">
+            <RefreshCw className="icon-xs" /> Обновить
           </Button>
-          <Button onClick={openAdd} className="h-10 rounded-[12px] px-[18px]">＋ Добавить сайт</Button>
+          <Button onClick={openAdd} className="btn-tall">＋ Добавить сайт</Button>
         </>
       }
     >
@@ -327,8 +327,8 @@ export function MonitoringDashboard() {
           <DialogHeader>
             <DialogTitle>{editing ? "Редактировать сайт" : "Добавить сайт"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
+          <div className="stack">
+            <div className="form-row">
               <Label>Название</Label>
               <Input
                 value={form.name}
@@ -336,7 +336,7 @@ export function MonitoringDashboard() {
                 placeholder="Например: Главный сайт"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>URL</Label>
               <Input
                 value={form.url}
@@ -344,7 +344,7 @@ export function MonitoringDashboard() {
                 placeholder="https://example.ru"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Привязка к проекту</Label>
               <Select
                 value={form.projectId || "__none"}
@@ -354,7 +354,7 @@ export function MonitoringDashboard() {
                   ...projects.map((p) => ({ value: String(p.id), label: p.name })),
                 ]}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="select-full">
                   <SelectValue placeholder="Без проекта" />
                 </SelectTrigger>
                 <SelectContent>
@@ -367,7 +367,7 @@ export function MonitoringDashboard() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
+            <div className="form-row">
               <Label>Интервал проверки</Label>
               <Select
                 value={form.checkInterval}
@@ -379,7 +379,7 @@ export function MonitoringDashboard() {
                   { value: "3600", label: "1 час" },
                 ]}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="select-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -390,17 +390,17 @@ export function MonitoringDashboard() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="check-row">
               <input
                 type="checkbox"
                 id="isActive"
                 checked={form.isActive}
                 onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                className="h-4 w-4 rounded border-input"
+                className="checkbox"
               />
               <Label htmlFor="isActive">Активен</Label>
             </div>
-            {formError && <p className="text-sm text-[#F87171]">{formError}</p>}
+            {formError && <p className="text-neg">{formError}</p>}
           </div>
           <DialogFooter>
             <DialogClose render={<Button variant="outline">Отмена</Button>} />
@@ -413,11 +413,11 @@ export function MonitoringDashboard() {
 
       {/* Delete confirmation */}
       <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Удалить сайт?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
+          <p className="page-sub">
             Сайт «{deleteTarget?.name}» ({deleteTarget?.url}) будет удалён вместе с историей проверок.
           </p>
           <DialogFooter>

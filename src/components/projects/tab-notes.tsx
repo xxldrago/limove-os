@@ -94,7 +94,7 @@ export function NotesTab({ project, onProjectUpdate }: Props) {
     <div className="grid-2">
       {/* Список заметок */}
       <div className="card">
-        <div className="card-head-row mb-4">
+        <div className="card-head-row card-head-spaced">
           <span className="card-title">Заметки</span>
           <Button onClick={() => openNote(null, true)}>
             <Plus className="icon-xs" /> Новая

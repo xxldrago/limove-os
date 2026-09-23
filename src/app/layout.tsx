@@ -60,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`${jakarta.variable} ${inter.variable} ${jetbrains.variable}`}>
-      <body className="antialiased">
+      <body>
         <Providers>
           {children}
           <ServiceWorkerRegister />

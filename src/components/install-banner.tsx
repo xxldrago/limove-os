@@ -75,22 +75,14 @@ export function InstallBanner() {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/95 p-3 shadow-lg backdrop-blur">
-      <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
-        <p className="text-sm font-medium">Добавить Limove OS на главный экран</p>
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
-          >
+    <div className="install-banner">
+      <div className="install-banner-inner">
+        <p className="install-banner-text">Добавить Limove OS на главный экран</p>
+        <div className="install-banner-actions">
+          <button type="button" onClick={handleDismiss} className="install-banner-later">
             Позже
           </button>
-          <button
-            type="button"
-            onClick={handleInstall}
-            className="rounded-md bg-[#10B981] px-3 py-1.5 text-xs font-semibold text-[#090D14] hover:bg-[#059669]"
-          >
+          <button type="button" onClick={handleInstall} className="install-banner-install">
             Установить
           </button>
         </div>

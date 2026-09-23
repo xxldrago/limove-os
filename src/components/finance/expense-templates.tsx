@@ -2,16 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Zap, Play, X, Check, Copy } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -167,207 +160,147 @@ export function ExpenseTemplates({
   };
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <CardTitle className="text-lg">Шаблоны расходов</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={copyLastMonth}
-                    disabled={copying}
-                    title="Скопировать расходы прошлого месяца в текущий"
-                  >
-                    <Copy className="mr-1 h-4 w-4" />
-                    {copying ? "Копирование..." : "Повторить прошлый месяц"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowAddForm(true)}
-                  >
-                    <Plus className="mr-1 h-4 w-4" /> Добавить
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-      <CardContent>
-        {/* Add form */}
-        {showAddForm && (
-          <form
-            onSubmit={handleAdd}
-            className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border p-3"
-          >
-            <div className="space-y-1">
-              <Label className="text-xs">Название</Label>
-              <Input
-                className="h-8 w-48 text-xs"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Название шаблона"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Сумма</Label>
-              <Input
-                className="h-8 w-24 text-xs"
-                type="number"
-                step="0.01"
-                min="0"
-                value={newAmount}
-                onChange={(e) => setNewAmount(e.target.value)}
-                placeholder="0"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Категория</Label>
-              <Select
-                value={newCategory}
-                onValueChange={(v) => v != null && setNewCategory(v)}
-                items={categories.map((c) => ({ value: c, label: c }))}
-              >
-                <SelectTrigger className="h-8 w-36 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex gap-1">
-              <Button type="submit" size="sm" className="h-8">
-                <Check className="mr-1 h-3.5 w-3.5" /> Сохранить
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-8"
-                onClick={resetAddForm}
-              >
-                <X className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </form>
-        )}
+    <div className="card">
+      <div className="card-head-row mb-3">
+        <span className="card-title">Шаблоны расходов</span>
+        <span className="cell-actions">
+          <Button variant="outline" size="sm" onClick={copyLastMonth} disabled={copying} title="Скопировать расходы прошлого месяца в текущий">
+            <Copy className="icon-xs" />
+            {copying ? "Копирование..." : "Повторить прошлый месяц"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowAddForm(true)}>
+            <Plus className="icon-xs" /> Добавить
+          </Button>
+        </span>
+      </div>
 
-        {/* Templates grid */}
-        {templates.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
-            Нет шаблонов. Добавьте первый шаблон.
+      {showAddForm && (
+        <form onSubmit={handleAdd} className="tpl-form">
+          <div className="form-row">
+            <Label>Название</Label>
+            <Input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Название шаблона"
+            />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {templates.map((t) => (
-              <div key={t.id} className="rounded-lg border p-3">
-                {editingId === t.id ? (
-                  <div className="space-y-2">
+          <div className="form-row">
+            <Label>Сумма</Label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={newAmount}
+              onChange={(e) => setNewAmount(e.target.value)}
+              placeholder="0"
+            />
+          </div>
+          <div className="form-row">
+            <Label>Категория</Label>
+            <Select
+              value={newCategory}
+              onValueChange={(v) => v != null && setNewCategory(v)}
+              items={categories.map((c) => ({ value: c, label: c }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="cell-actions">
+            <Button type="submit" size="sm">
+              <Check className="icon-xs" /> Сохранить
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={resetAddForm}>
+              <X className="icon-xs" />
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {templates.length === 0 ? (
+        <div className="empty-state">Нет шаблонов. Добавьте первый шаблон.</div>
+      ) : (
+        <div className="tpl-grid">
+          {templates.map((t) => (
+            <div key={t.id} className="tpl-card">
+              {editingId === t.id ? (
+                <div className="stack-sm">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                  />
+                  <div className="form-grid-2">
                     <Input
-                      className="h-8 text-xs"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
+                      type="number"
+                      step="0.01"
+                      value={editAmount}
+                      onChange={(e) => setEditAmount(e.target.value)}
                     />
-                    <div className="flex gap-2">
-                      <Input
-                        className="h-8 w-24 text-xs"
-                        type="number"
-                        step="0.01"
-                        value={editAmount}
-                        onChange={(e) => setEditAmount(e.target.value)}
-                      />
-                      <Select
-                        value={editCategory}
-                        onValueChange={(v) => v != null && setEditCategory(v)}
-                        items={categories.map((c) => ({ value: c, label: c }))}
-                      >
-                        <SelectTrigger className="h-8 w-32 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {c}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => handleEditSave(t)}
-                      >
-                        <Check className="mr-1 h-3.5 w-3.5" /> Сохранить
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7"
-                        onClick={() => setEditingId(null)}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
+                    <Select
+                      value={editCategory}
+                      onValueChange={(v) => v != null && setEditCategory(v)}
+                      items={categories.map((c) => ({ value: c, label: c }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                ) : (
-                  <>
-                    <div className="flex items-start justify-between">
-                      <div className="font-medium text-sm">{t.name}</div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => startEdit(t)}
-                        >
-                          <Pencil className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-destructive"
-                          onClick={() => handleDelete(t.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="mt-1 flex items-center gap-2 text-sm">
-                      <span className="font-semibold">{Number(t.amount)} ₽</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {t.category}
-                      </Badge>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs flex-1"
-                        onClick={() => onUseTemplate(t)}
-                      >
-                        <Play className="mr-1 h-3 w-3" /> Использовать
+                  <div className="cell-actions">
+                    <Button size="sm" onClick={() => handleEditSave(t)}>
+                      <Check className="icon-xs" /> Сохранить
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
+                      <X className="icon-xs" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="card-head-row">
+                    <div className="tpl-name">{t.name}</div>
+                    <span className="cell-actions">
+                      <Button variant="ghost" size="icon" onClick={() => startEdit(t)} aria-label="Редактировать">
+                        <Pencil className="icon-xs" />
                       </Button>
-                      <Button
-                        size="sm"
-                        className="h-7 text-xs flex-1 bg-[#10B981] hover:bg-[#059669]"
-                        onClick={() => onQuickAdd(t)}
-                      >
-                        <Zap className="mr-1 h-3 w-3" /> Добавить сейчас
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(t.id)} aria-label="Удалить">
+                        <Trash2 className="icon-xs icon-danger" />
                       </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                    </span>
+                  </div>
+                  <div className="tpl-meta">
+                    <span className="num cell-strong">{Number(t.amount)} ₽</span>
+                    <span className="badge badge-neutral">{t.category}</span>
+                  </div>
+                  <div className="tpl-actions">
+                    <Button size="sm" variant="outline" onClick={() => onUseTemplate(t)}>
+                      <Play className="icon-xs" /> Использовать
+                    </Button>
+                    <Button size="sm" onClick={() => onQuickAdd(t)}>
+                      <Zap className="icon-xs" /> Добавить сейчас
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

@@ -2,19 +2,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      <Skeleton className="h-8 w-48" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="stack" style={{ padding: 16 }}>
+      <div className="skeleton" style={{ height: 32, width: 192 }} />
+      <div className="grid-stats">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 rounded-xl" />
+          <div key={i} className="skeleton" style={{ height: 96 }} />
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-40 rounded-xl" />
+          <div key={i} className="skeleton" style={{ height: 160 }} />
         ))}
       </div>
-      <Skeleton className="h-64 rounded-xl" />
+      <div className="skeleton" style={{ height: 256 }} />
     </div>
   );
 }

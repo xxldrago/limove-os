@@ -71,7 +71,7 @@ export function DomainDialog({ open, onOpenChange, domain, slug, onSuccess }: Pr
             {isEdit ? "Редактировать запись" : "Новая запись"}
           </DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="stack">
           <div className="form-grid-label">
             <Label className="form-actions--end-text">Название</Label>
             <Input

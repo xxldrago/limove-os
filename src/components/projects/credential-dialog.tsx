@@ -71,7 +71,7 @@ export function CredentialDialog({ open, onOpenChange, credential, slug, onSucce
         <DialogHeader>
           <DialogTitle>{isEdit ? "Редактировать доступ" : "Новый доступ"}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="stack">
           <div className="form-grid-label">
             <Label className="form-actions--end-text">Сервис</Label>
             <Input

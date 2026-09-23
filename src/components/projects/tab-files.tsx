@@ -57,7 +57,7 @@ export function FilesTab({ project, onProjectUpdate }: Props) {
 
   return (
     <div className="card">
-      <div className="card-head-row mb-4">
+      <div className="card-head-row card-head-spaced">
         <span className="card-title">Файлы</span>
       </div>
 
@@ -90,7 +90,7 @@ export function FilesTab({ project, onProjectUpdate }: Props) {
           {project.files.map((f) => (
             <div key={f.id} className="file-item">
               <FileText className="file-icon" />
-              <div className="min-w-0" style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="mini-item-title">{f.fileName}</div>
                 <div className="hint">
                   {formatSize(f.fileSize)} · {new Date(f.createdAt).toLocaleDateString("ru-RU")}

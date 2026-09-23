@@ -134,7 +134,7 @@ export function EditTransactionDialog({
             <Button
               type="button"
               variant={type === "INCOME" ? "default" : "outline"}
-              className={type === "INCOME" ? "bg-[#10B981] hover:bg-[#059669] flex-1" : "flex-1"}
+              className={type === "INCOME" ? "btn-solid-ok flex-1" : "flex-1"}
               onClick={() => setType("INCOME")}
             >
               Приход

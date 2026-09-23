@@ -93,7 +93,7 @@ export function CredentialsTab({ project, onProjectUpdate }: Props) {
 
   return (
     <div className="card">
-      <div className="card-head-row mb-4">
+      <div className="card-head-row card-head-spaced">
         <span className="card-title">Доступы</span>
         <Button
           onClick={() => {

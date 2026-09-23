@@ -106,7 +106,7 @@ export function TaskDialog({
         <DialogHeader>
           <DialogTitle>{isEdit ? "Редактировать задачу" : "Новая задача"}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="stack">
           <div className="form-grid-label">
             <Label className="form-actions--end-text">Название</Label>
             <Input
@@ -188,7 +188,7 @@ export function TaskDialog({
             />
           </div>
         </div>
-        <DialogFooter className="justify-between sm:justify-between">
+        <DialogFooter className="dialog-footer--spread">
           <div>
             {isEdit && (
               <Button variant="destructive" size="icon" onClick={doDelete} aria-label="Удалить задачу">

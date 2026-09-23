@@ -143,7 +143,7 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
               </Select>
             </div>
             <div className="form-row">
-              <Label>Сервер <span className="text-muted-foreground">(опц.)</span></Label>
+              <Label>Сервер <span className="hint">(опц.)</span></Label>
               <Input value={serverName} onChange={(e) => setServerName(e.target.value)} placeholder="Germany" />
             </div>
           </div>
@@ -152,7 +152,7 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
             <Input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Кому подписка" />
           </div>
           <div className="form-row">
-            <Label>Ссылка/Ключ <span className="text-muted-foreground">(опц.)</span></Label>
+            <Label>Ссылка/Ключ <span className="hint">(опц.)</span></Label>
             <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="vpn://... или ключ" />
           </div>
           <div className="form-grid-2">
@@ -181,15 +181,15 @@ export function VpnDialog({ open, onOpenChange, sub, onSuccess }: Props) {
             </Select>
           </div>
           <div className="form-row">
-            <Label>Заметки <span className="text-muted-foreground">(опц.)</span></Label>
+            <Label>Заметки <span className="hint">(опц.)</span></Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </div>
-          {error && <p className="text-sm text-[#F87171]">{error}</p>}
+          {error && <p className="text-neg">{error}</p>}
         </div>
         <div className="form-actions form-actions--end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="icon-xs spin" />}
             Сохранить
           </Button>
         </div>

@@ -175,7 +175,7 @@ export function CreateInvoiceDialog({
                 ...projects.map((p) => ({ value: String(p.id), label: p.name })),
               ]}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="select-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -208,10 +208,7 @@ export function CreateInvoiceDialog({
           <div className="form-row">
             <Label>Файл счёта (необязательно)</Label>
             <div
-              className={[
-                "relative rounded-lg border-2 border-dashed p-4 text-center transition-colors",
-                dragging ? "border-primary bg-primary/5" : "border-border",
-              ].join(" ")}
+              className={dragging ? "dropzone is-over" : "dropzone"}
               onDragOver={(e) => {
                 e.preventDefault();
                 setDragging(true);
@@ -227,12 +224,12 @@ export function CreateInvoiceDialog({
               }}
             >
               {file ? (
-                <div className="flex items-center justify-center gap-2 text-sm">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <span className="truncate max-w-[220px]">{file.name}</span>
+                <div className="row-center">
+                  <FileText className="icon-xs text-pos" />
+                  <span className="truncate-220">{file.name}</span>
                   <button
                     type="button"
-                    className="text-muted-foreground hover:text-destructive"
+                    className="hint"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -253,17 +250,17 @@ export function CreateInvoiceDialog({
                 ref={fileInputRef}
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="hidden"
+                className="hidden-input"
                 onChange={(e) => handleFile(e.target.files?.[0])}
               />
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-3"
+                style={{ marginTop: 12 }}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Upload className="h-3 w-3 mr-2" />
+                <Upload className="icon-xs" />
                 Загрузить файл
               </Button>
             </div>
@@ -274,7 +271,7 @@ export function CreateInvoiceDialog({
             )}
           </div>
           {error && <p className="text-neg">{error}</p>}
-          <div className="flex gap-2 justify-end">
+          <div className="form-actions form-actions--end">
             <Button
               variant="outline"
               onClick={() => {

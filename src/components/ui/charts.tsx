@@ -21,7 +21,7 @@ export function LineChart({
   const padBottom = 28;
 
   if (data.length === 0) {
-    return <div className="text-sm text-muted-foreground py-10 text-center">Нет данных за период</div>;
+    return <div className="empty-state">Нет данных за период</div>;
   }
 
   const values = data.map((d) => d.value);
@@ -43,7 +43,7 @@ export function LineChart({
     gridLines.push(
       <g key={g}>
         <line x1={padX} y1={gy} x2={w - padX} y2={gy} stroke="currentColor" strokeOpacity={0.08} />
-        <text x={padX - 6} y={gy + 3} textAnchor="end" className="fill-muted-foreground" fontSize={10}>
+        <text x={padX - 6} y={gy + 3} textAnchor="end" className="chart-fill" fontSize={10}>
           {yFormat ? yFormat(gv) : Math.round(gv)}
         </text>
       </g>
@@ -51,7 +51,7 @@ export function LineChart({
   }
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" role="img">
+    <svg viewBox={`0 0 ${w} ${h}`} className="chart-svg" role="img">
       {gridLines}
       <polygon points={areaPts} fill={color} fillOpacity={0.12} />
       <polyline points={linePts} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
@@ -59,7 +59,7 @@ export function LineChart({
         <g key={i}>
           <circle cx={x(i)} cy={y(d.value)} r={3} fill={color} />
           {i % Math.ceil(data.length / 8) === 0 && (
-            <text x={x(i)} y={h - 8} textAnchor="middle" className="fill-muted-foreground" fontSize={9}>
+            <text x={x(i)} y={h - 8} textAnchor="middle" className="chart-fill" fontSize={9}>
               {d.label}
             </text>
           )}
@@ -83,7 +83,7 @@ export function BarChart({
   const padBottom = 28;
 
   if (data.length === 0) {
-    return <div className="text-sm text-muted-foreground py-10 text-center">Нет данных за период</div>;
+    return <div className="empty-state">Нет данных за период</div>;
   }
 
   const max = Math.max(...data.map((d) => d.value), 1);
@@ -91,7 +91,7 @@ export function BarChart({
   const barW = Math.min(bw * 0.6, 28);
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-auto" role="img">
+    <svg viewBox={`0 0 ${w} ${h}`} className="chart-svg" role="img">
       {[0, 0.25, 0.5, 0.75, 1].map((g) => {
         const gy = padTop + g * (h - padTop - padBottom);
         return (
@@ -106,7 +106,7 @@ export function BarChart({
           <g key={i}>
             <rect x={bx} y={by} width={barW} height={Math.max(bh, 0)} rx={4} fill={color} />
             {i % Math.ceil(data.length / 8) === 0 && (
-              <text x={bx + barW / 2} y={h - 8} textAnchor="middle" className="fill-muted-foreground" fontSize={9}>
+              <text x={bx + barW / 2} y={h - 8} textAnchor="middle" className="chart-fill" fontSize={9}>
                 {d.label}
               </text>
             )}

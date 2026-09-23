@@ -140,7 +140,7 @@ export function AddTransactionDialog({
             <Button
               type="button"
               variant={type === "INCOME" ? "default" : "outline"}
-              className={type === "INCOME" ? "bg-[#10B981] hover:bg-[#059669] flex-1" : "flex-1"}
+              className={type === "INCOME" ? "btn-solid-ok flex-1" : "flex-1"}
               onClick={() => setType("INCOME")}
             >
               Приход
@@ -253,7 +253,7 @@ export function AddTransactionDialog({
             >
               Отмена
             </Button>
-            <Button type="submit" disabled={loading} className={type === "INCOME" ? "bg-[#10B981] hover:bg-[#059669]" : "bg-[#F87171] hover:bg-[#EF4444]"}>
+            <Button type="submit" disabled={loading} className={type === "INCOME" ? "btn-solid-ok" : "btn-solid-danger"}>
               {loading ? <Loader2 className="icon-xs" /> : null}
               Сохранить
             </Button>

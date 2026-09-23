@@ -24,7 +24,7 @@ export function DeleteConfirmDialog({ open, onOpenChange, title, description, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -45,7 +45,7 @@ export function DeleteConfirmDialog({ open, onOpenChange, title, description, on
               }
             }}
           >
-            {loading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="icon-xs spin" />}
             Удалить
           </Button>
         </div>

@@ -1,8 +1,3 @@
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* ============================================================
    Limove OS Finance — тёмная тема (нативные CSS-переменные)
@@ -1136,6 +1131,9 @@
   font-weight: 600;
   color: var(--text-secondary);
 }
+.card-head-spaced {
+  margin-bottom: 16px;
+}
 .card-head-row {
   display: flex;
   align-items: center;
@@ -1347,6 +1345,173 @@
 }
 .btn-block {
   width: 100%;
+}
+.btn-text-danger {
+  color: var(--accent-danger);
+}
+.btn-text-danger:hover {
+  color: var(--accent-danger);
+  background-color: var(--accent-danger-bg);
+}
+.btn-solid-ok {
+  background-color: var(--accent-primary);
+  color: #090d14;
+}
+.btn-solid-ok:hover {
+  background-color: var(--accent-primary-hover);
+}
+.btn-solid-danger {
+  background-color: var(--accent-danger);
+  color: #090d14;
+}
+.btn-solid-danger:hover {
+  background-color: #ef4444;
+}
+@media print {
+  .print-hidden {
+    display: none;
+  }
+}
+
+/* Инфо-сетка и мелкие блоки диалогов */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  font-size: 14px;
+}
+.h4-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+.warn-box {
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.warn-box--amber {
+  border-color: rgba(251, 191, 36, 0.35);
+  background-color: rgba(251, 191, 36, 0.08);
+  color: #fbbf24;
+}
+.warn-box--danger {
+  border-color: rgba(248, 113, 113, 0.35);
+  background-color: rgba(248, 113, 113, 0.08);
+}
+.file-input {
+  width: 100%;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.row-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.hidden-input {
+  display: none;
+}
+.drop-hint {
+  color: var(--text-muted);
+  text-align: center;
+}
+.drop-hint-icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 8px;
+  color: var(--text-muted);
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.truncate-220 {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.btn-link:hover {
+  background-color: var(--bg-card-hover);
+}
+.img-preview {
+  max-height: 160px;
+  width: auto;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+/* Шаблоны расходов */
+.tpl-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: var(--bg-secondary);
+}
+.tpl-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+.tpl-card {
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 12px;
+  background-color: var(--bg-secondary);
+}
+.tpl-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.tpl-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 14px;
+}
+.tpl-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.tpl-actions > * {
+  flex: 1 1 auto;
 }
 .btn-icon--xs {
   width: 24px;
@@ -1900,6 +2065,14 @@
     max-width: none;
   }
 }
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.chart-fill {
+  fill: var(--text-muted);
+}
 .chart-label {
   margin-bottom: 4px;
   font-size: 13px;
@@ -2047,6 +2220,125 @@
   font-size: 12px;
   font-weight: 600;
 }
+
+/* FAB быстрых действий */
+.fab-wrap {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+@media (min-width: 768px) {
+  .fab-wrap {
+    display: none;
+  }
+}
+.fab-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 9999px;
+  background-color: var(--accent-primary);
+  color: #090d14;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3), 0 18px 30px -14px rgba(16, 185, 129, 0.6);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.fab-main:hover {
+  background-color: var(--accent-primary-hover);
+}
+.fab-main:active {
+  transform: scale(0.95);
+}
+.fab-main-icon {
+  width: 24px;
+  height: 24px;
+}
+.fab-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: 9999px;
+  background-color: var(--bg-card);
+  padding: 8px 16px 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+}
+.fab-mini-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Баннер установки PWA */
+.install-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  border-top: 1px solid var(--border-default);
+  background-color: rgba(9, 13, 20, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px;
+  box-shadow: var(--shadow-card);
+}
+.install-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 512px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.install-banner-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.install-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.install-banner-later {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.install-banner-later:hover {
+  background-color: var(--bg-card-hover);
+}
+.install-banner-install {
+  border: 0;
+  border-radius: 8px;
+  background-color: var(--accent-primary);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #090d14;
+  cursor: pointer;
+}
+.install-banner-install:hover {
+  background-color: var(--accent-primary-hover);
+}
 .btn-tall {
   height: 40px;
   padding: 0 18px;
@@ -2120,10 +2412,16 @@
   top: 8px;
   right: 8px;
 }
+.dialog-wide {
+  max-width: 32rem;
+}
 .dialog-header {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+.dialog-footer--spread {
+  justify-content: space-between;
 }
 .dialog-footer {
   display: flex;
@@ -2151,6 +2449,14 @@
 }
 
 /* Тултипы */
+.tooltip-arrow {
+  z-index: 50;
+  width: 10px;
+  height: 10px;
+  background-color: var(--bg-card-hover);
+  border: 1px solid var(--border-light);
+  transform: rotate(45deg);
+}
 .tooltip-popup {
   z-index: 60;
   max-width: 280px;
@@ -2198,6 +2504,17 @@
 .menu-item--danger:hover {
   background-color: var(--accent-danger-bg);
   color: var(--accent-danger);
+}
+.menu-caret {
+  margin-left: auto;
+}
+.menu-caret-wrap {
+  pointer-events: none;
+  position: absolute;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .menu-label {
   padding: 4px 10px;
@@ -2327,6 +2644,21 @@
   height: 1px;
   margin: 4px -4px;
   background-color: var(--border-default);
+}
+.select-full {
+  width: 100%;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
 }
 .select-scroll-btn {
   z-index: 10;
@@ -2535,6 +2867,7 @@
   font-family: inherit;
   font-size: 14px;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -2650,6 +2983,7 @@
   color: var(--text-secondary);
   font-family: inherit;
   font-size: 14px;
+  text-decoration: none;
   cursor: pointer;
 }
 .sb-sub-btn--sm {
@@ -2822,6 +3156,11 @@
   bottom: 0;
   width: min(420px, 100vw);
   border-radius: 0 16px 16px 0;
+}
+.sheet-x {
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }
 .sheet-title {
   font-size: 16px;

@@ -153,14 +153,14 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
   if (askIncome) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Создать доход?</DialogTitle>
             <DialogDescription>
               Статус изменён на PAID. Записать доходную транзакцию в финансы?
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-3 py-2">
+          <div className="stack">
             <div className="form-row">
               <Label>Сумма (₽)</Label>
               <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="50000" />
@@ -169,7 +169,7 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
               <Label>Описание</Label>
               <Input value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={`Оплата ElementX: ${fullName || ""}`} />
             </div>
-            {error && <p className="text-sm text-[#F87171]">{error}</p>}
+            {error && <p className="text-neg">{error}</p>}
           </div>
           <div className="form-actions form-actions--end">
             <Button
@@ -183,7 +183,7 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
               disabled={loading || !amount}
               onClick={() => handleSubmit(true)}
             >
-              {loading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+              {loading && <Loader2 className="icon-xs spin" />}
               Да, создать
             </Button>
           </div>
@@ -216,12 +216,12 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
               <Input type="date" value={registerDate} onChange={(e) => setRegisterDate(e.target.value)} />
             </div>
             <div className="form-row">
-              <Label>Дата оплаты <span className="text-muted-foreground">(опц.)</span></Label>
+              <Label>Дата оплаты <span className="hint">(опц.)</span></Label>
               <Input type="date" value={paidDate} onChange={(e) => setPaidDate(e.target.value)} />
             </div>
           </div>
           <div className="form-row">
-            <Label>Компания <span className="text-muted-foreground">(опц.)</span></Label>
+            <Label>Компания <span className="hint">(опц.)</span></Label>
             <Input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="РС" />
           </div>
           <div className="form-row">
@@ -240,15 +240,15 @@ export function ElementxDialog({ open, onOpenChange, user, onSuccess }: Props) {
             </Select>
           </div>
           <div className="form-row">
-            <Label>Заметки <span className="text-muted-foreground">(опц.)</span></Label>
+            <Label>Заметки <span className="hint">(опц.)</span></Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </div>
-          {error && <p className="text-sm text-[#F87171]">{error}</p>}
+          {error && <p className="text-neg">{error}</p>}
         </div>
         <div className="form-actions form-actions--end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Отмена</Button>
           <Button onClick={handleSaveClick} disabled={loading}>
-            {loading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="icon-xs spin" />}
             Сохранить
           </Button>
         </div>
