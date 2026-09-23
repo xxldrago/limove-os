@@ -138,7 +138,7 @@ export function FinancialGoalCard() {
       </div>
       {goal ? (
         <>
-          <div className="form-grid-2" style={{ gridTemplateColumns: "repeat(3, minmax(0,1fr))" }}>
+          <div className="goal-3col">
             <div>
               <div className="stat-label">Цель</div>
               <div className="stat-value">{goal.targetAmount != null ? formatMoney(goal.targetAmount) : "—"}</div>
