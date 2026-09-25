@@ -44,8 +44,9 @@ SIZE=$(du -h "$OUT_FILE" | cut -f1)
 for CHAT in $CHATS; do
   if curl -sf -m 120 -F "document=@${OUT_FILE}" \
       -F "caption=💾 Бэкап Limove $(date +%d.%m.%Y) ($SIZE)" \
+      -F "chat_id=${CHAT}" \
       "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
-      --data-urlencode "chat_id=${CHAT}" -o /dev/null; then
+      -o /dev/null; then
     echo "Отправлен в чат $CHAT"
   else
     echo "ОШИБКА отправки в чат $CHAT"
