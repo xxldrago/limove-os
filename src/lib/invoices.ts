@@ -16,6 +16,64 @@ export interface MarkPaidResult {
   justPaid: boolean;
 }
 
+export interface CreateInvoiceInput {
+  description: string;
+  amount: number;
+  projectId?: number | null;
+  dueDate?: Date | null;
+  status?: string;
+  paidDate?: Date | null;
+  createdById: number;
+}
+
+/** Следующий номер INV-XXXX. */
+async function nextInvoiceNumber(): Promise<string> {
+  const lastInvoice = await prisma.invoice.findFirst({
+    orderBy: { id: "desc" },
+    select: { id: true, invoiceNumber: true },
+  });
+  let nextNum = 1;
+  if (lastInvoice && lastInvoice.invoiceNumber) {
+    const match = lastInvoice.invoiceNumber.match(/^INV-(\d{4})$/);
+    if (match) nextNum = parseInt(match[1], 10) + 1;
+  }
+  return `INV-${String(nextNum).padStart(4, "0")}`;
+}
+
+/**
+ * Создание счёта (панель и бот): номер, запись, уведомление «Новый счёт».
+ * Для переноса старых оплаченных — status/paidDate без движений в финансах.
+ */
+export async function createInvoice(input: CreateInvoiceInput) {
+  const status = ["PENDING", "PAID", "CANCELLED"].includes(input.status ?? "")
+    ? input.status!
+    : "PENDING";
+  const invoice = await prisma.invoice.create({
+    data: {
+      invoiceNumber: await nextInvoiceNumber(),
+      description: input.description,
+      amount: input.amount,
+      projectId: input.projectId ?? null,
+      dueDate: input.dueDate ?? null,
+      status,
+      paidDate:
+        status === "PAID" ? (input.paidDate ?? new Date()) : null,
+      createdById: input.createdById,
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      title: "Новый счёт",
+      content: `Новый счёт: ${input.description}`,
+      type: "INVOICE",
+      sentToTg: false,
+    },
+  });
+
+  return invoice;
+}
+
 /**
  * Общая логика оплаты счёта: статус PAID + приход на сумму счёта
  * (+ налог 6% при безнале) + уведомление. Только реальный переход
@@ -35,12 +93,7 @@ export async function markInvoicePaid(
 
   let receiptFile: string | undefined;
   if (input.receiptBytes && input.receiptBytes.length > 0 && input.receiptName) {
-    const uploadDir = uploadsPath("invoices", String(existing.id));
-    if (!uploadDir) throw new Error("Invalid upload path");
-    await mkdir(uploadDir, { recursive: true });
-    const safeName = input.receiptName.replace(/[^a-zA-Zа-яА-ЯёЁ0-9._-]/g, "_");
-    await writeFile(join(uploadDir, `receipt_${safeName}`), input.receiptBytes);
-    receiptFile = `/invoices/${existing.id}/receipt_${safeName}`;
+    receiptFile = await attachReceiptFile(existing.id, input.receiptBytes, input.receiptName);
   }
 
   const updated = await prisma.invoice.update({
@@ -97,4 +150,27 @@ export async function markInvoicePaid(
   });
 
   return { invoice: updated, justPaid };
+}
+
+/**
+ * Прикрепить файл чека к счёту (панель, перенос старых, Telegram-бот).
+ * Возвращает относительный путь для receiptFile.
+ */
+export async function attachReceiptFile(
+  invoiceId: number,
+  bytes: Buffer,
+  fileName: string
+): Promise<string> {
+  const uploadDir = uploadsPath("invoices", String(invoiceId));
+  if (!uploadDir) throw new Error("Invalid upload path");
+  await mkdir(uploadDir, { recursive: true });
+  const safeName = fileName.replace(/[^a-zA-Zа-яА-ЯёЁ0-9._-]/g, "_");
+  const stored = `receipt_${safeName}`;
+  await writeFile(join(uploadDir, stored), bytes);
+  const rel = `/invoices/${invoiceId}/${stored}`;
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: { receiptFile: rel },
+  });
+  return rel;
 }

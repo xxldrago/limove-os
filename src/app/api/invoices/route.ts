@@ -4,6 +4,7 @@ import { getSession } from "@/lib/session";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { uploadsPath } from "@/lib/uploads";
+import { createInvoice } from "@/lib/invoices";
 
 export async function GET(request: Request) {
   const session = await getSession();
@@ -49,30 +50,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Description and amount are required" }, { status: 400 });
   }
 
-  // Generate the next INV-XXXX number.
-  const lastInvoice = await prisma.invoice.findFirst({
-    orderBy: { id: "desc" },
-    select: { id: true, invoiceNumber: true },
-  });
-  let nextNum = 1;
-  if (lastInvoice && lastInvoice.invoiceNumber) {
-    const match = lastInvoice.invoiceNumber.match(/^INV-(\d{4})$/);
-    if (match) nextNum = parseInt(match[1], 10) + 1;
-  }
-  // Fallback: derive from id-based ordering to avoid collisions.
-  const invoiceNumber = `INV-${String(nextNum).padStart(4, "0")}`;
-
-  const invoice = await prisma.invoice.create({
-    data: {
-      invoiceNumber,
-      description,
-      amount: parseFloat(amount),
-      projectId: projectId && projectId !== "none" ? parseInt(projectId) : null,
-      dueDate: dueDate ? new Date(dueDate) : null,
-      status,
-      paidDate: status === "PAID" ? (paidDateRaw ? new Date(paidDateRaw) : new Date()) : null,
-      createdById: parseInt(session.user.id),
-    },
+  const invoice = await createInvoice({
+    description,
+    amount: parseFloat(amount),
+    projectId: projectId && projectId !== "none" ? parseInt(projectId) : null,
+    dueDate: dueDate ? new Date(dueDate) : null,
+    status,
+    paidDate: paidDateRaw ? new Date(paidDateRaw) : null,
+    createdById: parseInt(session.user.id),
   });
 
   // Save file if provided
@@ -104,16 +89,6 @@ export async function POST(request: Request) {
       data: { receiptFile: `/invoices/${invoice.id}/receipt_${receipt.name}` },
     });
   }
-
-  // Create notification
-  await prisma.notification.create({
-    data: {
-      title: "Новый счёт",
-      content: `Новый счёт: ${description}`,
-      type: "INVOICE",
-      sentToTg: false,
-    },
-  });
 
   const result = await prisma.invoice.findUnique({
     where: { id: invoice.id },
