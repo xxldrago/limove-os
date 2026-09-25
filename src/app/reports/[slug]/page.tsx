@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { buildReportData } from "@/lib/report-build";
-import { ReportPrintButton } from "@/components/reports/print-button";
+import { ReportPrintButton, ReportExcelButton } from "@/components/reports/print-button";
 
 // Простая SVG-линия графика посещаемости (серверный рендер, без зависимостей)
 function VisitsChartSvg({ rows }: { rows: { day: number; visits: number }[] }) {
@@ -95,7 +95,10 @@ export default async function ReportPage({
             <h1 className="report-title">{data?.project.name}</h1>
             <p className="report-period">{data?.period.monthName}</p>
           </div>
-          <ReportPrintButton />
+          <div style={{ display: "flex", gap: 8 }}>
+            <ReportPrintButton />
+            <ReportExcelButton href={`/api/reports/${params.slug}/export?year=${year}&month=${month}`} />
+          </div>
         </div>
 
         <div className="report-body">

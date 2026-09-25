@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getBotAsync, telegramEnabled } from "@/lib/telegram-bot";
 import { buildMonthlyReportText } from "@/lib/analytics-report";
+import { startWeeklyDigestService } from "@/lib/weekly-digest";
 
 /**
  * Format a Notification record as a Telegram-ready text message.
@@ -358,4 +359,7 @@ export function startNotificationServices() {
 
   // Ежемесячный аналитический отчёт (пункт B) — раз в час, идемпотентен.
   startMonthlyReportService();
+
+  // Еженедельный дайджест (понедельник ~9:00 Красноярск) — раз в час, идемпотентен.
+  startWeeklyDigestService();
 }

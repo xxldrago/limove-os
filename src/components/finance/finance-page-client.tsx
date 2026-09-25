@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Zap, CreditCard } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, CreditCard, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -306,6 +306,14 @@ export function FinancePageClient() {
           </Button>
           <Button onClick={() => setCreateInvoiceOpen(true)} variant="outline">
             <FileText className="icon-xs" /> Счёт
+          </Button>
+          <Button
+            onClick={() => {
+              window.location.href = `/api/finance/transactions/export?month=${filterMonth}`;
+            }}
+            variant="outline"
+          >
+            <Download className="icon-xs" /> Excel
           </Button>
         </>
       }

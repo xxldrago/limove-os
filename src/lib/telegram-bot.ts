@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import { Bot, Context, InlineKeyboard } from "grammy";
 import { prisma } from "@/lib/prisma";
 import {
   computePartnerBalance,
@@ -6,6 +6,7 @@ import {
   GENA_ID,
   PLACEHOLDER_EMAIL,
 } from "@/lib/finance-balance";
+import { markInvoicePaid } from "@/lib/invoices";
 
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
@@ -154,6 +155,98 @@ async function buildDownMessage(): Promise<string> {
   return lines.join("\n");
 }
 
+// ================= QUICK TRANSACTIONS =================
+
+interface QuickTx {
+  type: "INCOME" | "EXPENSE";
+  amount: number;
+  description: string;
+}
+
+const CATEGORY_KEYWORDS: [RegExp, string][] = [
+  [/хостинг/i, "Хостинг"],
+  [/vpn|впн/i, "VPN"],
+  [/налог/i, "Налог"],
+  [/подписк/i, "Подписка"],
+  [/продвиж|реклам|seo|сео/i, "Продвижение"],
+  [/обслуж/i, "Обслужка"],
+];
+
+function guessCategory(description: string): string {
+  for (const [re, cat] of CATEGORY_KEYWORDS) {
+    if (re.test(description)) return cat;
+  }
+  return "Другое";
+}
+
+/**
+ * Разбор быстрых операций из свободного текста.
+ *   «потратил 500 такси» / «-1 200 хостинг» → EXPENSE
+ *   «получил 50000 проект» / «+100000» → INCOME
+ * Возвращает null, если текст не похож на операцию.
+ */
+export function parseQuickTransaction(text: string): QuickTx | null {
+  const t = text.trim();
+
+  let type: "INCOME" | "EXPENSE" | null = null;
+  let rest = t;
+  const expensePrefix = /^(потратил[аи]?|потрачено|расход|минус|-)\s*/i;
+  const incomePrefix = /^(получил[аи]?|получено|приход|доход|плюс|\+)\s*/i;
+  if (expensePrefix.test(t)) {
+    type = "EXPENSE";
+    rest = t.replace(expensePrefix, "");
+  } else if (incomePrefix.test(t)) {
+    type = "INCOME";
+    rest = t.replace(incomePrefix, "");
+  }
+
+  // Сумма в начале: «12 500», «12,50», «12500.5» + опционально ₽/руб.
+  const m = rest.match(/^([\d][\d\s]*[.,]?[\d]*)\s*(₽|руб\.?|р\.?|rub)?\s*(.*)$/i);
+  if (!m) return null;
+  const numRaw = m[1].replace(/\s/g, "").replace(",", ".");
+  // Отсекаем мусор вида «12.5.6» или пустые.
+  if (!/^\d+(\.\d+)?$/.test(numRaw)) return null;
+  const amount = parseFloat(numRaw);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  let description = (m[3] || "").trim();
+  // Голое число без префикса и описания — не операция («500» в чате).
+  if (!type && !description) return null;
+  if (!type) type = "EXPENSE";
+  if (!description) description = type === "INCOME" ? "Приход" : "Расход";
+
+  return { type, amount: Math.round(amount * 100) / 100, description };
+}
+
+async function handleQuickTransaction(ctx: Context, q: QuickTx) {
+  const chatId = ctx.chat?.id;
+  const user = chatId
+    ? await prisma.user.findFirst({ where: { telegramChatId: chatId } })
+    : null;
+  if (!user) {
+    await ctx.reply("Не знаю, кто ты 🤷 Нажми /start, чтобы привязать чат.");
+    return;
+  }
+
+  const tx = await prisma.transaction.create({
+    data: {
+      type: q.type,
+      amount: q.amount,
+      description: q.description,
+      paidById: user.id,
+      category: q.type === "INCOME" ? "Другое" : guessCategory(q.description),
+      date: new Date(),
+    },
+  });
+
+  const sign = q.type === "INCOME" ? "+" : "−";
+  const kb = new InlineKeyboard().text("↩ Отменить", `deltx:${tx.id}`);
+  await ctx.reply(
+    `${q.type === "INCOME" ? "💰" : "💸"} ${user.name}: ${sign}${fmtMoney(q.amount)} ₽ — ${q.description}`,
+    { reply_markup: kb }
+  );
+}
+
 // ================= REGISTRATION =================
 
 /** Claim a chat_id for a partner based on who started the bot. */
@@ -199,9 +292,11 @@ function registerCommands(bot: Bot) {
         `Я бот Limove OS. Мои команды:\n` +
         `/status — сводка за месяц\n` +
         `/balance — баланс партнёров\n` +
+        `/invoices — неоплаченные счета (оплата в 1 тап)\n` +
         `/expiring — истекающие домены и VPN\n` +
         `/down — упавшие сайты\n` +
-        `/help — список команд`
+        `/help — список команд\n\n` +
+        `А ещё понимаю текст: «потратил 500 такси», «получил 50000 проект»`
     );
   });
 
@@ -210,9 +305,13 @@ function registerCommands(bot: Bot) {
       `Доступные команды:\n` +
         `/status — сводка за месяц (приход/расход/прибыль)\n` +
         `/balance — баланс партнёров (кто кому должен)\n` +
+        `/invoices — неоплаченные счета с кнопкой оплаты\n` +
         `/expiring — домены и VPN, истекающие за 7 дней\n` +
         `/down — сайты, которые сейчас упали\n` +
-        `/help — список команд`
+        `/help — список команд\n\n` +
+        `Быстрые операции текстом:\n` +
+        `«потратил 500 такси», «-1200 хостинг»,\n` +
+        `«получил 50000 проект», «+100000»`
     );
   });
 
@@ -247,6 +346,100 @@ function registerCommands(bot: Bot) {
       await safeCatch(ctx, e, "/down");
     }
   });
+
+  bot.command("invoices", async (ctx) => {
+    try {
+      const pending = await prisma.invoice.findMany({
+        where: { status: "PENDING" },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: { id: true, invoiceNumber: true, description: true, amount: true },
+      });
+      if (pending.length === 0) {
+        await ctx.reply("✅ Неоплаченных счетов нет");
+        return;
+      }
+      for (const inv of pending) {
+        const num = inv.invoiceNumber || `INV-${String(inv.id).padStart(4, "0")}`;
+        const kb = new InlineKeyboard().text("✅ Оплатить", `pay:${inv.id}`);
+        await ctx.reply(
+          `📄 ${num}: ${inv.description}\n💰 ${fmtMoney(Number(inv.amount))} ₽`,
+          { reply_markup: kb }
+        );
+      }
+    } catch (e) {
+      await safeCatch(ctx, e, "/invoices");
+    }
+  });
+
+  // Быстрые траты/приходы текстом: «потратил 500 такси», «-1200 хостинг»,
+  // «получил 50000 проект», «+100000».
+  bot.on("message:text", async (ctx) => {
+    try {
+      const text = (ctx.message.text || "").trim();
+      if (text.startsWith("/")) return; // команды обрабатываются выше
+      const parsed = parseQuickTransaction(text);
+      if (!parsed) return; // обычный текст — молча игнорируем
+      await handleQuickTransaction(ctx, parsed);
+    } catch (e) {
+      await safeCatch(ctx, e, "quick-tx");
+    }
+  });
+
+  // Inline-кнопки: оплата счёта и отмена быстрой операции.
+  bot.callbackQuery(/^pay:(\d+)$/, async (ctx) => {
+    const invoiceId = Number(ctx.match[1]);
+    try {
+      const chatId = ctx.chat?.id;
+      const user = chatId
+        ? await prisma.user.findFirst({ where: { telegramChatId: chatId } })
+        : null;
+      const inv = await prisma.invoice.findUnique({ where: { id: invoiceId } });
+      if (!inv) {
+        await ctx.answerCallbackQuery({ text: "Счёт не найден" });
+        return;
+      }
+      if (inv.status === "PAID") {
+        await ctx.answerCallbackQuery({ text: "Счёт уже оплачен" });
+        return;
+      }
+      const { justPaid } = await markInvoicePaid(invoiceId, {
+        paymentMethod: "CASH",
+        paidById: user?.id,
+      });
+      const num = inv.invoiceNumber || `INV-${String(inv.id).padStart(4, "0")}`;
+      await ctx.answerCallbackQuery({
+        text: justPaid ? "Счёт оплачен ✅" : "Уже был оплачен",
+      });
+      await ctx.editMessageText(
+        `✅ ${num}: ${inv.description}\n💰 ${fmtMoney(Number(inv.amount))} ₽ — ОПЛАЧЕН${user ? ` (${user.name})` : ""}`
+      );
+    } catch (e) {
+      console.error("[telegram] pay callback failed:", e);
+      await ctx.answerCallbackQuery({ text: "Ошибка оплаты" });
+    }
+  });
+
+  bot.callbackQuery(/^deltx:(\d+)$/, async (ctx) => {
+    const txId = Number(ctx.match[1]);
+    try {
+      const chatId = ctx.chat?.id;
+      const user = chatId
+        ? await prisma.user.findFirst({ where: { telegramChatId: chatId } })
+        : null;
+      const tx = await prisma.transaction.findUnique({ where: { id: txId } });
+      if (!tx || (user && tx.paidById !== user.id)) {
+        await ctx.answerCallbackQuery({ text: "Нельзя отменить" });
+        return;
+      }
+      await prisma.transaction.delete({ where: { id: txId } });
+      await ctx.answerCallbackQuery({ text: "Операция удалена" });
+      await ctx.editMessageText(`🗑 Операция «${tx.description}» (${fmtMoney(Number(tx.amount))} ₽) удалена.`);
+    } catch (e) {
+      console.error("[telegram] deltx callback failed:", e);
+      await ctx.answerCallbackQuery({ text: "Ошибка" });
+    }
+  });
 }
 
 async function safeCatch(ctx: { reply: (t: string) => Promise<unknown> }, e: unknown, cmd: string) {
@@ -275,6 +468,7 @@ export async function getBotAsync(): Promise<Bot | null> {
         await bot.api.setMyCommands([
           { command: "status", description: "Сводка за месяц" },
           { command: "balance", description: "Баланс партнёров" },
+          { command: "invoices", description: "Неоплаченные счета" },
           { command: "expiring", description: "Истекающие домены и VPN" },
           { command: "down", description: "Упавшие сайты" },
           { command: "help", description: "Список команд" },
