@@ -55,8 +55,22 @@ export function formatNotification(n: {
  * Send all unsent notifications to registered partner chats.
  * Groups by chat id so each pending notification reaches an available chat.
  * Marks each as sentToTg once delivered.
+ *
+ * Serialized via an in-process mutex: the 30s loop, the daily cron and the
+ * receipt reminders all call this function, and without serialization two
+ * overlapping runs would read the same `sentToTg: false` rows and send
+ * every notification twice.
  */
-export async function sendPendingNotifications() {
+let _sendChain: Promise<unknown> = Promise.resolve();
+
+export function sendPendingNotifications(): Promise<number> {
+  const run = _sendChain.then(() => _sendPendingNotificationsInner());
+  // Keep the chain alive even if one run fails.
+  _sendChain = run.catch(() => 0);
+  return run;
+}
+
+async function _sendPendingNotificationsInner() {
   if (!telegramEnabled) return 0;
   const bot = await getBotAsync();
   if (!bot) return 0;
@@ -267,9 +281,11 @@ export async function runMonthlyAnalyticsReport() {
   const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const key = `${prev.getFullYear()}-${prev.getMonth()}`;
 
-  // Защита от дублей в течение месяца.
-  const g = globalThis as Record<string, unknown>;
-  if (g.__lastMonthlyReport === key) return "already";
+  // Защита от дублей в течение месяца — персистентная (переживает рестарты).
+  const already = await prisma.notification.findFirst({
+    where: { type: "MONTHLY_REPORT", content: key },
+  });
+  if (already) return "already";
 
   const text = await buildMonthlyReportText(prev.getFullYear(), prev.getMonth());
 
@@ -287,7 +303,9 @@ export async function runMonthlyAnalyticsReport() {
       console.error(`[telegram] monthly report to ${chatId} failed:`, e);
     }
   }
-  g.__lastMonthlyReport = key;
+  await prisma.notification.create({
+    data: { type: "MONTHLY_REPORT", title: "Ежемесячный отчёт", content: key, sentToTg: true },
+  });
   return "sent";
 }
 

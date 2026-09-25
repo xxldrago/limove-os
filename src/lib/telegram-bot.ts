@@ -1,5 +1,11 @@
 import { Bot } from "grammy";
 import { prisma } from "@/lib/prisma";
+import {
+  computePartnerBalance,
+  LESHA_ID,
+  GENA_ID,
+  PLACEHOLDER_EMAIL,
+} from "@/lib/finance-balance";
 
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
@@ -54,6 +60,7 @@ async function buildStatusMessage(): Promise<string> {
 
   const users = await prisma.user.findMany();
   const nameById = new Map(users.map((u) => [u.id, u.name]));
+  const placeholder = users.find((u) => u.email === PLACEHOLDER_EMAIL);
 
   const lines: string[] = [];
   lines.push(`📊 Сводка за ${monthName(now)}`);
@@ -63,6 +70,8 @@ async function buildStatusMessage(): Promise<string> {
   lines.push(`📈 Прибыль: ${fmtMoney(profit)} ₽`);
   lines.push("");
   for (const [uid, amt] of Object.entries(perUser)) {
+    // Технический пользователь «—» — не партнёр, в сводке не показываем.
+    if (placeholder && Number(uid) === placeholder.id) continue;
     lines.push(`👥 ${nameById.get(Number(uid)) || `#${uid}`} потратил: ${fmtMoney(amt)} ₽`);
   }
   return lines.join("\n");
@@ -75,38 +84,20 @@ async function buildBalanceMessage(): Promise<string> {
     select: { type: true, amount: true, paidById: true },
   });
 
-  // Amount each partner actually paid toward expenses this month.
-  const spent: Record<number, number> = {};
-  for (const t of tx) {
-    if (t.type === "INCOME") continue;
-    spent[t.paidById] = (spent[t.paidById] || 0) + Number(t.amount);
-  }
+  // Та же модель, что в панели (computePartnerBalance): доли 50/50 от
+  // позиций партнёров, технический пользователь «—» не влияет на долг.
+  const b = computePartnerBalance(tx, LESHA_ID, GENA_ID);
+  if (Math.abs(b.debt) < 0.01) return "✅ Баланс равен";
 
-  const entries = Object.entries(spent).map(([id, amt]) => ({ id: Number(id), amt }));
-  if (entries.length < 2) return "✅ Баланс равен";
-
-  const total = entries.reduce((s, e) => s + e.amt, 0);
-  const perHead = total / entries.length;
-
-  // All partners at fair share => balanced.
-  if (entries.every((e) => Math.abs(e.amt - perHead) < 0.01)) return "✅ Баланс равен";
-
-  // Debtor = paid below fair share; creditor = paid above fair share.
-  let debtorId: number | null = null, creditorId: number | null = null;
-  let debtorGap = 0, creditorGap = 0;
-  for (const e of entries) {
-    const gap = e.amt - perHead;
-    if (gap < -0.01 && -gap > debtorGap) { debtorId = e.id; debtorGap = -gap; }
-    else if (gap > 0.01 && gap > creditorGap) { creditorId = e.id; creditorGap = gap; }
-  }
-  if (!debtorId || !creditorId) return "✅ Баланс равен";
-
-  const owe = Math.min(debtorGap, creditorGap);
-  const users = await prisma.user.findMany();
-  const names = new Map(users.map((u) => [u.id, u.name]));
-  const debtorName = names.get(debtorId) || `#${debtorId}`;
-  const creditorName = names.get(creditorId) || `#${creditorId}`;
-  return `${debtorName} должен ${creditorName} ${fmtMoney(owe)} ₽`;
+  const users = await prisma.user.findMany({
+    where: { id: { in: [LESHA_ID, GENA_ID] } },
+    select: { id: true, name: true },
+  });
+  const nameOf = (id: number, fallback: string) =>
+    users.find((u) => u.id === id)?.name ?? fallback;
+  const debtor = b.debt > 0 ? nameOf(LESHA_ID, "Лёша") : nameOf(GENA_ID, "Гена");
+  const creditor = b.debt > 0 ? nameOf(GENA_ID, "Гена") : nameOf(LESHA_ID, "Лёша");
+  return `${debtor} должен ${creditor} ${fmtMoney(Math.abs(b.debt))} ₽`;
 }
 
 async function buildExpiringMessage(): Promise<string> {

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-const CHECK_TIMEOUT = 10_000; // 10s
+const CHECK_TIMEOUT = 30_000; // 30s — не спешим хоронить сайт при медленном ответе
 const LOOP_INTERVAL = 30_000; // poll for due sites every 30s
 const KEEP_CHECKS = 1000; // keep last 1000 checks per site
 
@@ -59,7 +59,7 @@ export async function checkSite(site: SiteCheckInput) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const err = e as any;
     if (err?.name === "AbortError") {
-      errorMsg = "Таймаут (10 сек)";
+      errorMsg = "Таймаут (30 сек)";
     } else {
       errorMsg = err?.message || "Сетевая ошибка";
     }

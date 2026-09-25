@@ -9,6 +9,7 @@ import {
   Eye,
   Filter,
   FileText,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { InvoiceDetailDialog } from "@/components/invoices/invoice-detail-dialog";
+import { UploadInvoiceDialog } from "@/components/invoices/upload-invoice-dialog";
 
 interface Project {
   id: number;
@@ -103,9 +105,10 @@ export function InvoicesPageClient() {
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
 
-  const fetchInvoices = useCallback(async () => {
-    setLoading(true);
+  const fetchInvoices = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     const params = new URLSearchParams();
     if (filter !== "ALL") params.set("status", filter);
     const res = await fetch(`/api/invoices?${params}`);
@@ -113,7 +116,7 @@ export function InvoicesPageClient() {
       const data = await res.json();
       setInvoices(data);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [filter]);
 
   const fetchProjects = useCallback(async () => {
@@ -134,9 +137,39 @@ export function InvoicesPageClient() {
 
   // Compute stats from ALL invoices (not filtered)
   const [allInvoices, setAllInvoices] = useState<Invoice[]>([]);
+  const fetchAllInvoices = useCallback(async () => {
+    try {
+      const r = await fetch("/api/invoices");
+      if (r.ok) setAllInvoices(await r.json());
+    } catch {
+      /* ignore background refresh errors */
+    }
+  }, []);
   useEffect(() => {
-    fetch("/api/invoices").then((r) => r.json()).then(setAllInvoices);
-  }, [selectedInvoice]);
+    fetchAllInvoices();
+  }, [fetchAllInvoices, selectedInvoice]);
+
+  // Автообновление: второй партнёр мог оплатить счёт со своего устройства.
+  // Без этого страница показывает stale-статус («не оплачен»), пока не
+  // перезагрузишь вручную.
+  useEffect(() => {
+    const refresh = () => {
+      fetchInvoices(true);
+      fetchAllInvoices();
+    };
+    const timer = setInterval(refresh, 30_000);
+    const onFocus = () => refresh();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [fetchInvoices, fetchAllInvoices]);
 
   const pendingInvoices = allInvoices.filter((i) => i.status === "PENDING");
   const paidInvoices = allInvoices.filter((i) => i.status === "PAID");
@@ -174,6 +207,11 @@ export function InvoicesPageClient() {
       title="Счета"
       sub="История счетов и чеков. Управление — в разделе «Финансы»."
       total={pendingSum > 0 ? formatMoney(pendingSum) : undefined}
+      tools={
+        <Button onClick={() => setUploadOpen(true)} className="btn-tall">
+          <Plus className="icon-xs" /> Добавить счёт / чек
+        </Button>
+      }
     >
       {/* Сводка */}
       <div className="grid-3">
@@ -293,6 +331,16 @@ export function InvoicesPageClient() {
           </Table>
         </div>
       )}
+
+      <UploadInvoiceDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        projects={projects}
+        onSuccess={() => {
+          setUploadOpen(false);
+          fetchInvoices();
+        }}
+      />
 
       {selectedInvoice && (
         <InvoiceDetailDialog
