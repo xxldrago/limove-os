@@ -136,7 +136,9 @@ async function buildExpiringMessage(): Promise<string> {
 }
 
 async function buildDownMessage(): Promise<string> {
-  const sites = await prisma.siteMonitor.findMany({ where: { isError: true } });
+  // Только активные — как в панели (дашборд и /monitoring показывают
+  // упавшими лишь isActive && isError).
+  const sites = await prisma.siteMonitor.findMany({ where: { isError: true, isActive: true } });
   if (sites.length === 0) return "✅ Все сайты работают";
 
   const now = Date.now();

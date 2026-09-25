@@ -21,6 +21,7 @@ async function loadData() {
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   const [projects, transactions, monthIncomeAgg, monthExpenseAgg, invoices, domainRecords, errorMonitors, monitors] =
@@ -37,11 +38,11 @@ async function loadData() {
       }),
       prisma.transaction.aggregate({
         _sum: { amount: true },
-        where: { type: "INCOME", date: { gte: monthStart } },
+        where: { type: "INCOME", date: { gte: monthStart, lt: monthEnd } },
       }),
       prisma.transaction.aggregate({
         _sum: { amount: true },
-        where: { type: "EXPENSE", date: { gte: monthStart } },
+        where: { type: "EXPENSE", date: { gte: monthStart, lt: monthEnd } },
       }),
       prisma.invoice.findMany({
         where: { status: { in: ["PENDING", "PAID"] } },
@@ -205,6 +206,7 @@ export default async function DashboardPage() {
         <DashboardActions projects={data.projects} />
       </div>
 
+      <div className="page-body">
       <div className="grid-2">
         <div className="stack">
           <FinancialGoalCard />
@@ -334,6 +336,7 @@ export default async function DashboardPage() {
             </TableBody>
           </Table>
         </div>
+      </div>
       </div>
     </AppShell>
   );
