@@ -6,7 +6,7 @@ const CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET ?? "";
 // После авторизации Яндекс редиректит сюда с ?code=
 export const REDIRECT_URI = process.env.YANDEX_REDIRECT_URI ?? "https://oauth.yandex.ru/verification_code";
 
-export const SCOPES = "metrika:stat,webmaster"; // оба сервиса в одном токене
+export const SCOPES = "metrika:read,webmaster:hostinfo,webmaster:verify"; // оба сервиса в одном токене
 
 export interface YandexTokenData {
   access_token: string;
