@@ -48,30 +48,42 @@ export async function fetchQueryStats(
   from: string,
   to: string
 ): Promise<{ date: string; shows: number; clicks: number; position: number }[]> {
+  // Реальный эндпоинт v4: search-queries/all/history (search-history не существует).
+  // query_indicator можно повторять; URLSearchParams соберёт их через запятую —
+  // API принимает и такой формат.
   const params = new URLSearchParams({
-    query_indicator: "TOTAL_SHOWS,TOTAL_CLICKS,AVG_SHOW_POSITION,AVG_CLICK_POSITION",
+    query_indicator: "TOTAL_SHOWS,TOTAL_CLICKS,AVG_SHOW_POSITION",
     date_from: from,
     date_to: to,
-    limit: "1000",
   });
   const data = (await yandexGet(
-    `${WB}/user/${userId}/hosts/${hostId}/search-history?${params.toString()}`,
+    `${WB}/user/${userId}/hosts/${hostId}/search-queries/all/history?${params.toString()}`,
     token
-  )) as { data?: { date?: string; values?: { name?: string; value?: string }[] }[] } | null;
-  if (!data?.data) return [];
+  )) as {
+    indicators?: Record<string, { date: string; value: number }[]>;
+  } | null;
+  if (!data?.indicators) return [];
 
-  return data.data.map((row) => {
-    const vals: Record<string, number> = {};
-    for (const v of row.values ?? []) {
-      if (v.name) vals[v.name] = parseFloat(v.value ?? "0");
-    }
-    return {
-      date: row.date ?? "",
-      shows: Math.round(vals.SHOWS ?? 0),
-      clicks: Math.round(vals.CLICKS ?? 0),
-      position: Math.round(vals.AVG_SHOW_POSITION ?? 0),
-    };
-  });
+  const byDate = new Map<string, { shows: number; clicks: number; position: number }>();
+  const put = (date: string, key: "shows" | "clicks" | "position", value: number) => {
+    const day = date.slice(0, 10);
+    const cur = byDate.get(day) ?? { shows: 0, clicks: 0, position: 0 };
+    cur[key] = value;
+    byDate.set(day, cur);
+  };
+  for (const p of data.indicators.TOTAL_SHOWS ?? []) put(p.date, "shows", Number(p.value));
+  for (const p of data.indicators.TOTAL_CLICKS ?? []) put(p.date, "clicks", Number(p.value));
+  for (const p of data.indicators.AVG_SHOW_POSITION ?? [])
+    put(p.date, "position", Number(p.value));
+
+  return [...byDate.entries()]
+    .map(([date, v]) => ({
+      date,
+      shows: Math.round(v.shows),
+      clicks: Math.round(v.clicks),
+      position: Math.round(v.position * 10) / 10,
+    }))
+    .sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
 /** Топ-запросы за период (для отчётов клиенту). */
@@ -82,32 +94,31 @@ export async function fetchTopQueries(
   from: string,
   to: string
 ): Promise<{ query: string; shows: number; clicks: number; position: number }[]> {
+  // Реальный эндпоинт v4: search-queries/popular (top-queries не существует).
   const params = new URLSearchParams({
+    order_by: "TOTAL_SHOWS",
     query_indicator: "TOTAL_SHOWS,TOTAL_CLICKS,AVG_SHOW_POSITION",
     date_from: from,
     date_to: to,
-    limit: "50",
-    order_by: "TOTAL_SHOWS",
-    order_direction: "DESCENDING",
+    limit: "10",
   });
   const data = (await yandexGet(
-    `${WB}/user/${userId}/hosts/${hostId}/top-queries?${params.toString()}`,
+    `${WB}/user/${userId}/hosts/${hostId}/search-queries/popular?${params.toString()}`,
     token
-  )) as { queries?: { query: string; indicators: { name?: string; value?: string }[] }[] } | null;
+  )) as {
+    queries?: {
+      query_text: string;
+      indicators?: Record<string, number>;
+    }[];
+  } | null;
   if (!data?.queries) return [];
 
-  return data.queries.map((q) => {
-    const vals: Record<string, number> = {};
-    for (const ind of q.indicators ?? []) {
-      if (ind.name) vals[ind.name] = parseFloat(ind.value ?? "0");
-    }
-    return {
-      query: q.query,
-      shows: Math.round(vals.SHOWS ?? 0),
-      clicks: Math.round(vals.CLICKS ?? 0),
-      position: Math.round(vals.AVG_SHOW_POSITION ?? 0),
-    };
-  });
+  return data.queries.map((q) => ({
+    query: q.query_text,
+    shows: Math.round(Number(q.indicators?.TOTAL_SHOWS ?? 0)),
+    clicks: Math.round(Number(q.indicators?.TOTAL_CLICKS ?? 0)),
+    position: Math.round(Number(q.indicators?.AVG_SHOW_POSITION ?? 0)),
+  }));
 }
 
 /** Позиции по введённым ключам (пункт A) — берём из top-queries Вебмастера. */

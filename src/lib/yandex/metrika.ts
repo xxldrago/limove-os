@@ -64,7 +64,7 @@ export async function fetchDailyStats(
     limit: "100000",
   });
 
-  const data = (await yandexGet(`${STAT}/bytime?${params.toString()}`, token)) as {
+  const data = (await yandexGet(`${STAT}/data/bytime?${params.toString()}`, token)) as {
     data?: { dimensions?: { id?: string; name?: string }[]; metrics: number[] }[];
   } | null;
   if (!data?.data) return [];
