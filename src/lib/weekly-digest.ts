@@ -50,7 +50,7 @@ export async function buildWeeklyDigestText(): Promise<string> {
     }
   }
 
-  const [invNew, invPaid, down, domains, vpns] = await Promise.all([
+  const [invNew, invPaid, down, domains, vpns, servers] = await Promise.all([
     prisma.invoice.count({ where: { status: "PENDING" } }),
     prisma.invoice.count({ where: { status: "PAID", paidDate: { gte: weekAgo } } }),
     prisma.siteMonitor.count({ where: { isActive: true, isError: true } }),
@@ -58,6 +58,7 @@ export async function buildWeeklyDigestText(): Promise<string> {
     prisma.vpnSubscription.count({
       where: { expiresAt: { lte: in7, gte: now }, status: "ACTIVE" },
     }),
+    prisma.server.count({ where: { paidUntil: { lte: in7, gte: now } } }),
   ]);
 
   const topCats = Object.entries(byCat)
@@ -81,8 +82,8 @@ export async function buildWeeklyDigestText(): Promise<string> {
   lines.push(
     `${down > 0 ? `🔴 Упавших сайтов: ${down}` : `🟢 Сайты в порядке`}`
   );
-  if (domains + vpns > 0) {
-    lines.push(`⏰ Истекает за 7 дней: доменов ${domains}, VPN ${vpns}`);
+  if (domains + vpns + servers > 0) {
+    lines.push(`⏰ Истекает за 7 дней: доменов ${domains}, VPN ${vpns}, серверов ${servers}`);
   }
   return lines.join("\n");
 }

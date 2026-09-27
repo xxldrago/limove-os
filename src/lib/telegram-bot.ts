@@ -112,8 +112,11 @@ async function buildExpiringMessage(): Promise<string> {
   const vpns = await prisma.vpnSubscription.findMany({
     where: { expiresAt: { lte: in7, gte: now }, status: "ACTIVE" },
   });
+  const servers = await prisma.server.findMany({
+    where: { paidUntil: { lte: in7, gte: now } },
+  });
 
-  if (domains.length === 0 && vpns.length === 0) {
+  if (domains.length === 0 && vpns.length === 0 && servers.length === 0) {
     return "✅ Ничего не истекает в ближайшие 7 дней";
   }
 
@@ -131,6 +134,13 @@ async function buildExpiringMessage(): Promise<string> {
     for (const v of vpns) {
       const days = Math.max(0, Math.ceil((v.expiresAt!.getTime() - now.getTime()) / 86400000));
       lines.push(`• ${v.provider} / ${v.clientName} — истекает через ${days} дн.`);
+    }
+  }
+  if (servers.length > 0) {
+    lines.push("", "🖥️ Серверы:");
+    for (const s of servers) {
+      const days = Math.max(0, Math.ceil((s.paidUntil!.getTime() - now.getTime()) / 86400000));
+      lines.push(`• ${s.name} (${s.ip}) — оплата до ${s.paidUntil!.toLocaleDateString("ru-RU")} (осталось ${days} дн.)`);
     }
   }
   return lines.join("\n");
@@ -402,7 +412,7 @@ function registerCommands(bot: Bot) {
         `/balance — баланс партнёров\n` +
         `/invoices — неоплаченные счета (оплата в 1 тап)\n` +
         `/tasks — открытые задачи\n` +
-        `/expiring — истекающие домены и VPN\n` +
+        `/expiring — истекает за 7 дней\n` +
         `/down — упавшие сайты\n` +
         `/help — список команд\n\n` +
         `А ещё понимаю текст: «потратил 500 такси», «получил 50000 проект»`
@@ -416,7 +426,7 @@ function registerCommands(bot: Bot) {
         `/balance — баланс партнёров (кто кому должен)\n` +
         `/invoices — неоплаченные счета с кнопкой оплаты\n` +
         `/tasks — открытые задачи с кнопкой «Готово»\n` +
-        `/expiring — домены и VPN, истекающие за 7 дней\n` +
+        `/expiring — домены, VPN и серверы (7 дней)\n` +
         `/down — сайты, которые сейчас упали\n` +
         `/help — список команд\n\n` +
         `Быстрые сообщения:\n` +
@@ -808,7 +818,7 @@ export async function getBotAsync(): Promise<Bot | null> {
           { command: "balance", description: "Баланс партнёров" },
           { command: "invoices", description: "Неоплаченные счета" },
           { command: "tasks", description: "Открытые задачи" },
-          { command: "expiring", description: "Истекающие домены и VPN" },
+          { command: "expiring", description: "Истекает за 7 дней" },
           { command: "down", description: "Упавшие сайты" },
           { command: "help", description: "Список команд" },
         ]);

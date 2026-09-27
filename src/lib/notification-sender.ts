@@ -38,6 +38,9 @@ export function formatNotification(n: {
     case "VPN":
       lines.push(`🔑 ${n.title}`);
       break;
+    case "SERVER":
+      lines.push(`🖥️ ${n.title}`);
+      break;
     case "TASK":
       lines.push(`📋 ${n.title}`);
       break;
@@ -192,6 +195,25 @@ export async function runDailyExpiryAlerts() {
         }
       }
       if (any) console.log("[telegram] daily: created vpn expiry alerts");
+    }
+
+    // Servers with payment expiring within 7 days.
+    const servers = await prisma.server.findMany({ where: { paidUntil: { not: null } } });
+    if (!(await alreadyNotifiedToday("SERVER"))) {
+      let any = false;
+      for (const s of servers) {
+        if (!s.paidUntil) continue;
+        const daysLeft = (s.paidUntil.getTime() - now.getTime()) / 86400000;
+        if (daysLeft >= 0 && daysLeft <= 7) {
+          await ensureNotification(
+            "SERVER",
+            `🖥️ Оплата сервера истекает: ${s.name}`,
+            `Продлите сервер ${s.name} (${s.ip}). Оплачен до ${s.paidUntil.toLocaleDateString("ru-RU")}.`
+          );
+          any = true;
+        }
+      }
+      if (any) console.log("[telegram] daily: created server expiry alerts");
     }
 
     // Overdue, not-done tasks.

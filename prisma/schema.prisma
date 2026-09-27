@@ -245,6 +245,23 @@ model VpnSubscription {
   @@map("vpn_subscriptions")
 }
 
+// ============ СЕРВЕРЫ (доступы + оплата) ============
+
+model Server {
+  id          Int       @id @default(autoincrement())
+  name        String // имя сервера
+  ip          String // IP-адрес
+  username    String    @default("root")
+  passwordEnc String? // AES-256-GCM через MASTER_KEY
+  registrar   String? // регистратор/хостер
+  paidUntil   DateTime? // до какого оплачен
+  notes       String? // примечание
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("servers")
+}
+
 // ============ ELEMENTX ============
 
 model ElementxUser {

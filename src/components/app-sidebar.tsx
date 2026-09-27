@@ -10,6 +10,7 @@ import {
   FileText,
   Shield,
   Boxes,
+  Server,
   Activity,
   Settings,
   LogOut,
@@ -38,6 +39,7 @@ const navItems = [
   { href: "/invoices", label: "Счета", icon: FileText },
   { href: "/vpn", label: "VPN", icon: Shield },
   { href: "/elementx", label: "ElementX", icon: Boxes },
+  { href: "/servers", label: "Серверы", icon: Server },
   { href: "/monitoring", label: "Мониторинг", icon: Activity },
   { href: "/settings", label: "Настройки", icon: Settings },
 ];

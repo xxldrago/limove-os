@@ -63,15 +63,21 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
     { value: "3m", label: "Квартал" },
   ];
 
+  const [authError, setAuthError] = useState("");
   // Диалог выбора счётчика/хоста для привязки к проекту
   const openYandexAuth = async (service: "METRIKA" | "WEBMASTER") => {
+    setAuthError("");
     try {
       const res = await fetch(`/api/yandex/connect?service=${service}&projectId=${projectId}`);
-      if (res.ok) {
-        const { url } = await res.json();
-        window.open(url, "_blank");
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) {
+        window.open(data.url, "_blank");
+      } else {
+        setAuthError(data.error || "Не удалось получить ссылку авторизации");
       }
-    } catch { /* ignore */ }
+    } catch {
+      setAuthError("Ошибка сети при запросе авторизации");
+    }
   };
   const [connectDlg, setConnectDlg] = useState<null | "METRIKA" | "WEBMASTER">(null);
   const [availableItems, setAvailableItems] = useState<{ tokenId: number; id: string; label: string }[]>([]);
@@ -80,6 +86,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
   const [binding, setBinding] = useState(false);
 
   const openConnect = async (service: "METRIKA" | "WEBMASTER") => {
+    setAuthError("");
     setConnectDlg(service);
     setPicked("");
     try {
@@ -301,6 +308,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
               <Button onClick={() => openYandexAuth(connectDlg!)} className="btn-block">
                 Авторизоваться в Яндексе
               </Button>
+              {authError && <p className="form-error">{authError}</p>}
             </div>
           ) : (
             <div className="stack-sm">
