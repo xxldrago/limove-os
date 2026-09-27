@@ -108,6 +108,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
   const doBind = async () => {
     if (!connectDlg || !picked) return;
     setBinding(true);
+    setAuthError("");
     const item = availableItems.find((i) => i.id === picked);
     try {
       const res = await fetch(`/api/projects/${slug}/analytics`, {
@@ -115,12 +116,15 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ service: connectDlg, tokenId: item?.tokenId, counterId: connectDlg === "METRIKA" ? Number(picked) : undefined, hostId: connectDlg === "WEBMASTER" ? picked : undefined }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setConnectDlg(null);
         load(range);
+      } else {
+        setAuthError(data.error || "Не удалось подключить");
       }
     } catch {
-      // ignore
+      setAuthError("Ошибка сети при подключении");
     }
     setBinding(false);
   };
@@ -370,6 +374,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
                 {binding && <Loader2 className="icon-xs" style={{ marginRight: 8 }} />}
                 Подключить
               </Button>
+              {authError && <p className="form-error">{authError}</p>}
             </div>
           )}
         </DialogContent>

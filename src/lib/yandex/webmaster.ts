@@ -16,12 +16,18 @@ export interface WbHost {
 /** Список хостов (сайтов) аккаунта Вебмастера. */
 export async function listHosts(token: string, userId: string): Promise<WbHost[]> {
   const data = (await yandexGet(`${WB}/user/${userId}/hosts`, token)) as {
-    hosts?: { host_id: string; host_url: string; verified: boolean; ascii_host_url: string }[];
+    hosts?: {
+      host_id: string;
+      ascii_host_url: string;
+      unicode_host_url?: string;
+      verified: boolean;
+    }[];
   } | null;
   if (!data?.hosts) return [];
   return data.hosts.map((h) => ({
     hostId: h.host_id,
-    hostUrl: h.host_url,
+    // В API v4 нет поля host_url — только ascii_host_url и unicode_host_url.
+    hostUrl: h.unicode_host_url || h.ascii_host_url,
     verified: h.verified,
     asciiHostUrl: h.ascii_host_url,
   }));
