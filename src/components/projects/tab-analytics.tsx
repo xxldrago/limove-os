@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -64,6 +65,8 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
   ];
 
   const [authError, setAuthError] = useState("");
+  const [authCode, setAuthCode] = useState("");
+  const [confirming, setConfirming] = useState(false);
   // Диалог выбора счётчика/хоста для привязки к проекту
   const openYandexAuth = async (service: "METRIKA" | "WEBMASTER") => {
     setAuthError("");
@@ -303,10 +306,48 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
           {needOAuth ? (
             <div className="stack-sm">
               <p className="page-sub">
-                Нужно сначала авторизоваться в Яндексе. Откроется окно — разрешите доступ, затем вернитесь сюда.
+                Нужно сначала авторизоваться в Яндексе. Откроется страница с кодом — разрешите доступ, скопируйте код и вставьте ниже.
               </p>
               <Button onClick={() => openYandexAuth(connectDlg!)} className="btn-block">
-                Авторизоваться в Яндексе
+                Получить код в Яндексе
+              </Button>
+              <div className="form-row">
+                <Label>Код с страницы Яндекса</Label>
+                <Input
+                  value={authCode}
+                  onChange={(e) => setAuthCode(e.target.value)}
+                  placeholder="Вставьте код…"
+                />
+              </div>
+              <Button
+                onClick={async () => {
+                  if (!connectDlg || !authCode.trim()) return;
+                  setConfirming(true);
+                  setAuthError("");
+                  try {
+                    const res = await fetch("/api/yandex/token", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ code: authCode.trim(), service: connectDlg }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) {
+                      setAuthCode("");
+                      await openConnect(connectDlg);
+                    } else {
+                      setAuthError(data.error || "Не удалось подтвердить код");
+                    }
+                  } catch {
+                    setAuthError("Ошибка сети при подтверждении кода");
+                  } finally {
+                    setConfirming(false);
+                  }
+                }}
+                disabled={!authCode.trim() || confirming}
+                className="btn-block"
+              >
+                {confirming && <Loader2 className="icon-xs" style={{ marginRight: 8 }} />}
+                Подтвердить код
               </Button>
               {authError && <p className="form-error">{authError}</p>}
             </div>

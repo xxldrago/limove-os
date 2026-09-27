@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { encrypt } from "@/lib/crypto";
-import { exchangeCode } from "@/lib/yandex/oauth";
+import { saveYandexTokenFromCode } from "@/lib/yandex/tokens";
 
 /**
  * GET /api/yandex/callback?code=...&state=...
@@ -30,15 +28,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const tokenData = await exchangeCode(code);
-    await prisma.yandexToken.create({
-      data: {
-        service: service === "WEBMASTER" ? "WEBMASTER" : "METRIKA",
-        accessToken: encrypt(tokenData.access_token),
-        refreshToken: tokenData.refresh_token ? encrypt(tokenData.refresh_token) : null,
-        expiresAt: tokenData.expires_in ? new Date(Date.now() + tokenData.expires_in * 1000) : null,
-      },
-    });
+    await saveYandexTokenFromCode(code, service);
     return NextResponse.redirect(new URL(`/connect?status=ok&service=${service ?? "METRIKA"}&projectId=${projectId ?? ""}`, req.url));
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
