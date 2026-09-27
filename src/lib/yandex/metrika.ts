@@ -53,8 +53,9 @@ export async function fetchDailyStats(
   ];
   for (const g of goalIds) metrics.push(`ym:s:goal${g}Reaches`);
 
+  // Stat API требует ids (мн. число); dimensions ym:s:date отдаёт дату в name.
   const params = new URLSearchParams({
-    id: String(counterId),
+    ids: String(counterId),
     metrics: metrics.join(","),
     dimensions: "ym:s:date",
     date1: from,
@@ -79,13 +80,15 @@ export async function fetchDailyStats(
       goalIds.length > 0 && goalIndex >= 0
         ? m.slice(5).reduce((a: number, b: number) => a + (b as number), 0)
         : 0;
+    if (!date || !Array.isArray(m) || m.length === 0) continue;
+    const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
     out.push({
       date,
-      visits: Math.round(m[0]),
-      users: Math.round(m[1]),
-      pageviews: Math.round(m[2]),
-      bounces: Math.round(m[3]),
-      avgSec: Math.round(m[4]),
+      visits: Math.round(num(m[0])),
+      users: Math.round(num(m[1])),
+      pageviews: Math.round(num(m[2])),
+      bounces: Math.round(num(m[3])),
+      avgSec: Math.round(num(m[4])),
       goalReaches,
     });
   }

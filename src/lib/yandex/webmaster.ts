@@ -52,10 +52,12 @@ export async function fetchQueryStats(
   // query_indicator можно повторять; URLSearchParams соберёт их через запятую —
   // API принимает и такой формат.
   const params = new URLSearchParams({
-    query_indicator: "TOTAL_SHOWS,TOTAL_CLICKS,AVG_SHOW_POSITION",
     date_from: from,
     date_to: to,
   });
+  for (const ind of ["TOTAL_SHOWS", "TOTAL_CLICKS", "AVG_SHOW_POSITION"]) {
+    params.append("query_indicator", ind);
+  }
   const data = (await yandexGet(
     `${WB}/user/${userId}/hosts/${hostId}/search-queries/all/history?${params.toString()}`,
     token
@@ -95,13 +97,16 @@ export async function fetchTopQueries(
   to: string
 ): Promise<{ query: string; shows: number; clicks: number; position: number }[]> {
   // Реальный эндпоинт v4: search-queries/popular (top-queries не существует).
+  // query_indicator передаётся повторяющимся параметром, запятая не валидна.
   const params = new URLSearchParams({
     order_by: "TOTAL_SHOWS",
-    query_indicator: "TOTAL_SHOWS,TOTAL_CLICKS,AVG_SHOW_POSITION",
     date_from: from,
     date_to: to,
     limit: "10",
   });
+  for (const ind of ["TOTAL_SHOWS", "TOTAL_CLICKS", "AVG_SHOW_POSITION"]) {
+    params.append("query_indicator", ind);
+  }
   const data = (await yandexGet(
     `${WB}/user/${userId}/hosts/${hostId}/search-queries/popular?${params.toString()}`,
     token
