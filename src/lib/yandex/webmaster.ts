@@ -35,8 +35,9 @@ export async function listHosts(token: string, userId: string): Promise<WbHost[]
 
 // Получить user_id из токена: POST https://api.webmaster.yandex.net/v4/user/
 export async function getUserId(token: string): Promise<string> {
-  const data = (await yandexGet(`${WB}/user/`, token, 2)) as { user_id?: string } | null;
-  return data?.user_id ?? "";
+  const data = (await yandexGet(`${WB}/user/`, token, 2)) as { user_id?: string | number } | null;
+  // API отдаёт user_id числом (int64), в БД храним строкой.
+  return String(data?.user_id ?? "");
 }
 
 /** Статистика поисковых запросов за период (по дням). */
