@@ -51,7 +51,7 @@ export async function fetchDailyStats(
     "ym:s:bounces",
     "ym:s:avgVisitDurationSeconds",
   ];
-  for (const g of goalIds) metrics.push(`ym:s:goal${g}Reaches`);
+  for (const g of goalIds) metrics.push(`ym:s:goal${g}reaches`);
 
   // Обычный табличный /data (НЕ bytime): у bytime metrics — массивы массивов,
   // а top_keys по умолчанию режет до 7 строк. Здесь metrics плоские числа.
@@ -149,6 +149,17 @@ export async function getMetricData(
 ): Promise<DayStat[]> {
   const token = await getDecryptedToken(tokenId);
   if (!token) throw new Error("Yandex токен не найден");
+
+  // Цели не передали — подтянем сами, иначе конверсии всегда 0.
+  // Лимит API — 20 метрик, базовых 5, значит целей берём не больше 10.
+  if (goalIds.length === 0) {
+    try {
+      const goals = await listGoals(token, counterId);
+      goalIds = goals.map((g) => g.id).slice(0, 10);
+    } catch {
+      goalIds = [];
+    }
+  }
 
   // Проверим, есть ли свежие снимки за запрошенный период.
   const fromD = new Date(from);
