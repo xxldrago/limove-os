@@ -126,7 +126,7 @@ async function buildExpiringMessage(): Promise<string> {
     for (const d of domains) {
       const days = Math.max(0, Math.ceil((d.expiresAt.getTime() - now.getTime()) / 86400000));
       const proj = d.project?.name ? ` (${d.project.name})` : "";
-      lines.push(`• ${d.value}${proj} — истекает через ${days} дн.`);
+      lines.push(`• ${d.name || d.value}${proj} — истекает через ${days} дн.`);
     }
   }
   if (vpns.length > 0) {

@@ -167,10 +167,11 @@ export async function runDailyExpiryAlerts() {
       for (const d of domains) {
         const daysLeft = (d.expiresAt.getTime() - now.getTime()) / 86400000;
         if (daysLeft >= 0 && daysLeft <= d.reminderDays) {
+          const label = d.name || d.value;
           await ensureNotification(
             "DOMAIN",
-            `🌐 Домен истекает: ${d.value}`,
-            `Продлите домен ${d.value}${d.project?.name ? ` (${d.project.name})` : ""}. Истекает ${d.expiresAt.toLocaleDateString("ru-RU")}.`
+            `🌐 ${label} — истекает ${d.expiresAt.toLocaleDateString("ru-RU")}`,
+            `${label} (${d.value})${d.project?.name ? `, проект ${d.project.name}` : ""}. Продлите до ${d.expiresAt.toLocaleDateString("ru-RU")}.`
           );
           any = true;
         }
