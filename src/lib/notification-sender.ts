@@ -141,6 +141,14 @@ async function alreadyNotifiedToday(type: string): Promise<boolean> {
   return count > 0;
 }
 
+/** «16 дней», «1 день», «3 дня» — как в карточках проектов. */
+function daysWord(n: number): string {
+  const d = Math.max(0, Math.ceil(n));
+  const m10 = d % 10, m100 = d % 100;
+  const w = m10 === 1 && m100 !== 11 ? "день" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "дня" : "дней";
+  return `${d} ${w}`;
+}
+
 async function ensureNotification(type: string, title: string, content: string) {
   // Dedupe by exact (type, title, content-is-today) best-effort within the day.
   const start = startOfTodayUtc();
@@ -170,8 +178,8 @@ export async function runDailyExpiryAlerts() {
           const label = d.name || d.value;
           await ensureNotification(
             "DOMAIN",
-            `🌐 ${label} — истекает ${d.expiresAt.toLocaleDateString("ru-RU")}`,
-            `${label} (${d.value})${d.project?.name ? `, проект ${d.project.name}` : ""}. Продлите до ${d.expiresAt.toLocaleDateString("ru-RU")}.`
+            `🌐 ${label} истекает через ${daysWord(daysLeft)}`,
+            `${label}${d.project?.name ? ` (${d.project.name})` : ""} — продлить до ${d.expiresAt.toLocaleDateString("ru-RU")}.`
           );
           any = true;
         }
@@ -189,8 +197,8 @@ export async function runDailyExpiryAlerts() {
         if (daysLeft >= 0 && daysLeft <= 7) {
           await ensureNotification(
             "VPN",
-            `🔑 VPN истекает: ${v.provider} / ${v.clientName}`,
-            `Продлите подписку ${v.provider}. Истекает ${v.expiresAt.toLocaleDateString("ru-RU")}.`
+            `🔑 ${v.provider} / ${v.clientName} истекает через ${daysWord(daysLeft)}`,
+            `${v.provider} / ${v.clientName} — продлить до ${v.expiresAt.toLocaleDateString("ru-RU")}.`
           );
           any = true;
         }
@@ -208,8 +216,8 @@ export async function runDailyExpiryAlerts() {
         if (daysLeft >= 0 && daysLeft <= 7) {
           await ensureNotification(
             "SERVER",
-            `🖥️ Оплата сервера истекает: ${s.name}`,
-            `Продлите сервер ${s.name} (${s.ip}). Оплачен до ${s.paidUntil.toLocaleDateString("ru-RU")}.`
+            `🖥️ ${s.name} истекает через ${daysWord(daysLeft)}`,
+            `${s.name} — продлить до ${s.paidUntil.toLocaleDateString("ru-RU")}.`
           );
           any = true;
         }

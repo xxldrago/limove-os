@@ -30,6 +30,14 @@ async function currentMonthRange() {
   return { start, end, now };
 }
 
+/** «16 дней», «1 день», «3 дня» — как в карточках проектов. */
+export function daysWord(n: number): string {
+  const d = Math.max(0, Math.ceil(n));
+  const m10 = d % 10, m100 = d % 100;
+  const w = m10 === 1 && m100 !== 11 ? "день" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "дня" : "дней";
+  return `${d} ${w}`;
+}
+
 function formatDurationMs(ms: number): string {
   const minutes = Math.max(1, Math.round(ms / 60000));
   if (minutes < 60) return `${minutes} мин`;
@@ -126,21 +134,21 @@ async function buildExpiringMessage(): Promise<string> {
     for (const d of domains) {
       const days = Math.max(0, Math.ceil((d.expiresAt.getTime() - now.getTime()) / 86400000));
       const proj = d.project?.name ? ` (${d.project.name})` : "";
-      lines.push(`• ${d.name || d.value}${proj} — истекает через ${days} дн.`);
+      lines.push(`• ${d.name || d.value}${proj} истекает через ${daysWord(days)}`);
     }
   }
   if (vpns.length > 0) {
     lines.push("", "🔑 VPN:");
     for (const v of vpns) {
       const days = Math.max(0, Math.ceil((v.expiresAt!.getTime() - now.getTime()) / 86400000));
-      lines.push(`• ${v.provider} / ${v.clientName} — истекает через ${days} дн.`);
+      lines.push(`• ${v.provider} / ${v.clientName} истекает через ${daysWord(days)}`);
     }
   }
   if (servers.length > 0) {
     lines.push("", "🖥️ Серверы:");
     for (const s of servers) {
       const days = Math.max(0, Math.ceil((s.paidUntil!.getTime() - now.getTime()) / 86400000));
-      lines.push(`• ${s.name} (${s.ip}) — оплата до ${s.paidUntil!.toLocaleDateString("ru-RU")} (осталось ${days} дн.)`);
+      lines.push(`• ${s.name} истекает через ${daysWord(days)}`);
     }
   }
   return lines.join("\n");
