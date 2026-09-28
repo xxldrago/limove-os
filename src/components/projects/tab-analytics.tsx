@@ -281,7 +281,7 @@ export function AnalyticsTab({ projectId, slug }: AnalyticsTabProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topQueries.slice(0, 15).map((q: any, i: number) => (
+                  {topQueries.slice(0, 20).map((q: any, i: number) => (
                     <TableRow key={i}>
                       <TableCell className="cell-strong">{q.query}</TableCell>
                       <TableCell className="number-cell">{q.shows.toLocaleString("ru-RU")}</TableCell>

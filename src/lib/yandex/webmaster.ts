@@ -102,7 +102,7 @@ export async function fetchTopQueries(
     order_by: "TOTAL_SHOWS",
     date_from: from,
     date_to: to,
-    limit: "10",
+    limit: "20",
   });
   for (const ind of ["TOTAL_SHOWS", "TOTAL_CLICKS", "AVG_SHOW_POSITION"]) {
     params.append("query_indicator", ind);

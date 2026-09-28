@@ -54,13 +54,14 @@ export async function fetchDailyStats(
   for (const g of goalIds) metrics.push(`ym:s:goal${g}Reaches`);
 
   // Stat API требует ids (мн. число); dimensions ym:s:date отдаёт дату в name.
+  // БЕЗ group=day: с ним metrics приходят вложенными массивами.
   const params = new URLSearchParams({
     ids: String(counterId),
     metrics: metrics.join(","),
     dimensions: "ym:s:date",
     date1: from,
     date2: to,
-    group: "day",
+    sort: "ym:s:date",
     accuracy: "full",
     limit: "100000",
   });
