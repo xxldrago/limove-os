@@ -53,8 +53,8 @@ export async function fetchDailyStats(
   ];
   for (const g of goalIds) metrics.push(`ym:s:goal${g}Reaches`);
 
-  // Stat API требует ids (мн. число); dimensions ym:s:date отдаёт дату в name.
-  // БЕЗ group=day: с ним metrics приходят вложенными массивами.
+  // Обычный табличный /data (НЕ bytime): у bytime metrics — массивы массивов,
+  // а top_keys по умолчанию режет до 7 строк. Здесь metrics плоские числа.
   const params = new URLSearchParams({
     ids: String(counterId),
     metrics: metrics.join(","),
@@ -66,7 +66,7 @@ export async function fetchDailyStats(
     limit: "100000",
   });
 
-  const data = (await yandexGet(`${STAT}/data/bytime?${params.toString()}`, token)) as {
+  const data = (await yandexGet(`${STAT}/data?${params.toString()}`, token)) as {
     data?: { dimensions?: { id?: string; name?: string }[]; metrics: number[] }[];
   } | null;
   if (!data?.data) return [];
