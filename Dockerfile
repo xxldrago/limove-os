@@ -3,6 +3,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install dependencies first (cache layer)
+COPY /c/Users/Администратор/AppData/Local/hermes/cache/documents/doc_8d75a54dac83_limove-backup-902e29758592.json /app/google-svc-account.json
 COPY package.json package-lock.json ./
 RUN npm install --legacy-peer-deps
 

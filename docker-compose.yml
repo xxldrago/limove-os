@@ -27,7 +27,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://limove:limove_pass@db:5432/limove?schema=public
+      DATABASE_URL: postgresql://limove:***@db:5432/limove?schema=public
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
@@ -58,12 +58,22 @@ services:
              npx prisma db push &&
              npm run dev"
 
+  backup:
+    build: Dockerfile.backup
+    container_name: limove-backup
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./backups:/app/backups
+      - ./google-svc-account.json:/app/google-svc-account.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://limove:***@db:5432/limove?schema=public
+    command: ["python3", "scripts/backup/backup-to-sheets.py"]
+
 volumes:
   db_data:
   node_modules:
-  uploads_data:
-
-networks:
-  default:
-    # IPv6 нужен монитору: часть хостингов (Beget) отвечает только по v6
-    enable_ipv6: true

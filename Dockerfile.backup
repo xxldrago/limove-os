@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir \
+    gspread \
+    google-auth \
+    google-auth-httplib2 \
+    google-api-python-client \
+    psycopg2-binary
+
+COPY scripts/ /app/scripts/
+
+CMD ["python3", "scripts/backup/backup-to-sheets.py"]
