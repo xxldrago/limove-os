@@ -71,45 +71,63 @@ export async function checkSite(site: SiteCheckInput) {
   const latencyMs = Date.now() - start;
   const now = new Date();
 
-  // Re-read current DB state to prevent duplicate notifications
-  const current = await prisma.siteMonitor.findUnique({ where: { id: site.id } });
-  const wasDown = current?.isError ?? false;
-  let isError = !ok;
-  let downSince = current?.downSince ?? site.downSince;
-
+  // Aтомарная смена статуса через updateMany: только один вызов
+  // из конкурентных получит count=1 — остальные count=0 и не дублируют уведомление.
   let notification: { title: string; content: string } | null = null;
+  let finalDownSince = site.downSince;
 
   if (ok) {
-    if (wasDown) {
+    // Восстановление: меняем isError=true → false
+    const res = await prisma.siteMonitor.updateMany({
+      where: { id: site.id, isError: true },
+      data: {
+        lastStatus: statusCode,
+        lastLatency: latencyMs,
+        isError: false,
+        downSince: null,
+        checkedAt: now,
+      },
+    });
+    if (res.count === 1) {
       const downMs = site.downSince ? now.getTime() - site.downSince.getTime() : 0;
       notification = {
         title: "Сайт восстановлен",
         content: `🟢 Сайт ВОССТАНОВЛЕН: ${site.name} (${site.url})\nБыл в дауне: ${formatDownDuration(downMs)}`,
       };
+    } else {
+      // Кто-то другой уже обнулil isError (или он уже был false) — просто обновляем метрики
+      await prisma.siteMonitor.update({
+        where: { id: site.id },
+        data: { lastStatus: statusCode, lastLatency: latencyMs, checkedAt: now },
+      });
     }
-    isError = false;
-    downSince = null;
+    finalDownSince = null;
   } else {
-    if (!wasDown) {
-      downSince = now;
+    // Падение: меняем isError=false → true
+    const res = await prisma.siteMonitor.updateMany({
+      where: { id: site.id, isError: false },
+      data: {
+        lastStatus: statusCode,
+        lastLatency: latencyMs,
+        isError: true,
+        downSince: now,
+        checkedAt: now,
+      },
+    });
+    if (res.count === 1) {
+      finalDownSince = now;
       notification = {
         title: "Сайт упал",
         content: `🔴 Сайт УПАЛ: ${site.name} (${site.url})\nКод ответа: ${statusCode ?? "-"}\nОшибка: ${errorMsg || "-"}\nВремя: ${now.toLocaleString("ru-RU")}`,
       };
+    } else {
+      // Уже в дауне — просто обновляем метрики, не пересоздаём downSince
+      await prisma.siteMonitor.update({
+        where: { id: site.id },
+        data: { lastStatus: statusCode, lastLatency: latencyMs, checkedAt: now },
+      });
     }
   }
-
-  // Persist state + new check + optional notification
-  await prisma.siteMonitor.update({
-    where: { id: site.id },
-    data: {
-      lastStatus: statusCode,
-      lastLatency: latencyMs,
-      isError,
-      downSince,
-      checkedAt: now,
-    },
-  });
 
   await prisma.siteCheck.create({
     data: {
