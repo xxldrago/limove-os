@@ -94,8 +94,14 @@ export function computePartnerBalance(
   let debt = (genaPosition - leshaPosition) / 2;
 
   if (settledAmount > 0) {
-    const magnitude = Math.max(0, Math.abs(debt) - settledAmount);
-    debt = debt < 0 ? -magnitude : magnitude;
+    const netDebt = Math.abs(debt) - settledAmount;
+    if (netDebt > 0) {
+      // Есть остаток долга
+      debt = debt < 0 ? -netDebt : netDebt;
+    } else {
+      // Переплата — долг изменил направление
+      debt = debt < 0 ? Math.abs(netDebt) : -Math.abs(netDebt);
+    }
   }
 
   return {
