@@ -439,3 +439,13 @@ model ActOfWorks {
   @@unique([projectId, month])
   @@map("acts_of_works")
 }
+
+// ============ APP SETTINGS (переживают редеплои; .env остаётся фолбэком) ============
+
+model AppSetting {
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}

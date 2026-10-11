@@ -1,4 +1,4 @@
-import { getBotAsync, telegramEnabled } from "@/lib/telegram-bot";
+import { getBotAsync } from "@/lib/telegram-bot";
 import { startNotificationServices } from "@/lib/notification-sender";
 
 // Guard against multiple starts on dev hot-reload / module re-eval.
@@ -9,26 +9,22 @@ export function initTelegram() {
   if (process.env.NEXT_PHASE === "phase-production-build") return;
   g.__tgStarted = true;
 
-  if (!telegramEnabled) {
-    console.warn("[telegram] TELEGRAM_BOT_TOKEN not set — bot disabled.");
-    return;
-  }
-
   (async () => {
     try {
       const bot = await getBotAsync();
       if (!bot) {
-        console.warn("[telegram] no bot instance (token empty) — disabled.");
+        console.warn("[telegram] token not set — bot disabled.");
         return;
       }
-      await bot.start();
-      console.log("[telegram] Telegram bot started");
+      const me = await bot.api.getMe().catch(() => null);
+      void bot.start().catch((e) => console.error("[telegram] polling stopped with error:", e));
+      console.log("[telegram] bot polling as @" + ((me && me.username) || "unknown"));
     } catch (e) {
       console.error("[telegram] failed to start bot:", e);
     }
   })();
 
-  // Notification sender + daily expiry cron (30s loop + daily).
+  // Notification sender + daily expiry cron (no-op until a bot exists).
   startNotificationServices();
 }
 

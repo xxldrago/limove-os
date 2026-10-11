@@ -11,7 +11,29 @@ import { markInvoicePaid, createInvoice, attachReceiptFile } from "@/lib/invoice
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
 /** True when a valid token is configured so the bot may start. */
-export const telegramEnabled = TELEGRAM_BOT_TOKEN.trim().length > 0;
+/**
+ * True when a valid token is configured so the bot may start.
+ * Live flag: refreshed at boot and on token save, so every check in code
+ * observes the current value (token from DB wins over env).
+ */
+export let telegramEnabled = TELEGRAM_BOT_TOKEN.trim().length > 0;
+
+const SETTING_TOKEN_KEY = "telegram_bot_token";
+let _dbTokenCache: string | undefined;
+
+/** Effective token: memory cache, then DB (saved via settings UI), then env. */
+export async function getEffectiveToken(): Promise<string> {
+  if (_dbTokenCache !== undefined) return _dbTokenCache;
+  try {
+    const row = await prisma.appSetting.findUnique({ where: { key: SETTING_TOKEN_KEY } });
+    _dbTokenCache = (row?.value || "").trim();
+  } catch {
+    _dbTokenCache = "";
+  }
+  if (!_dbTokenCache) _dbTokenCache = TELEGRAM_BOT_TOKEN.trim();
+  telegramEnabled = _dbTokenCache.length > 0;
+  return _dbTokenCache;
+}
 
 const RUB = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 });
 
@@ -814,11 +836,12 @@ let _botPromise: Promise<Bot> | null = null;
 
 /** Async access to the singleton bot instance, or null when disabled. */
 export async function getBotAsync(): Promise<Bot | null> {
-  if (!telegramEnabled) return null;
+  const token = await getEffectiveToken();
+  if (!token) return null;
   if (_bot) return _bot;
   if (!_botPromise) {
     _botPromise = (async () => {
-      const bot = new Bot(TELEGRAM_BOT_TOKEN);
+      const bot = new Bot(token);
       registerCommands(bot);
       try {
         await bot.api.setMyCommands([
@@ -838,4 +861,32 @@ export async function getBotAsync(): Promise<Bot | null> {
     })();
   }
   return _botPromise;
+}
+/**
+ * Persist a new bot token (DB) and hot-restart the singleton bot instance —
+ * no redeploy needed. Throws when the bot fails to start.
+ */
+export async function setBotToken(token: string): Promise<Bot> {
+  const clean = (token || "").trim();
+  if (!clean) throw new Error("Empty token");
+  await prisma.appSetting.upsert({
+    where: { key: SETTING_TOKEN_KEY },
+    create: { key: SETTING_TOKEN_KEY, value: clean },
+    update: { value: clean },
+  });
+  _dbTokenCache = clean;
+  telegramEnabled = true;
+  if (_bot) {
+    try {
+      await _bot.stop();
+    } catch {
+      // Already stopped — safe to recreate.
+    }
+  }
+  _bot = null;
+  _botPromise = null;
+  const bot = await getBotAsync();
+  if (!bot) throw new Error("Bot did not start");
+  await bot.start();
+  return bot;
 }
