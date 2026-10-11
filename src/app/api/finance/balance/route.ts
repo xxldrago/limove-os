@@ -26,10 +26,16 @@ export async function GET(req: NextRequest) {
   const start = new Date(year, mon - 1, 1);
   const end = new Date(year, mon, 0, 23, 59, 59, 999);
 
-  const [transactions, users] = await Promise.all([
+  const [monthTxs, allTxs, users] = await Promise.all([
+    // Статистика месяца — только для витрины (приход/расход/доли).
     prisma.transaction.findMany({
       where: { date: { gte: start, lte: end } },
       select: { type: true, amount: true, paidById: true },
+    }),
+    // Долг — СКВОЗНОЙ: все операции за всё время, в хронологическом порядке.
+    prisma.transaction.findMany({
+      select: { type: true, amount: true, paidById: true, date: true, id: true },
+      orderBy: [{ date: "asc" }, { id: "asc" }],
     }),
     prisma.user.findMany({
       where: { id: { in: [LESHA_ID, GENA_ID] } },
@@ -37,42 +43,44 @@ export async function GET(req: NextRequest) {
     }),
   ]);
 
-  const b = computePartnerBalance(transactions, LESHA_ID, GENA_ID);
+  const m = computePartnerBalance(monthTxs, LESHA_ID, GENA_ID);
+  const cumulative = computePartnerBalance(allTxs, LESHA_ID, GENA_ID);
 
   const nameOf = (id: number, fallback: string) =>
     users.find((u) => u.id === id)?.name ?? fallback;
   const leshaName = nameOf(LESHA_ID, "Лёша");
   const genaName = nameOf(GENA_ID, "Гена");
 
-  const debtor = b.debt > 0 ? leshaName : genaName;
-  const creditor = b.debt > 0 ? genaName : leshaName;
+  // Долг не зависит от выбранного месяца.
+  const debtor = cumulative.debt > 0 ? leshaName : genaName;
+  const creditor = cumulative.debt > 0 ? genaName : leshaName;
 
   return NextResponse.json({
     month: `${year}-${String(mon).padStart(2, "0")}`,
-    totalIncome: b.totalIncome,
-    totalExpenses: b.totalExpenses,
-    profit: b.profit,
-    settled: b.settledAmount > 0,
-    settledAmount: b.settledAmount,
-    debt: Math.abs(b.debt),
+    totalIncome: m.totalIncome,
+    totalExpenses: m.totalExpenses,
+    profit: m.profit,
+    settled: m.settledAmount > 0,
+    settledAmount: m.settledAmount,
+    debt: Math.abs(cumulative.debt),
     debtor,
     creditor,
     partners: {
       lesha: {
         name: leshaName,
-        share: b.lesha.share,
-        spent: b.lesha.spent,
-        received: b.lesha.received,
-        net: b.lesha.net,
-        balance: b.lesha.net,
+        share: m.lesha.share,
+        spent: m.lesha.spent,
+        received: m.lesha.received,
+        net: m.lesha.net,
+        balance: m.lesha.net,
       },
       gena: {
         name: genaName,
-        share: b.gena.share,
-        spent: b.gena.spent,
-        received: b.gena.received,
-        net: b.gena.net,
-        balance: b.gena.net,
+        share: m.gena.share,
+        spent: m.gena.spent,
+        received: m.gena.received,
+        net: m.gena.net,
+        balance: m.gena.net,
       },
     },
   });

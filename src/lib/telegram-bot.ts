@@ -87,10 +87,10 @@ async function buildStatusMessage(): Promise<string> {
 }
 
 async function buildBalanceMessage(): Promise<string> {
-  const { start, end } = await currentMonthRange();
+  // Долг сквозной: все операции за всё время, без среза по месяцу.
   const tx = await prisma.transaction.findMany({
-    where: { date: { gte: start, lt: end } },
-    select: { type: true, amount: true, paidById: true },
+    select: { type: true, amount: true, paidById: true, date: true, id: true },
+    orderBy: [{ date: "asc" }, { id: "asc" }],
   });
 
   // Та же модель, что в панели (computePartnerBalance): доли 50/50 от

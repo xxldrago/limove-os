@@ -10,18 +10,21 @@ import {
 
 /**
  * POST /api/finance/settle-debts
- * Гашение долгов между партнёрами за месяц.
+ * Гашение СКВОЗНОГО долга между партнёрами (долг не привязан к месяцу:
+ * копится по всем операциям, пока не погашен полностью).
  *
  * Body:
- *   { month?: "YYYY-MM", mode?: "full" | "partial" | "skip",
+ *   { mode?: "full" | "partial" | "skip",
  *     person?: "lesha" | "gena", amount?: number }
  *
- * - full    — погасить весь текущий долг (DEBT_SETTLEMENT на всю сумму)
+ * - full    — погасить весь текущий сквозной долг (DEBT_SETTLEMENT на всю сумму)
  * - partial — частичное погашение: person = кто получил деньги (кредитор),
  *             amount = сколько получил; долг уменьшается на эту сумму
  * - skip    — ничего не делать
  *
- * Записи DEBT_SETTLEMENT не влияют на приход/расход и в балансе уменьшают долг.
+ * Запись DEBT_SETTLEMENT датируется моментом погашения и в сквозном расчёте
+ * обнуляет (full) или уменьшает (partial) накопленный долг. На приход/расход
+ * не влияет.
  */
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -30,7 +33,6 @@ export async function POST(req: NextRequest) {
   }
 
   let body: {
-    month?: string;
     mode?: "full" | "partial" | "skip";
     person?: "lesha" | "gena";
     amount?: number;
@@ -43,28 +45,15 @@ export async function POST(req: NextRequest) {
 
   const mode = body.mode ?? "full";
 
-  let year: number;
-  let mon: number;
-  if (body.month && /^\d{4}-\d{1,2}$/.test(body.month)) {
-    [year, mon] = body.month.split("-").map(Number);
-  } else {
-    const now = new Date();
-    year = now.getFullYear();
-    mon = now.getMonth() + 1;
-  }
-
-  const start = new Date(year, mon - 1, 1);
-  const end = new Date(year, mon, 0, 23, 59, 59, 999);
-  const monthKey = `${year}-${String(mon).padStart(2, "0")}`;
-
   if (mode === "skip") {
-    return NextResponse.json({ skipped: true, settled: false, month: monthKey });
+    return NextResponse.json({ skipped: true, settled: false });
   }
 
+  // Сквозной остаток — по ВСЕМ операциям за всё время.
   const [transactions, users] = await Promise.all([
     prisma.transaction.findMany({
-      where: { date: { gte: start, lte: end } },
-      select: { type: true, amount: true, paidById: true },
+      select: { type: true, amount: true, paidById: true, date: true, id: true },
+      orderBy: [{ date: "asc" }, { id: "asc" }],
     }),
     prisma.user.findMany({
       where: { id: { in: [LESHA_ID, GENA_ID] } },
@@ -77,6 +66,9 @@ export async function POST(req: NextRequest) {
     users.find((u) => u.id === id)?.name ?? fallback;
   const leshaName = nameOf(LESHA_ID, "Лёша");
   const genaName = nameOf(GENA_ID, "Гена");
+
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   const outstanding = Math.abs(b.debt);
   if (outstanding < 0.01) {
@@ -120,7 +112,7 @@ export async function POST(req: NextRequest) {
           : `Погашение долга: ${debtor} → ${creditor}`,
       paidById: placeholderId, // в истории партнёр отображается как «—»
       category: "Расчёт",
-      date: new Date(year, mon - 1, Math.min(new Date().getDate(), end.getDate())),
+      date: now,
     },
   });
 

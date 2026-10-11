@@ -1,19 +1,26 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from '@/lib/prisma';
 
 /**
  * Единая модель партнёрского баланса.
  *
- * Логика: каждый партнёр имеет долю прибыли (profit / 2). Сравниваем её с его
- * фактической позицией (получил − потратил). Кто держит больше своей доли —
- * тот должен второму разницу.
+ * Все деньги делятся 50/50. Долг — СКВОЗНОЙ, без привязки к месяцу:
+ * копится по всем операциям за всё время, пока не погашен.
+ * Погашение (DEBT_SETTLEMENT) уменьшает текущий долг; после полного
+ * погашения накопление начинается с нуля.
  *
+ * Знак долга:
  *   debt > 0  → Лёша должен Гене
  *   debt < 0  → Гена должен Лёше
  *
- * Погашения (DEBT_SETTLEMENT) уменьшают величину долга, не влияя на приход/расход.
+ * Погашения (DEBT_SETTLEMENT) не влияют на приход/расход.
+ *
+ * ВАЖНО: чтобы долг считался сквозным, сюда нужно передавать ВСЕ транзакции
+ * (с датой), а не срез за месяц. Срезы по месяцам используются только для
+ * отображения статистики месяца (приход/расход/доли) — долг всегда берётся
+ * из сквозного расчёта.
  */
 
-export const PLACEHOLDER_EMAIL = "-@limove.local";
+export const PLACEHOLDER_EMAIL = '-@limove.local';
 export const LESHA_ID = 1;
 export const GENA_ID = 2;
 
@@ -21,6 +28,10 @@ export interface TxLike {
   type: string;
   amount: unknown;
   paidById: number;
+  /** Дата операции — для сквозного долга важен хронологический порядок. */
+  date?: Date | string;
+  /** Tiebreak при одинаковой дате. */
+  id?: number;
 }
 
 export interface PartnerSide {
@@ -46,7 +57,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export function computePartnerBalance(
   txs: TxLike[],
   leshaId: number = LESHA_ID,
-  genaId: number = GENA_ID
+  genaId: number = GENA_ID,
 ): PartnerBalanceResult {
   let totalIncome = 0;
   let totalExpenses = 0;
@@ -60,12 +71,12 @@ export function computePartnerBalance(
     const amt = Number(t.amount);
     if (!Number.isFinite(amt)) continue;
 
-    if (t.type === "DEBT_SETTLEMENT") {
-      settledAmount += amt;
+    if (t.type === 'DEBT_SETTLEMENT') {
+      if (amt > 0) settledAmount += amt;
       continue;
     }
 
-    if (t.type === "INCOME") {
+    if (t.type === 'INCOME') {
       totalIncome += amt;
       if (t.paidById === leshaId) leshaReceived += amt;
       else if (t.paidById === genaId) genaReceived += amt;
@@ -82,25 +93,51 @@ export function computePartnerBalance(
   const leshaNet = leshaReceived - leshaSpent;
   const genaNet = genaReceived - genaSpent;
 
-  // Долг между партнёрами — это только деньги, прошедшие через них лично.
-  // Нераспределённые суммы (получатель «—») на долг между партнёрами не влияют.
-  // «Позиция» = сколько партнёр внёс из своего кармана сверх того, что забрал.
-  const leshaPosition = leshaSpent - leshaReceived;
-  const genaPosition = genaSpent - genaReceived;
+  // --- Сквозной долг: идём строго в хронологическом порядке. ---
+  // Каждая операция двигает долг на половину суммы (доли 50/50):
+  //   INCOME Лёши +A/2 (Лёша удержал общее → его долг растёт)
+  //   INCOME Гены −A/2
+  //   EXPENSE Лёши −A/2 (Лёша вложил своё → его долг падает)
+  //   EXPENSE Гены +A/2
+  // Деньги мимо партнёров (получатель «—») на долг не влияют.
+  // DEBT_SETTLEMENT гасит текущий остаток; переплата разворачивает долг.
+  const ordered = txs
+    .map((t, i) => ({ t, i }))
+    .sort((a, b) => {
+      const da = a.t.date ? new Date(a.t.date).getTime() : NaN;
+      const db = b.t.date ? new Date(b.t.date).getTime() : NaN;
+      const aDated = !Number.isNaN(da);
+      const bDated = !Number.isNaN(db);
+      if (!aDated && !bDated) return a.i - b.i;
+      if (!aDated) return 1;
+      if (!bDated) return -1;
+      if (da !== db) return da - db;
+      return (a.t.id ?? a.i) - (b.t.id ?? b.i);
+    });
 
-  // Кто внёс больше — тому второй должен половину разницы (доли 50/50).
-  //   > 0 → Лёша должен Гене
-  //   < 0 → Гена должен Лёше
-  let debt = (genaPosition - leshaPosition) / 2;
+  let debt = 0;
+  for (const { t } of ordered) {
+    const amt = Number(t.amount);
+    if (!Number.isFinite(amt)) continue;
 
-  if (settledAmount > 0) {
-    const netDebt = Math.abs(debt) - settledAmount;
-    if (netDebt > 0) {
-      // Есть остаток долга
-      debt = debt < 0 ? -netDebt : netDebt;
+    if (t.type === 'DEBT_SETTLEMENT') {
+      if (amt <= 0 || Math.abs(debt) < 1e-9) continue; // гасить нечего
+      if (amt >= Math.abs(debt)) {
+        const over = amt - Math.abs(debt);
+        debt = debt > 0 ? -over : over;
+      } else {
+        debt += debt > 0 ? -amt : amt;
+      }
+      continue;
+    }
+
+    const half = amt / 2;
+    if (t.type === 'INCOME') {
+      if (t.paidById === leshaId) debt += half;
+      else if (t.paidById === genaId) debt -= half;
     } else {
-      // Переплата — долг изменил направление
-      debt = debt < 0 ? Math.abs(netDebt) : -Math.abs(netDebt);
+      if (t.paidById === leshaId) debt -= half;
+      else if (t.paidById === genaId) debt += half;
     }
   }
 
@@ -123,15 +160,15 @@ export async function ensurePlaceholderUserId(): Promise<number> {
   // Seed вставляет пользователей с явными id, из-за чего sequence может отставать.
   // Выравниваем её перед вставкой без id, иначе получим конфликт по первичному ключу.
   await prisma.$executeRawUnsafe(
-    `SELECT setval(pg_get_serial_sequence('"User"', 'id'), COALESCE((SELECT MAX(id) FROM "User"), 1))`
+    `SELECT setval(pg_get_serial_sequence("User", "id"), COALESCE((SELECT MAX(id) FROM "User"), 1))`
   );
 
   const created = await prisma.user.create({
     data: {
-      name: "—",
+      name: '—',
       email: PLACEHOLDER_EMAIL,
-      passwordHash: "DISABLED_NO_LOGIN",
-      role: "partner",
+      passwordHash: 'DISABLED_NO_LOGIN',
+      role: 'partner',
     },
   });
   return created.id;
