@@ -2300,65 +2300,6 @@
   height: 20px;
 }
 
-/* Баннер установки PWA */
-.install-banner {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 50;
-  border-top: 1px solid var(--border-default);
-  background-color: rgba(9, 13, 20, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 12px;
-  box-shadow: var(--shadow-card);
-}
-.install-banner-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  max-width: 512px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.install-banner-text {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.install-banner-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-.install-banner-later {
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  padding: 4px 8px;
-  font-size: 12px;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.install-banner-later:hover {
-  background-color: var(--bg-card-hover);
-}
-.install-banner-install {
-  border: 0;
-  border-radius: 8px;
-  background-color: var(--accent-primary);
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #090d14;
-  cursor: pointer;
-}
-.install-banner-install:hover {
-  background-color: var(--accent-primary-hover);
-}
 .btn-tall {
   height: 40px;
   padding: 0 18px;
