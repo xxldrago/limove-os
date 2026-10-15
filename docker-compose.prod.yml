@@ -7,5 +7,5 @@ services:
     command: >
       sh -c "npx prisma db push &&
              npm start"
-    volumes: !reset
+    volumes: !override
       - uploads_data:/app/uploads
