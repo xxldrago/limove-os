@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
-import { getBotAsync, getEffectiveToken, telegramEnabled } from "@/lib/telegram-bot";
+import { getBotAsync, getEffectiveToken, telegramEnabled, TELEGRAM_API_ROOT } from "@/lib/telegram-bot";
 import { Bot } from "grammy";
 
 // GET /api/settings/telegram — status + config (never the raw token)
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
   // Test connection with the new token via a throwaway Bot instance.
   let botUsername: string | null = null;
   try {
-    const testBot = new Bot(token);
+    const testBot = new Bot(token, { client: { apiRoot: TELEGRAM_API_ROOT } });
     const me = await testBot.api.getMe();
     botUsername = me.username || null;
   } catch (e) {

@@ -10,6 +10,15 @@ import { markInvoicePaid, createInvoice, attachReceiptFile } from "@/lib/invoice
 
 export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
+/** Bot API root: direct by default, via forwarder when blocked (TELEGRAM_API_ROOT). */
+export const TELEGRAM_API_ROOT = (process.env.TELEGRAM_API_ROOT || "https://api.telegram.org").replace(/\/+$/, "");
+
+/** Download URL for a Telegram file (honours TELEGRAM_API_ROOT + effective token). */
+export async function telegramFileUrl(filePath: string): Promise<string> {
+  const token = await getEffectiveToken();
+  return `${TELEGRAM_API_ROOT}/file/bot${token}/${filePath}`;
+}
+
 /** True when a valid token is configured so the bot may start. */
 /**
  * True when a valid token is configured so the bot may start.
@@ -377,7 +386,7 @@ async function attachReceiptFromTg(
     return;
   }
   const res = await fetch(
-    `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${f.file_path}`
+    await telegramFileUrl(f.file_path)
   );
   if (!res.ok) {
     await ctx.reply("Не смог скачать фото. Попробуй ещё раз.");
@@ -841,7 +850,7 @@ export async function getBotAsync(): Promise<Bot | null> {
   if (_bot) return _bot;
   if (!_botPromise) {
     _botPromise = (async () => {
-      const bot = new Bot(token);
+      const bot = new Bot(token, { client: { apiRoot: TELEGRAM_API_ROOT } });
       registerCommands(bot);
       try {
         await bot.api.setMyCommands([
