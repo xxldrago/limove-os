@@ -45,7 +45,7 @@ for CHAT in $CHATS; do
   if curl -sf -m 120 -F "document=@${OUT_FILE}" \
       -F "caption=💾 Бэкап Limove $(date +%d.%m.%Y) ($SIZE)" \
       -F "chat_id=${CHAT}" \
-      "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
+      "${TELEGRAM_API_ROOT:-https://api.telegram.org}/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
       -o /dev/null; then
     echo "Отправлен в чат $CHAT"
   else

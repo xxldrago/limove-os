@@ -9,8 +9,10 @@ Environment variables required:
     GOOGLE_CREDENTIALS  path to the service-account JSON file
 """
 
+import json
 import os
 import sys
+import urllib.request
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -132,14 +134,14 @@ def main():
     SQL = {
         "Бухгалтерия": """
             SELECT t.id, t.type AS "Тип", t.amount AS "Сумма", t.description AS "Описание",
-                   t.category AS "Категория", t.date AS "Дата", t.createdAt AS "Создано"
+                   t.category AS "Категория", t.date AS "Дата", t."createdAt" AS "Создано"
             FROM transactions t
             ORDER BY t.id
         """,
         "Проекты": """
             SELECT p.id, p.slug AS "Slug", p.name AS "Название", p.description AS "Описание",
-                   p.status AS "Статус", p.createdAt AS "Создано"
-            FROM projects p
+                   p.status AS "Статус", p."createdAt" AS "Создано"
+            FROM "Project" p
             ORDER BY p.id
         """,
         "Счета": """
@@ -169,36 +171,36 @@ def main():
                    c."expiresAt" AS "Срок действия", c.notes AS "Примечание",
                    c."createdAt" AS "Создано"
             FROM credentials c
-            LEFT JOIN projects p ON p.id = c."projectId"
+            LEFT JOIN "Project" p ON p.id = c."projectId"
             ORDER BY c.id
         """,
         "Домены": """
-            SELECT d.id, p.slug AS "Проект", d.domain AS "Домен", d.type AS "Тип записи",
-                   d.value AS "Значение", d."expiresAt" AS "Срок действия",
+            SELECT d.id, p.slug AS "Проект", d.name AS "Имя", d.value AS "Значение",
+                   d."expiresAt" AS "Срок действия",
                    d.notes AS "Примечание", d."createdAt" AS "Создано"
             FROM domain_records d
-            LEFT JOIN projects p ON p.id = d."projectId"
+            LEFT JOIN "Project" p ON p.id = d."projectId"
             ORDER BY d.id
         """,
         "Задачи": """
             SELECT t.id, p.slug AS "Проект", t.title AS "Задача", t.status AS "Статус",
                    t.priority AS "Приоритет", t."dueDate" AS "Срок", t."createdAt" AS "Создано"
             FROM tasks t
-            LEFT JOIN projects p ON p.id = t."projectId"
+            LEFT JOIN "Project" p ON p.id = t."projectId"
             ORDER BY t.id
         """,
         "Заметки": """
             SELECT n.id, p.slug AS "Проект", n.title AS "Заголовок", n.content AS "Тело",
                    n."createdAt" AS "Создано"
             FROM notes n
-            LEFT JOIN projects p ON p.id = n."projectId"
+            LEFT JOIN "Project" p ON p.id = n."projectId"
             ORDER BY n.id
         """,
         "Файлы проекта": """
             SELECT pf.id, p.slug AS "Проект", pf."fileName" AS "Имя файла",
                    pf."filePath" AS "Путь", pf."mimeType" AS "Тип", pf."createdAt" AS "Создано"
             FROM project_files pf
-            LEFT JOIN projects p ON p.id = pf."projectId"
+            LEFT JOIN "Project" p ON p.id = pf."projectId"
             ORDER BY pf.id
         """,
         "Фин. цели": """
@@ -220,7 +222,7 @@ def main():
                    CASE WHEN sm."isError" THEN 'DOWN' ELSE 'UP' END AS "Статус",
                    sm."checkedAt" AS "Последняя проверка", sm."createdAt" AS "Создано"
             FROM site_monitors sm
-            LEFT JOIN projects p ON p.id = sm."projectId"
+            LEFT JOIN "Project" p ON p.id = sm."projectId"
             ORDER BY sm.id
         """,
         "Уведомления": """
@@ -231,11 +233,10 @@ def main():
         """,
         "Метрика (счетчики)": """
             SELECT ym.id, p.slug AS "Проект", ym."counterId" AS "Контр ID",
-                   ym.name AS "Контр Название", ym."metricType" AS "Метрика",
-                   ym."goalReaches" AS "Посещаемость (цель)",
-                   ym."createdAt" AS "Создано", ym."updatedAt" AS "Обновлено"
+                   ym.name AS "Название", ym."lastSyncAt" AS "Синхронизация",
+                   ym."createdAt" AS "Создано"
             FROM yandex_metric_counters ym
-            LEFT JOIN projects p ON p.id = ym."projectId"
+            LEFT JOIN "Project" p ON p.id = ym."projectId"
             ORDER BY ym.id
         """,
         "Метрика (снимки)": """
@@ -248,31 +249,30 @@ def main():
         """,
         "Вебмастер (хосты)": """
             SELECT yw.id, p.slug AS "Проект", yw."hostUrl" AS "Домен",
-                   yw.status AS "Статус", yw."verifiedAt" AS "Привязан",
+                   yw."hostId" AS "Host ID", yw."lastSyncAt" AS "Синхронизация",
                    yw."createdAt" AS "Создано"
             FROM yandex_webmaster_hosts yw
-            LEFT JOIN projects p ON p.id = yw."projectId"
+            LEFT JOIN "Project" p ON p.id = yw."projectId"
             ORDER BY yw.id
         """,
         "SEO (ключи)": """
             SELECT tk.id, p.slug AS "Проект", tk.keyword AS "Ключевое слово",
                    tk."createdAt" AS "Создано"
             FROM tracked_keywords tk
-            LEFT JOIN projects p ON p.id = tk."projectId"
+            LEFT JOIN "Project" p ON p.id = tk."projectId"
             ORDER BY tk.id
         """,
         "SEO (позиции)": """
             SELECT ps.id, ps."keywordId" AS "Ключ ID", ps.position AS "Позиция",
-                   ps.service AS "Сервис", ps.date AS "Дата", ps."createdAt" AS "Создано"
+                   ps.shows AS "Показы", ps.clicks AS "Клики", ps.date AS "Дата"
             FROM position_snapshots ps
             ORDER BY ps.id
         """,
         "Акты": """
-            SELECT a.id, p.slug AS "Проект", a.description AS "Описание",
-                   a.amount AS "Сумма", a.status AS "Статус", a.date AS "Дата",
-                   a."createdAt" AS "Создано"
-            FROM act_of_works a
-            LEFT JOIN projects p ON p.id = a."projectId"
+            SELECT a.id, p.slug AS "Проект", a.number AS "Номер",
+                   a.month AS "Месяц", a."contractNo" AS "Договор", a.total AS "Сумма"
+            FROM acts_of_works a
+            LEFT JOIN "Project" p ON p.id = a."projectId"
             ORDER BY a.id
         """,
     }
@@ -313,9 +313,76 @@ def main():
             print(f"   skipped {skipped} existing")
 
     conn.close()
-    gc.session.close()
+    try:
+        gc.session.close()
+    except AttributeError:
+        pass  # newer gspread has no .session
     print(f"[{now_str()}] DONE — added={total_added}, skipped={total_skipped}")
 
 
+WORKER_DEFAULT = "https://plain-dew-23a5.xxldrago.workers.dev"
+
+
+def _bot_token(conn) -> str:
+    t = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    if t:
+        return t
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT value FROM app_settings WHERE key='telegram_bot_token'")
+        row = cur.fetchone()
+        return (row[0] or "").strip() if row else ""
+    except Exception:
+        return ""
+
+
+def notify_telegram(conn, text: str) -> None:
+    try:
+        token = _bot_token(conn)
+        if not token:
+            print("TG notify skipped: no token", file=sys.stderr)
+            return
+        root = os.environ.get("TELEGRAM_API_ROOT", WORKER_DEFAULT).rstrip("/")
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT \"telegramChatId\" FROM \"User\" WHERE \"telegramChatId\" IS NOT NULL")
+        chats = [str(r[0]) for r in cur.fetchall()]
+        if not chats:
+            print("TG notify skipped: no chats", file=sys.stderr)
+            return
+        for chat in chats:
+            try:
+                req = urllib.request.Request(
+                    root + "/bot" + token + "/sendMessage",
+                    data=json.dumps({"chat_id": chat, "text": text}).encode(),
+                    headers={"Content-Type": "application/json"},
+                )
+                urllib.request.urlopen(req, timeout=20).read()
+                print("TG notified chat " + chat)
+            except Exception as e:
+                print("TG notify failed for " + chat + ": " + str(e)[:120], file=sys.stderr)
+    except Exception as e:
+        print("TG notify error: " + str(e)[:120], file=sys.stderr)
+
+
 if __name__ == "__main__":
-    main()
+    _t0 = datetime.now().strftime("%d.%m.%Y %H:%M")
+    _ok = True
+    _err = ""
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception as e:
+        _ok = False
+        _err = str(e)[:200]
+    try:
+        _c2 = psycopg2.connect(DB_URL)
+        if _ok:
+            notify_telegram(_c2, "\u2705 Бэкап Limove в Google Sheets готов (" + _t0 + ")")
+        else:
+            notify_telegram(_c2, "\u274c Бэкап Limove в Google Sheets упал: " + _err)
+        _c2.close()
+    except Exception as e:
+        print("notify wrapper failed: " + str(e)[:120], file=sys.stderr)
+    if not _ok:
+        sys.exit(1)

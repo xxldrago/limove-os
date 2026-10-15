@@ -43,3 +43,4 @@ backups/
 
 # local uploads (prod uses /app/uploads inside container)
 /uploads/
+google-svc-account.json
