@@ -13,6 +13,9 @@ export const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 /** Bot API root: direct by default, via forwarder when blocked (TELEGRAM_API_ROOT). */
 export const TELEGRAM_API_ROOT = (process.env.TELEGRAM_API_ROOT || "https://api.telegram.org").replace(/\/+$/, "");
 
+/** Browser-like UA: the forwarder edge filters non-browser agents. */
+export const TELEGRAM_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
+
 /** Download URL for a Telegram file (honours TELEGRAM_API_ROOT + effective token). */
 export async function telegramFileUrl(filePath: string): Promise<string> {
   const token = await getEffectiveToken();
@@ -850,7 +853,7 @@ export async function getBotAsync(): Promise<Bot | null> {
   if (_bot) return _bot;
   if (!_botPromise) {
     _botPromise = (async () => {
-      const bot = new Bot(token, { client: { apiRoot: TELEGRAM_API_ROOT } });
+      const bot = new Bot(token, { client: { apiRoot: TELEGRAM_API_ROOT, baseFetchConfig: { headers: { "User-Agent": TELEGRAM_UA } } } });
       registerCommands(bot);
       try {
         await bot.api.setMyCommands([

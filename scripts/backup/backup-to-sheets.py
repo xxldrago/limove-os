@@ -354,7 +354,7 @@ def notify_telegram(conn, text: str) -> None:
                 req = urllib.request.Request(
                     root + "/bot" + token + "/sendMessage",
                     data=json.dumps({"chat_id": chat, "text": text}).encode(),
-                    headers={"Content-Type": "application/json"},
+                    headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"},
                 )
                 urllib.request.urlopen(req, timeout=20).read()
                 print("TG notified chat " + chat)
