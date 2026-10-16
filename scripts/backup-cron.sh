@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ночной бэкап Limove: pg_dump из контейнера БД → ./backups/ (30 шт.)
+# Ночной бэкап Limove: pg_dump из контейнера БД → ./backups/ (7 шт.)
 # + отправка свежего дампа в Telegram всем привязанным партнёрам.
 # Запуск с ХОСТА по cron, пример:
 #   0 4 * * * /opt/limove-os/scripts/backup-cron.sh >> /opt/limove-os/backups/cron.log 2>&1
@@ -19,7 +19,7 @@ docker exec limove-db pg_dump -U limove -d limove 2>/dev/null | gzip > "$OUT_FIL
 echo "Backup: $OUT_FILE ($(du -h "$OUT_FILE" | cut -f1))"
 
 # 2) Только последние 30.
-ls -t "$BACKUP_DIR"/limove_*.sql.gz 2>/dev/null | tail -n +31 | xargs -r rm -f
+ls -t "$BACKUP_DIR"/limove_*.sql.gz 2>/dev/null | tail -n +8 | xargs -r rm -f
 
 # 3) Токен бота из .env прода.
 if [ -f "$APP_DIR/.env" ]; then
